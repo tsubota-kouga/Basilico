@@ -1,1 +1,0 @@
-/usr/bin/clang++  -DMSGPACK_USE_BOOST -std=c++17   -rdynamic CMakeFiles/test.dir/src/main.o  -o test -Wl,-rpath,/home/kouga/Documents/cpp/neovim/neovim.cpp/build libnvim_client.so -lboost_system -lboost_coroutine -lboost_context -lboost_thread -lboost_chrono -lboost_date_time -lboost_atomic -lpthread 

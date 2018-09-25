@@ -1,1 +1,0 @@
-/usr/bin/clang++ -fPIC -DMSGPACK_USE_BOOST -std=c++17   -shared -Wl,-soname,libnvim_client.so -o libnvim_client.so CMakeFiles/nvim_client.dir/src/neovim.o CMakeFiles/nvim_client.dir/src/socket.o 
