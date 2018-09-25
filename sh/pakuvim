@@ -1,0 +1,12 @@
+#!/bin/bash
+# https://qiita.com/piroor/items/2dd08a0b61e3ace0b7c6
+available=($(cat /proc/sys/net/ipv4/ip_local_port_range))
+
+while true
+do
+    port="$(shuf -i ${available[0]}-${available[1]} -n 1)"
+    netstat -a -n |
+        egrep "LISTEN\t . $port" 1>/dev/null 2>&1 || break
+done
+
+NVIM_LISTEN_ADDRESS=127.0.0.1:$port nvim $@ -c PakuVim --embed

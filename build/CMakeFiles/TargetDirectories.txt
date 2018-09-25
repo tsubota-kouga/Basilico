@@ -1,0 +1,4 @@
+/home/kouga/Documents/cpp/PakuVim/build/CMakeFiles/rebuild_cache.dir
+/home/kouga/Documents/cpp/PakuVim/build/CMakeFiles/paku.dir
+/home/kouga/Documents/cpp/PakuVim/build/CMakeFiles/edit_cache.dir
+/home/kouga/Documents/cpp/PakuVim/build/CMakeFiles/paku_autogen.dir

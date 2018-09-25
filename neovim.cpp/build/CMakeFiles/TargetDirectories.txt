@@ -1,0 +1,5 @@
+/home/kouga/Documents/cpp/PakuVim/neovim.cpp/build/CMakeFiles/test.dir
+/home/kouga/Documents/cpp/PakuVim/neovim.cpp/build/CMakeFiles/rebuild_cache.dir
+/home/kouga/Documents/cpp/PakuVim/neovim.cpp/build/CMakeFiles/auto_gen_api.dir
+/home/kouga/Documents/cpp/PakuVim/neovim.cpp/build/CMakeFiles/edit_cache.dir
+/home/kouga/Documents/cpp/PakuVim/neovim.cpp/build/CMakeFiles/nvim_client.dir
