@@ -1,0 +1,1 @@
+/usr/bin/clang++ -fPIC   -shared -Wl,-soname,libnvim_client.so -o libnvim_client.so CMakeFiles/nvim_client.dir/neovim.cpp/src/neovim.cpp.o CMakeFiles/nvim_client.dir/neovim.cpp/src/socket.cpp.o 

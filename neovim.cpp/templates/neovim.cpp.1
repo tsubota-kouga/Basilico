@@ -1,0 +1,281 @@
+#include "neovim.hpp"
+
+void neovim::redraw(Object ui_info)
+{
+    Array dst_ary;
+    try
+    {
+        dst_ary = boost::get<Array>(ui_info);
+    }
+    catch(boost::bad_get& e)
+    {
+        std::cout << e.what() << std::endl;
+        return;
+    }
+
+    for(Object obj:dst_ary)
+    {
+        Array func;
+        String func_name;
+        try
+        {
+            func = boost::get<Array>(obj);
+            func_name = boost::get<String>(func.at(0));
+            std::cout << func_name << std::endl;
+        }
+        catch(boost::bad_get& e)
+        {
+            std::cout << e.what() << std::endl;
+            return;
+        }
+{% for event in ui_events%}
+        {% if not loop.first %}else {% endif %}if(func_name == "{{event.name}}"){% set count=[0] %}
+        {
+            {% if not event.parameters == [] %}Array X = boost::get<Array>(obj);{% endif %}
+            {## % if not event.parameters == [] %}tuple<String, {% for arg in event.parameters_ncon %}{{arg.type}}{% if not loop.last%}, {% endif %}{% endfor %}> Y = boost::get<tuple<String, {% for arg in event.parameters_ncon %}{{arg.type}}{% if not loop.last%}, {% endif %}{% endfor %}>>(obj);{% endif % ##}
+{% for arg in event.parameters_nref %}
+            {{arg.type}} {{arg.name}};
+{% endfor %}
+            std::cout << "{{event.name}}" << std::endl;
+            {{event.name}}({% for arg in event.parameters %}{{arg.name}}{% if not loop.last%}, {% endif %}{% endfor %});
+        }
+{% endfor %}
+    }
+    return;
+}
+
+void neovim::redraw()
+{
+    redraw(client_.read());
+}
+
+void neovim::nvim_ui_attach (Integer width, Integer height, const Dictionary& options)
+{
+    std::cout << "override" << std::endl;
+    Object res;
+    client_.call("nvim_ui_attach", res, width, height, options);
+    read();
+    redraw(res);
+}
+
+
+// ui_events
+void neovim::resize(Integer rows, Integer columns)
+{
+    nvim_size_x = rows;
+    nvim_size_y = columns;
+    return;
+}
+
+void neovim::clear()
+{
+    nvim_code.at(nvim_cursor_y).at(nvim_cursor_x) = ' ';
+    return;
+}
+
+void neovim::eol_clear()
+{
+    nvim_code.at(nvim_cursor_x).erase(nvim_cursor_y);
+    return;
+}
+
+void neovim::cursor_goto(Integer row, Integer col)
+{
+    nvim_cursor_x = row;
+    nvim_cursor_y = col;
+    return;
+}
+
+void neovim::mode_info_set(bool enabled, const cArray& cursor_styles)
+{
+    cursor_style = enabled;
+    msgpack::type::tuple<String, Object> dict;
+    for(cObject obj:cursor_styles)
+    {
+        obj.convert(dict);
+        ui_mode_info[dict.get<0>()] = dict.get<1>();
+    }
+    return;
+}
+
+void neovim::update_menu()
+{
+    return;
+}
+
+void neovim::busy_start()
+{
+    return;
+}
+
+void neovim::busy_stop()
+{
+    return;
+}
+
+void neovim::mouse_on()
+{
+    return;
+}
+
+void neovim::mouse_off()
+{
+    return;
+}
+
+void neovim::mode_change(const String& mode, Integer mode_idx)
+{
+    return;
+}
+
+void neovim::set_scroll_region(Integer top, Integer bot, Integer left, Integer right)
+{
+    return;
+}
+
+void neovim::scroll(Integer count)
+{
+    return;
+}
+
+void neovim::highlight_set(const Dictionary& attrs)
+{
+    return;
+}
+
+void neovim::put(const String& str)
+{
+    nvim_code.at(nvim_cursor_y).replace(nvim_cursor_x, str.size(), str);
+    return;
+}
+
+void neovim::bell()
+{
+    return;
+}
+
+void neovim::visual_bell()
+{
+    return;
+}
+
+void neovim::flush()
+{
+    return;
+}
+
+void neovim::update_fg(Integer fg)
+{
+    get<0>(nvim_default_colors_set) = fg;
+    return;
+}
+
+void neovim::update_bg(Integer bg)
+{
+    get<1>(nvim_default_colors_set) = bg;
+    return;
+}
+
+void neovim::update_sp(Integer sp)
+{
+    get<2>(nvim_default_colors_set) = sp;
+    return;
+}
+
+void neovim::default_colors_set(Integer rgb_fg, Integer rgb_bg, Integer rgb_sp, Integer cterm_fg, Integer cterm_bg)
+{
+    nvim_default_colors_set = make_tuple(rgb_fg, rgb_bg, rgb_sp, cterm_fg, cterm_bg);
+    return;
+}
+
+void neovim::suspend()
+{
+    return;
+}
+
+void neovim::set_title(const String& title)
+{
+    nvim_title = title;
+    return;
+}
+
+void neovim::set_icon(const String& icon)
+{
+    return;
+}
+
+void neovim::option_set(const String& name, const Object& value)
+{
+    ui_options[name] = value;
+    return;
+}
+
+void neovim::popupmenu_show(const cArray& items, Integer selected, Integer row, Integer col)
+{
+    return;
+}
+
+void neovim::popupmenu_hide()
+{
+    return;
+}
+
+void neovim::popupmenu_select(Integer selected)
+{
+    return;
+}
+
+void neovim::tabline_update(Tabpage current, const cArray& tabs)
+{
+    return;
+}
+
+void neovim::cmdline_show(const cArray& content, Integer pos, const String& firstc, const String& prompt, Integer indent, Integer level)
+{
+    return;
+}
+
+void neovim::cmdline_pos(Integer pos, Integer level)
+{
+    return;
+}
+
+void neovim::cmdline_special_char(const String& c, bool shift, Integer level)
+{
+    return;
+}
+
+void neovim::cmdline_hide(Integer level)
+{
+    return;
+}
+
+void neovim::cmdline_block_show(const cArray& lines)
+{
+    return;
+}
+
+void neovim::cmdline_block_append(const cArray& lines)
+{
+    return;
+}
+
+void neovim::cmdline_block_hide()
+{
+    return;
+}
+
+void neovim::wildmenu_show(const cArray& items)
+{
+    return;
+}
+
+void neovim::wildmenu_select(Integer selected)
+{
+    return;
+}
+
+void neovim::wildmenu_hide()
+{
+    return;
+}
