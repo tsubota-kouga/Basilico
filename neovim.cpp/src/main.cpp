@@ -7,7 +7,7 @@ using std::endl;
 
 int main(int argc, char* argv[])
 {
-    neovim nvim(100, 55, {{"rgb", true}, {"ext_newgrid", true}});
+    neovim nvim(100, 55, {{"rgb", true}, {"ext_linegrid", true}});
     nvim.connect_tcp("localhost", "6666");
     nvim.nvim_ui_attach();
 

@@ -88,7 +88,7 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
         void print();
     };
 
-    //ext_newgrid
+    //ext_linegrid
     struct hl_attr
     {
         unordered_map<String, Object> rgb_attr;
@@ -126,8 +126,8 @@ public:
 
     Vector<colors_map> nvim_colors_map;
 
-//ext_newgrid option
-    bool is_ext_newgrid;
+//ext_linegrid option
+    bool is_ext_linegrid;
 
     Vector<hl_attr> nvim_hl_attr;
 

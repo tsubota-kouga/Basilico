@@ -11,8 +11,8 @@ neovim::neovim(uint width, uint height, const Dictionary& options)
         ui_options[boost::get<String>(key)] = val;
     }
 
-    try{ is_ext_newgrid = boost::get<bool>(ui_options.at("ext_newgrid")); }
-    catch(std::out_of_range){ is_ext_newgrid = false; }
+    try{ is_ext_linegrid = boost::get<bool>(ui_options.at("ext_linegrid")); }
+    catch(std::out_of_range){ is_ext_linegrid = false; }
 
     nvim_screen.resize(height);
     for(auto& line: nvim_screen){ line.resize(width*2, ' '); }
