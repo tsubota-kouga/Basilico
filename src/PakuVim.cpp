@@ -4,7 +4,7 @@ void PakuVim::set_neovim_html()
 {
     if(!need_update){ return; }
     QString screen;
-    if(is_ext_newgrid)
+    if(is_ext_linegrid)
     {
         auto [drf, dgf, dbf] = nvim_html::convert_rgb(
                 boost::get<uInteger>(nvim_hl_attr.at(0).rgb_attr.at("foreground")));

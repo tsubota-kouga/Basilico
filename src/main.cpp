@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     // QHBoxLayout glayout;
     constexpr int width = 101;
     constexpr int height = 56;
-    PakuVim pakuvim(width, height, {{"rgb", true}, {"ext_newgrid", true}});
+    PakuVim pakuvim(width, height, {{"rgb", true}, {"ext_linegrid", true}});
     pakuvim.connect_tcp("localhost", argv[1], 100);
     pakuvim.nvim_ui_attach();
     // pakuvim.QWidget::resize((width + 2)*8, (height + 5)*16);
