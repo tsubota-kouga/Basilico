@@ -1231,6 +1231,7 @@ void neovim::hl_attr_define(Integer id, Dictionary& rgb_attr, Dictionary& cterm_
 
 void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells)
 {
+    try{
     constexpr short BIN1x1 = 0b10000000;
     constexpr short BIN1x2 = 0b11000000;
     constexpr short BIN1x3 = 0b11100000;
@@ -1359,6 +1360,8 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
             nvim_grid_colors_map.at(row).at(idx_color_map++) = lc;
         }
     }
+    }
+    catch(std::out_of_range){ return; }
 }
 
 void neovim::grid_clear(Integer grid)
