@@ -27,8 +27,6 @@ find_package(Qt5 5.11.0 REQUIRED Widgets Core Gui WebEngineWidgets QuickWidgets 
 message(STATUS "Qt5: ${Qt5Widgets_VERSION_STRING}")
 
 set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-# set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories(
@@ -36,11 +34,6 @@ include_directories(
     neovim.cpp/include
     neovim.cpp/gen
     ${Boost_INCLUDE_DIR}
-
-/home/kouga/Documents/cpp/WebView/include
-
-/home/kouga/Documents/cpp/ViewRunner/include
-
     )
 
 link_directories(neovim.cpp/build)
@@ -49,11 +42,6 @@ file(GLOB EXECUTABLE src/main.cpp
                      src/NeoVim.cpp
                      src/Basilico.cpp
                      src/BasilPlugin.cpp
-
-/home/kouga/Documents/cpp/WebView/src/*
-
-/home/kouga/Documents/cpp/ViewRunner/src/*
-
                      )
 
 add_executable(basil ${EXECUTABLE})
