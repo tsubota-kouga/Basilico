@@ -1,7 +1,7 @@
 # Basilico
 
 
-Neovim GUI Implementation in C++
+GUI Extension of NeoVim in C++
 
 **Note**:Only support Linux OS, it may not work on others.
 

@@ -1,6 +1,19 @@
+#!/bin/sh
 
-mkdir build
-mkdir neovim.cpp/build
-cd neovim.cpp/build/ && make -j8
-cd ../../build && make -j8
+if [ -e neovim.cpp/build ]; then
+    cd neovim.cpp/build
+else
+    mkdir neovim.cpp/build
+    cd neovim.cpp/build && cmake ..
+fi
+make
+
+cd ../../
+if [ -e build ]; then
+    cd build/
+else
+    mkdir build
+    cd build && cmake ..
+fi
+make
 cd ../
