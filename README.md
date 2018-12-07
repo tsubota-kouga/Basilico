@@ -28,7 +28,6 @@ Neovim GUI Implementation in C++
 
 ## Install
 
-
 If you have dein.vim, you can write in your dein.toml
 ```toml
 [[plugins]]
@@ -41,7 +40,9 @@ call dein#add('tsubota-kouga/Basilico')
 ```
 **Note**: You can **NOT** write in your dein_lazy.toml
 
-## How to install Basilico
+## How to install Basilico GUI Plugins
+
+You can install Basilico GUI Plugins by using your plugin manager.
 
 If you have dein.vim, you can write in your dein.toml
 ```toml
@@ -52,8 +53,4 @@ hooksource="""
 let g:basilico_plugin_default_dir=expand('~/.cache/dein/repos/github.com')
 """
 ```
-
-## How to install Basilico Plugins
-
-You can install Basilico GUI Plugins by using your plugin manager.
 
