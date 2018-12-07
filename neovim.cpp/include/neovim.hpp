@@ -88,7 +88,7 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
         void print();
     };
 
-    //ext_newgrid
+    //ext_linegrid
     struct hl_attr
     {
         unordered_map<String, Object> rgb_attr;
@@ -126,8 +126,8 @@ public:
 
     Vector<colors_map> nvim_colors_map;
 
-//ext_newgrid option
-    bool is_ext_newgrid;
+//ext_linegrid option
+    bool is_ext_linegrid;
 
     Vector<hl_attr> nvim_hl_attr;
 
@@ -144,13 +144,15 @@ public:
 
     neovim(uint width, uint height, const Dictionary& options);
 
-    void draw(Object ui_info);
+    void redraw(Object ui_info);
 
-    void draw(Array ui_infos);
+    void redraw(Array ui_infos);
 
-    void draw(double timeout_millisec=1.0);
+    void operation(double timeout_millisec=1000);
 
     void nvim_ui_attach();
+
+    void nvim_ui_try_resize(Integer width, Integer height) override;
 
     void connect_tcp(const String& host, const String& service, double timeout_sec=100) override;
 
@@ -158,7 +160,6 @@ private:
     const tuple<Integer, Integer, Integer, Integer, Integer>& get_default_colors_set() const;
 
     Integer real_x(Integer row, Integer col);
-    Integer real_x_right(Integer row, Integer col);
 
 // ui_events
     void resize(Integer rows, Integer columns);
@@ -249,10 +250,13 @@ private:
 
     void grid_destroy(Integer grid);
 
-    void grid_cursor_goto(Integer grid, Integer row, Integer col);
+    void grid_resize(Integer grid, Integer row, Integer col);
+
+    int grid_cursor_goto(Integer grid, Integer row, Integer col);
 
     void grid_scroll(Integer grid, Integer top, Integer bot, Integer left, Integer right, Integer rows, Integer cols);
 
+    virtual void call_plugin(Object func_and_args){}
 };
 
 #endif

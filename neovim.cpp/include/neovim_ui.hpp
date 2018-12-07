@@ -12,7 +12,8 @@ class nvim_ui
 protected:
     NvimRPC ui_client_;
 
-    virtual void connect_tcp_ui(const String& host, const String& service, double timeout_sec=100)
+public:
+    virtual void connect_tcp_ui(const String& host, const String& service, double timeout_sec=1000)
     {
         ui_client_.connect_tcp(host, service, timeout_sec);
     }
@@ -41,6 +42,21 @@ protected:
     {
         ui_client_.call("nvim_ui_set_option", nullptr, name, value);
     }
+
+    virtual void nvim_subscribe (const String& event)
+    {
+
+        ui_client_.call("nvim_subscribe", nullptr, event);
+
+    }
+
+    virtual void nvim_unsubscribe (const String& event)
+    {
+
+        ui_client_.call("nvim_unsubscribe", nullptr, event);
+
+    }
+
 
     std::size_t available(){ return ui_client_.available(); }
 

@@ -15,26 +15,40 @@ protected:
     NvimRPC client_;
 
 public:
+    String port;
 
-    void connect_tcp(const String &host,
-            const String &service, double timeout_sec = 10000)
+    virtual void connect_tcp(const String &host,
+            const String &service, double timeout_millsec = 10000)
     {
-        client_.connect_tcp(host, service, timeout_sec);
+        client_.connect_tcp(host, service, timeout_millsec);
+        port = service;
     }
 
 {% for func in functions%}
     virtual {{func.return}} {{func.name}} ({% for arg in func.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %})
     {
-        {% if func.return != "void" %}
-        {{func.return}} res;
+        {% if func.return != "void" %}{{func.return}} res;
         client_.call("{{func.name}}", res{% for arg in func.args %}, {{arg.name}}{% endfor %});
         return res;
-        {% else %}
-        client_.call("{{func.name}}", nullptr{% for arg in func.args %}, {{arg.name}}{% endfor %});
-        {% endif %}
+        {% else %} client_.call("{{func.name}}", nullptr{% for arg in func.args %}, {{arg.name}}{% endfor %});{% endif %}
+    }
+    virtual void request_{{func.name}} ({% for arg in func.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %})
+    {
+        client_.no_read_do_call("{{func.name}}"{% for arg in func.args %}, {{arg.name}}{% endfor %});
     }
 {% endfor %}
 
+    Object read_request(double timeout_millisec)
+    {
+        if(client_.available())
+        {
+            return client_.read_info(timeout_millisec);
+        }
+        else
+        {
+            return Object{};
+        }
+    }
 };
 
 } //namespace nvim

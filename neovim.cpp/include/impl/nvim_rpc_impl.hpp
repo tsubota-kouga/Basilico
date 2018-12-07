@@ -1,6 +1,8 @@
 #ifndef __NVIMRPC_IMPL_H_
 #define __NVIMRPC_IMPL_H_
 
+#include <vector>
+
 namespace nvim {
 
 namespace detail {
@@ -9,18 +11,18 @@ namespace detail {
     template<class T>
     Packer& pack(Packer& pk, const T& t)
     {
-          return pk << t;
+        return pk << t;
     }
 
     template<class T1, class T2, class...T3>
     Packer& pack(Packer& pk, const T1 &t1, const T2 &t2, const T3 &...t3)
     {
-          return pack(pack(pk, t1), t2, t3...);
+        return pack(pack(pk, t1), t2, t3...);
     }
 
     static Packer& pack(Packer& pk)
     {
-          return pk;
+        return pk;
     }
 
 } // namespace detail
@@ -32,6 +34,24 @@ void NvimRPC::call(const String &method, T& res, const U&...u)
     std::cout << "T NvimRPC::call" << std::endl;
 
     res = boost::get<T>(v);
+}
+
+template<typename T, typename...U>
+void NvimRPC::call(const String &method, std::vector<T>& res, const U&...u)
+{
+    Object v = do_call(method, u...);
+    std::cout << "Vector<T> NvimRPC::call" << std::endl;
+
+    auto tmp = boost::get<Array>(v);
+    if(tmp.size() == 0)
+    {
+        res.push_back(T{});
+        return;
+    }
+    for(auto c: tmp)
+    {
+        res.push_back(boost::get<T>(c));
+    }
 }
 
 template<typename...U>
@@ -64,7 +84,7 @@ void NvimRPC::call(const String& method, std::nullptr_t res, const U&...u)
 template<typename...U>
 void NvimRPC::no_read_do_call(const String& method, const U&...u)
 {
-    constexpr double timeout_sec = 5;
+    constexpr double timeout_sec = 1000;
     constexpr int res_len = 4;
     msgpack::sbuffer sbuf;
     detail::Packer pk(&sbuf);
@@ -87,7 +107,7 @@ void NvimRPC::no_read_do_call(const String& method, const U&...u)
 template<typename...U>
 Object NvimRPC::do_call(const String& method, const U&...u)
 {
-    constexpr double read_millisec = 50;
+    constexpr double read_millisec = 1000;
 
     no_read_do_call(method, u...);
 

@@ -21,6 +21,7 @@ if (PYTHONINTERP_FOUND)
 endif()
 
 add_library(nvim_client SHARED src/neovim.cpp src/socket.cpp)
+target_compile_options(nvim_client PRIVATE "-g")
 
 include_directories(
     include

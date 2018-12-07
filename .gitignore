@@ -1,0 +1,4 @@
+build/
+CMakeList.txt
+include/Basilico.hpp
+src/plugins.cpp

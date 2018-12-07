@@ -36,11 +36,9 @@ include_directories(
     neovim.cpp/include
     neovim.cpp/gen
     ${Boost_INCLUDE_DIR}
-
-/home/kouga/Documents/cpp/WebView/include
-
-/home/kouga/Documents/cpp/ViewRunner/include
-
+{% for path in message['plugin_paths']%}
+{{path}}/include
+{% endfor %}
     )
 
 link_directories(neovim.cpp/build)
@@ -49,11 +47,9 @@ file(GLOB EXECUTABLE src/main.cpp
                      src/NeoVim.cpp
                      src/Basilico.cpp
                      src/BasilPlugin.cpp
-
-/home/kouga/Documents/cpp/WebView/src/*
-
-/home/kouga/Documents/cpp/ViewRunner/src/*
-
+{% for path in message['plugin_paths']%}
+{{path}}/src/*
+{% endfor %}
                      )
 
 add_executable(basil ${EXECUTABLE})

@@ -62,19 +62,22 @@ def main():
     for f in unpacked_api['functions']:
 
         d = {}
+        if re.match(r'(n?vim_)?(ui.*|(un)?subscribe)', f['name']):
+            continue
         d['name'] = f['name']
 
         try:
             d['return'] = convert_type_to_native(f['return_type'], False)
-            d['args'] = [{'type': convert_type_to_native(arg[0], True), 'name': arg[1]} for arg in f['parameters']]
+            d['args'] = [{'type': convert_type_to_native(arg[0], True),
+                          'name': arg[1]} for arg in f['parameters']]
             functions.append(d)
         except InvalidType as e:
             print("invalid function = " + str(f))
 
-    # tpl = env.get_template('nvim_api.hpp')
-    # api = tpl.render({'functions': functions})
-    # with open(os.path.join("./gen", "nvim_api.hpp"), 'w') as f:
-    #     f.write(api)
+    tpl = env.get_template('nvim_api.hpp')
+    api = tpl.render({'functions': functions})
+    with open(os.path.join("./gen", "nvim_api.hpp"), 'w') as f:
+        f.write(api)
 
 # generate neovim.cpp and neovim.hpp
     REMAP_T['Array'] = NativeType('cArray', True)
@@ -84,9 +87,14 @@ def main():
         d = {}
         d['name'] = ev['name']
         try:
-            d['parameters'] = [{'type': convert_type_to_native(arg[0], True), 'name': arg[1]} for arg in ev['parameters']]
-            d['parameters_ncon'] = [{'type': convert_type_to_native(arg[0], True, False, False), 'name': arg[1]} for arg in ev['parameters']]
-            d['parameters_nref'] = [{'type': convert_type_to_native(arg[0], True, False), 'name': arg[1]} for arg in ev['parameters']]
+            d['parameters'] = [{'type': convert_type_to_native(arg[0], True),
+                                'name': arg[1]} for arg in ev['parameters']]
+            d['parameters_ncon'] = [{'type': convert_type_to_native(
+                                                arg[0], True, False, False),
+                                     'name': arg[1]} for arg in ev['parameters']]
+            d['parameters_nref'] = [{'type': convert_type_to_native(
+                                                arg[0], True, False),
+                                     'name': arg[1]} for arg in ev['parameters']]
             events.append(d)
         except InvalidType as e:
             print("invalid events = " + str(ev))

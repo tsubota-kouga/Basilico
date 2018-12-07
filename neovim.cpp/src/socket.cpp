@@ -51,11 +51,12 @@ size_t Socket::read(char *rbuf, size_t capacity, double timeout_millisec)
     async_read(socket_, boost::asio::buffer(rbuf, capacity),
         boost::asio::transfer_at_least(read_at_least),
         [&ec, &rlen](boost::system::error_code e, size_t s) { ec = e;rlen = s; });
-    do { io_service_.run_one(); } while (ec == boost::asio::error::would_block);
+    do { io_service_.run_one(); }
+    while (ec == boost::asio::error::would_block);
 
     if(ec == boost::asio::error::operation_aborted)
     {
-        std::cout << "operation_aborted:" << ec.message() <<  std::endl;
+        std::cout << "operation_aborted;" << ec.message() <<  std::endl;
         exit(1);
     }
     else

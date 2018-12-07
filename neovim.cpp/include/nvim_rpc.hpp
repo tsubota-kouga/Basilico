@@ -15,10 +15,12 @@
 namespace nvim {
 
 using Integer = int64_t;
-using Window = Integer;
-using Buffer = Integer;
-using Tabpage = Integer;
+using Window = msgpack::type::ext;
+using Buffer = msgpack::type::ext;
+using Tabpage = msgpack::type::ext;
 using String = std::string;
+template<typename T>
+using Vector = std::vector<T>;
 using Object = msgpack::type::variant;
 using cObject = msgpack::object;
 using Map = std::multimap<Object, Object>;
@@ -61,21 +63,26 @@ public:
         }
         msgpack::unpacked result;
         unpacker.buffer_consumed(rlen);
-        unpacker.next(result);
-        const cObject &obj = result.get();
-        std::cout << "res = " << obj << std::endl;
-        msgpack::type::tuple<Integer, Object, Object, Object> dst;
-        obj.convert(dst);
-        Object ret = dst.get<3>();
-        if(!ret.is_nil()){ return ret; }
-        else{ return dst.get<2>(); }
+
+        if(unpacker.next(result))
+        {
+            const cObject &obj = result.get();
+            std::cout << "res = " << obj << std::endl;
+            msgpack::type::tuple<Integer, Object, Object, Object> dst;
+            obj.convert(dst);
+            Object ret = dst.get<3>();
+            if(!ret.is_nil()){ return ret; }
+            else{ return dst.get<2>(); }
+        }
+        else{ return Object{}; }
     }
 
-    Array ui_read_info(double timeout_millisec)
+    std::pair<Vector<String>, Array> ui_read_info(double timeout_millisec)
     {
         msgpack::unpacker unpacker;
         unpacker.reserve_buffer(32*1024ul);
-        Array ret;
+        Array args;
+        Vector<String> func_names;
         size_t rlen;
         try
         {
@@ -92,17 +99,29 @@ public:
         while(unpacker.next(result))
         {
             const cObject& obj = result.get();
-            std::cout << "res = " << obj << std::endl;
+            std::cout << "ui res = " << obj << std::endl;
             obj.convert(dst);
-            ret.push_back(dst.get<2>());
+            auto p = dst.get<1>();
+            if(p.is_string())
+            {
+                func_names.push_back(boost::get<String>(p));
+            }
+            else
+            {
+                func_names.push_back("");
+            }
+            args.push_back(dst.get<2>());
         }
-        return ret;
+        return std::make_pair(func_names, args);
     }
 
     std::size_t available(){ return socket_.available(); }
 
     template<typename T, typename...U>
     void call(const String &method, T& res, const U&...u);
+
+    template<typename T, typename...U>
+    void call(const String &method, std::vector<T>& res, const U&...u);
 
     template<typename...U>
     void call(const String &method, Integer& res, const U&...u);
