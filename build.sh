@@ -6,7 +6,7 @@ else
     mkdir neovim.cpp/build
     cd neovim.cpp/build && cmake ..
 fi
-make
+# make
 
 cd ../../
 if [ -e build ]; then
