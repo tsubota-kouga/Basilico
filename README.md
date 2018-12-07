@@ -41,16 +41,6 @@ call dein#add('tsubota-kouga/Basilico')
 ```
 **Note**: You can **NOT** write in your dein_lazy.toml
 
-If you have NeoBundle,
-```vimscript
-NeoBundle 'tsubota-kouga/Basilico'
-```
-
-If you have Plug
-```
-Plug 'tsubota-kouga/Basilico'
-```
-
 ## How to install Basilico
 
 If you have dein.vim, you can write in your dein.toml
