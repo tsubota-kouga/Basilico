@@ -1,6 +1,5 @@
 # Basilico
 
----
 
 Neovim GUI Implementation in C++
 
@@ -8,7 +7,6 @@ Neovim GUI Implementation in C++
 
 ## Required
 
----
 * Neovim 0.3.2-dev or later
     - [Neovim releases][Neovim]
 
@@ -30,7 +28,6 @@ Neovim GUI Implementation in C++
 
 ## Install
 
----
 
 If you have dein.vim, you can write in your dein.toml
 ```toml
@@ -56,7 +53,6 @@ Plug 'tsubota-kouga/Basilico'
 
 ## How to install Basilico
 
----
 If you have dein.vim, you can write in your dein.toml
 ```toml
 [[plugins]]
@@ -69,6 +65,5 @@ let g:basilico_plugin_default_dir=expand('~/.cache/dein/repos/github.com')
 
 ## How to install Basilico Plugins
 
----
 You can install Basilico GUI Plugins by using your plugin manager.
 
