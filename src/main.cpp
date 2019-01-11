@@ -23,6 +23,9 @@ int main(int argc, char* argv[])
     constexpr int width = 80;
     constexpr int height = 24;
     Basilico basil(argv[1], width, height);
+    app.setCursorFlashTime(0);
+    auto this_dir = QDir(QDir::currentPath());
+    app.setWindowIcon(QIcon(QDir::homePath() + "/Documents/cpp/Basilico/img/nvim.png"));
     basil.show();
 
     return app.exec();

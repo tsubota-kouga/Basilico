@@ -1,9 +1,0 @@
-#include "neovim.hpp"
-
-
-{% for event in ui_events%}
-void neovim::{{event.name}}({% for arg in event.parameters%}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor%})
-{
-    return;
-}
-{% endfor %}

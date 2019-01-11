@@ -1,5 +1,5 @@
-#ifndef __BasilPlugin_H_
-#define __BasilPlugin_H_
+#ifndef ___BasilPlugin_H_
+#define ___BasilPlugin_H_
 
 #include "neovim.hpp"
 class Basilico;

@@ -32,10 +32,6 @@ public:
         return res;
         {% else %} client_.call("{{func.name}}", nullptr{% for arg in func.args %}, {{arg.name}}{% endfor %});{% endif %}
     }
-    virtual void request_{{func.name}} ({% for arg in func.args %}{{arg.type}} {{arg.name}}{% if not loop.last %}, {% endif %}{% endfor %})
-    {
-        client_.no_read_do_call("{{func.name}}"{% for arg in func.args %}, {{arg.name}}{% endfor %});
-    }
 {% endfor %}
 
     Object read_request(double timeout_millisec)

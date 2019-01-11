@@ -124,6 +124,9 @@ public:
     void call(const String &method, std::vector<T>& res, const U&...u);
 
     template<typename...U>
+    void call(const String &method, Array& res, const U&...u);
+
+    template<typename...U>
     void call(const String &method, Integer& res, const U&...u);
 
     template<typename...U>

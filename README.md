@@ -1,7 +1,6 @@
 # Basilico
 
-
-GUI Extension of NeoVim in C++
+GUI Extension for NeoVim in C++
 
 **Note**:Only support Linux OS, it may not work on others.
 
@@ -16,11 +15,11 @@ GUI Extension of NeoVim in C++
 * Boost Library
     - You can install Boost Library by using package manager
 
-* Msgpack-c
+* Msgpack-c 2.0 or later
     - [Msgpack git repository][Msgpack]
 
 * C++ compiler
-    - required C++ compiler which can build c++17
+    - compiler which can build c++17 such as clang, g++ etc
 
 [Neovim]:https://github.com/neovim/neovim/releases
 [Qt]:https://www.qt.io/download
@@ -53,4 +52,3 @@ hooksource="""
 let g:basilico_plugin_default_dir=expand('~/.cache/dein/repos/github.com')
 """
 ```
-

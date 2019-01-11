@@ -1,7 +1,8 @@
-#ifndef __NeoVim_H_
-#define __NeoVim_H_
+#ifndef ___NeoVim_H_
+#define ___NeoVim_H_
 
 #include "neovim.hpp"
+#include "neovim_utils.hpp"
 
 #include <queue>
 
@@ -15,6 +16,9 @@ class NeoVim: public QTextEdit, public neovim
 private:
     int timer;
 
+    static constexpr double cw = 10;
+    static constexpr double cwi = 0.1;
+    static constexpr double chi = 1.1;
 public:
 
     NeoVim(uint width, uint height, const Dictionary& options)
@@ -29,14 +33,12 @@ public:
         // </default settings>
 
         setAttribute(Qt::WA_InputMethodEnabled);
-
-        QWidget::resize(width*font_size_px/2 + 10, height*(font_size_px + 1.2));
+        QWidget::resize(width*(font_size_px + cwi)/2 + cw, height*(font_size_px + chi));
 
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
         setTextInteractionFlags(Qt::TextEditable | Qt::LinksAccessibleByMouse);
-
     }
 
     String font;
@@ -49,11 +51,11 @@ public:
     void set_font(String f){ font = f; }
     void set_font_size_px(int px){ font_size_px = px; }
 
-    int width2WindowWidth(int editor_width){ return editor_width*font_size_px/2 + 10; }
-    int height2WindowHeight(int editor_height){ return editor_height*(font_size_px + 1.2); }
+    int width2WindowWidth(int editor_width){ return editor_width*(font_size_px + cwi)/2 + cw; }
+    int height2WindowHeight(int editor_height){ return editor_height*(font_size_px + chi); }
 
-    int windowWidth2Width(int window_width){ return (window_width - 10)*2/font_size_px; }
-    int windowHeight2Height(int window_height){ return window_height/(font_size_px + 1.2); }
+    int windowWidth2Width(int window_width){ return (window_width - cw)*2/(font_size_px + cwi); }
+    int windowHeight2Height(int window_height){ return window_height/(font_size_px + chi); }
 
     bool readIsKeyPressed()
     {
@@ -63,6 +65,8 @@ public:
     }
 
 protected:
+    virtual bool event(QEvent* e) override;
+
     virtual void keyPressEvent(QKeyEvent* e) override;
 
     virtual void timerEvent(QTimerEvent* e) override;
@@ -71,7 +75,12 @@ protected:
 
     virtual void resizeEvent(QResizeEvent* e) override;
 
-    virtual QVariant inputMethodQuery(Qt::InputMethodQuery q) const override;
+    virtual void mousePressEvent(QMouseEvent* e) override;
+
+    virtual void wheelEvent(QWheelEvent* e) override;
+
+    virtual void dropEvent(QDropEvent* e) override;
+
 
     void update();
 
@@ -81,13 +90,13 @@ protected:
 
     void fkeySend(QKeyEvent* e, Integer key);
 
-    void keySend(QKeyEvent* e, const String& key);
+    void keySend(QInputEvent* e, const String& key);
 };
 
 namespace nvim_html
 {
     void html_escape(std::string& s);
-    std::tuple<long, long, long> convert_rgb(long rgb);
+    std::tuple<unsigned long, unsigned long, unsigned long> convert_rgb(unsigned long rgb);
 }
 
 #endif

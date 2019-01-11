@@ -23,6 +23,7 @@ public:
         ui_client_.call("nvim_ui_attach", nullptr, width, height, options);
     }
 
+    [[deprecated("Please use nvim_ui_attach instead of ui_attach")]]
     virtual void ui_attach (Integer width, Integer height, bool enable_rgb)
     {
         ui_client_.call("ui_attach", nullptr, width, height, enable_rgb);

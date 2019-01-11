@@ -1,6 +1,6 @@
 
-#ifndef __NEOVIM_CLASS_H_
-#define __NEOVIM_CLASS_H_
+#ifndef ___NEOVIM_CLASS_H_
+#define ___NEOVIM_CLASS_H_
 
 #include <iostream>
 #include <codecvt>
@@ -12,6 +12,7 @@
 #include "nvim_api.hpp"
 #include "neovim_ui.hpp"
 #include "msgpack.hpp"
+#include "neovim_utils.hpp"
 
 using std::tuple;
 using std::make_tuple;
@@ -97,6 +98,14 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
     };
 
 public:
+    enum class Mode
+    {
+        normal = 0,
+        visual,
+        insert,
+        replace
+    };
+
     Integer nvim_size_x, nvim_size_y;
 
     Integer nvim_cursor_x, nvim_cursor_y; // [0, nvim_size_x], [0, nvim_size_y]
@@ -110,11 +119,15 @@ public:
 
     String nvim_title;
 
+    String nvim_icon;
+
+    String guifont;
+
     bool cursor_style;
 
     unordered_map<String, Object> ui_mode_info;
 
-    unordered_map<String, Integer> current_mode;
+    unordered_map<String, neovim::Mode> current_mode;
 
     unordered_map<String, Object> ui_options;
 
@@ -135,12 +148,6 @@ public:
 
     bool need_update;
 public:
-    enum class Mode
-    {
-        normal = (Integer)0,
-        visual,
-        insert
-    };
 
     neovim(uint width, uint height, const Dictionary& options);
 
@@ -148,7 +155,7 @@ public:
 
     void redraw(Array ui_infos);
 
-    void operation(double timeout_millisec=1000);
+    bool operation(double timeout_millisec=1000);
 
     void nvim_ui_attach();
 
@@ -182,7 +189,7 @@ private:
 
     void mouse_off();
 
-    void mode_change(const String& mode, Integer mode_idx);
+    void mode_change(const String& mode, Mode mode_idx);
 
     void set_scroll_region(Integer top, Integer bot, Integer left, Integer right);
 
@@ -190,7 +197,7 @@ private:
 
     void highlight_set(const Dictionary& attrs);
 
-    Integer put(String str);
+    void put(String str);
 
     void bell();
 
@@ -214,33 +221,33 @@ private:
 
     void option_set(const unordered_map<String, Object>& opt);
 
-    void popupmenu_show(const cArray& items, Integer selected, Integer row, Integer col);
+    virtual void popupmenu_show(const cArray& items, Integer selected, Integer row, Integer col);
 
-    void popupmenu_hide();
+    virtual void popupmenu_hide();
 
-    void popupmenu_select(Integer selected);
+    virtual void popupmenu_select(Integer selected);
 
-    void tabline_update(Tabpage current, const cArray& tabs);
+    virtual void tabline_update(Tabpage current, const cArray& tabs);
 
-    void cmdline_show(const cArray& content, Integer pos, const String& firstc, const String& prompt, Integer indent, Integer level);
+    virtual void cmdline_show(const cArray& content, Integer pos, const String& firstc, const String& prompt, Integer indent, Integer level);
 
-    void cmdline_pos(Integer pos, Integer level);
+    virtual void cmdline_pos(Integer pos, Integer level);
 
-    void cmdline_special_char(const String& c, bool shift, Integer level);
+    virtual void cmdline_special_char(const String& c, bool shift, Integer level);
 
-    void cmdline_hide(Integer level);
+    virtual void cmdline_hide(Integer level);
 
-    void cmdline_block_show(const cArray& lines);
+    virtual void cmdline_block_show(const cArray& lines);
 
-    void cmdline_block_append(const cArray& lines);
+    virtual void cmdline_block_append(const cArray& lines);
 
-    void cmdline_block_hide();
+    virtual void cmdline_block_hide();
 
-    void wildmenu_show(const cArray& items);
+    virtual void wildmenu_show(const cArray& items);
 
-    void wildmenu_select(Integer selected);
+    virtual void wildmenu_select(Integer selected);
 
-    void wildmenu_hide();
+    virtual void wildmenu_hide();
 
     void hl_attr_define(Integer id, Dictionary& rgb_attr, Dictionary& cterm_attr, Array& info);
 
@@ -252,9 +259,13 @@ private:
 
     void grid_resize(Integer grid, Integer row, Integer col);
 
-    int grid_cursor_goto(Integer grid, Integer row, Integer col);
+    void grid_cursor_goto(Integer grid, Integer row, Integer col);
 
     void grid_scroll(Integer grid, Integer top, Integer bot, Integer left, Integer right, Integer rows, Integer cols);
+
+    virtual void title_changed(){}
+
+    virtual void icon_changed(){}
 
     virtual void call_plugin(Object func_and_args){}
 };

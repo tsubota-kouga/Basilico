@@ -1,5 +1,5 @@
-#ifndef __NVIMRPC_IMPL_H_
-#define __NVIMRPC_IMPL_H_
+#ifndef ___NVIMRPC_IMPL_H_
+#define ___NVIMRPC_IMPL_H_
 
 #include <vector>
 
@@ -8,16 +8,10 @@ namespace nvim {
 namespace detail {
     using Packer = msgpack::packer<msgpack::sbuffer>;
 
-    template<class T>
-    Packer& pack(Packer& pk, const T& t)
+    template<class ...Args>
+    Packer& pack(Packer& pk, const Args& ...args)
     {
-        return pk << t;
-    }
-
-    template<class T1, class T2, class...T3>
-    Packer& pack(Packer& pk, const T1 &t1, const T2 &t2, const T3 &...t3)
-    {
-        return pack(pack(pk, t1), t2, t3...);
+        return (pk << ... << args);
     }
 
     static Packer& pack(Packer& pk)
@@ -48,9 +42,23 @@ void NvimRPC::call(const String &method, std::vector<T>& res, const U&...u)
         res.push_back(T{});
         return;
     }
+    res.reserve(sizeof tmp);
     for(auto c: tmp)
     {
         res.push_back(boost::get<T>(c));
+    }
+}
+
+template<typename...U>
+void NvimRPC::call(const String &method, Array& res, const U&...u)
+{
+    Object v = do_call(method, u...);
+    std::cout << "Array NvimRPC::call" << std::endl;
+
+    res = boost::get<Array>(v);
+    if(res.size() == 0)
+    {
+        res.push_back(Object{});
     }
 }
 
@@ -69,9 +77,8 @@ void NvimRPC::call(const String& method, Integer& res, const U& ...u)
 template<typename...U>
 void NvimRPC::call(const String& method, Object& res, const U& ...u)
 {
-    Object v = do_call(method, u...);
+    res = do_call(method, u...);
     std::cout << "Object NvimRPC::call" << std::endl;
-    res = v;
 }
 
 template<typename...U>
@@ -88,9 +95,7 @@ void NvimRPC::no_read_do_call(const String& method, const U&...u)
     constexpr int res_len = 4;
     msgpack::sbuffer sbuf;
     detail::Packer pk(&sbuf);
-    pk.pack_array(res_len) << (uint64_t)REQUEST
-                           << msgid_++
-                           << method;
+    pk.pack_array(res_len) << (uint64_t)REQUEST << msgid_++ << method;
 
     pk.pack_array(sizeof...(u));
     detail::pack(pk, u...);

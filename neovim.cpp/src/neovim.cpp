@@ -26,7 +26,7 @@ neovim::neovim(uint width, uint height, const Dictionary& options)
     nvim_grid_colors_map.resize(height);
     for(auto& line: nvim_grid_colors_map){ line.resize(width*2, 0); }
 
-    need_update = true;
+    need_update = false;
 }
 
 void neovim::connect_tcp(const String& host, const String& service, double timeout_sec)
@@ -219,11 +219,7 @@ void neovim::colors_map::print()
 
 void neovim::redraw(Object ui_info)
 {
-    Integer origin_cursor_x = nvim_cursor_x;
-    Integer origin_cursor_y = nvim_cursor_y;
-    Integer addtional_x = 0;
     Array dst_ary;
-
     try
     {
         dst_ary = boost::get<Array>(ui_info);
@@ -335,7 +331,7 @@ void neovim::redraw(Object ui_info)
                 auto mode_array = boost::get<Array>(func.at(i));
                 auto mode = boost::get<String>(mode_array.at(0));
                 auto mode_idx = boost::get<uInteger>(mode_array.at(1));
-                mode_change(mode, mode_idx);
+                mode_change(mode, static_cast<neovim::Mode>(mode_idx));
             }
             if constexpr(debug)std::cout << "call mode_change()" << std::endl;
         }
@@ -742,9 +738,8 @@ void neovim::redraw(Object ui_info)
 
             Integer col = boost::get<uInteger>(arg.at(2));
 
-            int num_wchar = grid_cursor_goto(grid, row, col);
-            nvim_image_cursor_y = row;
-            nvim_image_cursor_x = col - num_wchar;
+            grid_cursor_goto(grid, row, col);
+
             if constexpr(debug)std::cout << "call grid_cursor_goto(" << grid << "," << row << "," << col << ")" << std::endl;
         }
 
@@ -784,13 +779,13 @@ void neovim::redraw(Array ui_infos)
     }
 }
 
-void neovim::operation(double timeout_millisec)
+bool neovim::operation(double timeout_millisec)
 {
     while(true)
     {
         try
         {
-            if(available() == 0){ return; }
+            if(available() == 0){ return false; }
             auto [funcs, infoes] = ui_client_.ui_read_info(timeout_millisec);
             Array redraw_infoes;
             for(int i = 0;i < funcs.size();i++)
@@ -807,16 +802,17 @@ void neovim::operation(double timeout_millisec)
                 }
             }
             redraw(redraw_infoes);
+            return true;
         }
         catch(boost::system::system_error& e)
         {
             if constexpr(debug)std::cout << "can't read" << e.what() << std::endl;
-            return;
+            return false;
         }
         catch(boost::bad_get& e)
         {
             if constexpr(debug)std::cout << "can't read" << e.what() << std::endl;
-            return;
+            return false;
         }
     }
 }
@@ -859,10 +855,9 @@ Integer neovim::real_x(Integer row, Integer col)
     }
     for(uint i = 0;i < nvim_screen.at(row).size();i++)
     {
-        constexpr short BIN1x2 = 0b11000000;
         const char& c = nvim_screen.at(row).at(i);
 
-        if((c & BIN1x2) == BIN1x2){ position_x += 2, i++; }
+        if((c & utils::BIN1x2) == utils::BIN1x2){ position_x += 2, i++; }
         else{ position_x++; }
         count++;
         if(count == col)
@@ -920,31 +915,7 @@ void neovim::eol_clear()
 
 void neovim::cursor_goto(Integer x, Integer y)
 {
-    if constexpr(debug)std::cout << "x:" << x << std::endl;
-    nvim_cursor_y = y;
-    Integer count = 0;
-    Integer position_x = 0;
-    if(count == x)
-    {
-        nvim_cursor_x = position_x;
-        if constexpr(debug)std::cout << "nvim_cursor_x:" << nvim_cursor_x << std::endl;
-        return;
-    }
-    for(uint i = 0;i < nvim_screen.at(y).size();i++)
-    {
-        constexpr short BIN1x2 = 0b11000000;
-        const char& c = nvim_screen.at(y).at(i);
-
-        if((c & BIN1x2) == BIN1x2){ position_x += 2, i++; }
-        else{ position_x++; }
-        count++;
-        if(count == x)
-        {
-            nvim_cursor_x = position_x;
-            break;
-        }
-    }
-    if constexpr(debug)std::cout << "nvim_cursor_x:" << nvim_cursor_x << std::endl;
+    if constexpr(debug)std::cout << "not defined" << nvim_cursor_x << std::endl;
     return;
 }
 
@@ -990,7 +961,7 @@ void neovim::mouse_off()
     return;
 }
 
-void neovim::mode_change(const String& mode, Integer mode_idx)
+void neovim::mode_change(const String& mode, neovim::Mode mode_idx)
 {
     String cmd_pre = "cmdline_";
     if(mode.size() >= cmd_pre.size() and
@@ -1027,33 +998,9 @@ void neovim::highlight_set(const Dictionary& attrs)
     return;
 }
 
-Integer neovim::put(String str)
+void neovim::put(String str)
 {
-    try
-    {
-        std::cout << nvim_cursor_y << ":" << nvim_cursor_x << std::endl;
-        nvim_screen.at(nvim_cursor_y).replace(nvim_cursor_x, str.size(), str);
-    }
-    catch(std::out_of_range& e)
-    {
-        std::cout << e.what() << nvim_screen.at(nvim_cursor_y) << std::endl;
-        exit(1);
-    }
-
-    int str_size = 0;
-    for(uint i = 0;i < str.size();i++)
-    {
-        constexpr short BIN1x2 = 0b11000000;
-        const char& c = str.at(i);
-        if((c & BIN1x2) == BIN1x2){ str_size++;i++; }
-        str_size++;
-    }
-    nvim_colors_map.at(nvim_cursor_y).overwrite(colors_map::_colors_map(
-            nvim_default_colors_set,
-            nvim_highlight_set,
-            make_pair(nvim_cursor_x, nvim_cursor_x + str_size - 1)));
-    nvim_cursor_x += str_size;
-    return str_size;
+    if constexpr(debug)std::cout << "not defined" << std::endl;
 }
 
 void neovim::bell()
@@ -1112,12 +1059,14 @@ void neovim::suspend()
 void neovim::set_title(const String& title)
 {
     nvim_title = title;
+    title_changed();
     return;
 }
 
 void neovim::set_icon(const String& icon)
 {
-    if constexpr(debug)std::cout << "not defined" << std::endl;
+    nvim_icon = icon;
+    icon_changed();
     return;
 }
 
@@ -1125,6 +1074,10 @@ void neovim::option_set(const unordered_map<String, Object>& opt)
 {
     for(auto& [key, val]: opt)
     {
+        if(key == "guifont")
+        {
+            guifont = boost::get<String>(val);
+        }
         ui_options[key] = val;
     }
     if constexpr(debug)std::cout << "option_set" << std::endl;
@@ -1232,18 +1185,13 @@ void neovim::hl_attr_define(Integer id, Dictionary& rgb_attr, Dictionary& cterm_
 void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells)
 {
     try{
-    constexpr short BIN1x1 = 0b10000000;
-    constexpr short BIN1x2 = 0b11000000;
-    constexpr short BIN1x3 = 0b11100000;
-    constexpr short BIN1x4 = 0b11110000;
-
     // wwchar converter :to use wwchar
     int gap = 0; // number of wwchar
     int num_char = 0; // あ:+2, a:+1, ¦:+1
     for(int i = 0;num_char < col_start;i++)
     {
-        if((nvim_screen.at(row).at(i) & BIN1x4) == BIN1x3){ num_char += 2; gap++; }
-        else if((nvim_screen.at(row).at(i) & BIN1x2) == BIN1x1){  }
+        if((nvim_screen.at(row).at(i) & utils::BIN1x4) == utils::BIN1x3){ num_char += 2; gap++; }
+        else if((nvim_screen.at(row).at(i) & utils::BIN1x2) == utils::BIN1x1){  }
         else { num_char++; }
     }
     col_start -= gap;
@@ -1254,10 +1202,10 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
         int num = 0;
         for(const auto& c:s)
         {
-            if((c & BIN1x1) == 0){ num++; } // 0b0xxxxxxx
-            else if((c & BIN1x2) == BIN1x1){  } // 0b10xxxxxx
-            else if((c & BIN1x3) == BIN1x2){ num++; } // 0b110xxxxx
-            else if((c & BIN1x4) == BIN1x3){ num++; } // 0b1110xxxx
+            if((c & utils::BIN1x1) == 0){ num++; } // 0b0xxxxxxx
+            else if((c & utils::BIN1x2) == utils::BIN1x1){  } // 0b10xxxxxx
+            else if((c & utils::BIN1x3) == utils::BIN1x2){ num++; } // 0b110xxxxx
+            else if((c & utils::BIN1x4) == utils::BIN1x3){ num++; } // 0b1110xxxx
         }
         return num;
     };
@@ -1269,18 +1217,46 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
         if(num == 0){ return ret; }
         for(int i = 0;i < s.size();i++)
         {
-            if((s.at(i) & BIN1x2) != BIN1x1){ n++; }
+            if((s.at(i) & utils::BIN1x2) != utils::BIN1x1){ n++; }
 
             if(n == num)
             {
-                if((s.at(i) & BIN1x1) == 0){ ret++; } // 0b0xxxxxxx
-                else if((s.at(i) & BIN1x3) == BIN1x2){ ret += 2; } // 0b110xxxxx
-                else if((s.at(i) & BIN1x4) == BIN1x3){ ret += 3; } // 0b1110xxxx
+                if((s.at(i) & utils::BIN1x1) == 0){ ret++; } // 0b0xxxxxxx
+                else if((s.at(i) & utils::BIN1x3) == utils::BIN1x2){ ret += 2; } // 0b110xxxxx
+                else if((s.at(i) & utils::BIN1x4) == utils::BIN1x3){ ret += 3; } // 0b1110xxxx
                 return ret;
             }
             ret++;
         }
         return ret;
+    };
+
+    auto count_wchar = [](const String& s)
+    {
+        std::cout << "after " << s << std::endl;
+        int num_wchar = 0;
+        for(auto c: s)
+        {
+            if((c & utils::BIN1x3) == utils::BIN1x3)
+            {
+                num_wchar++;
+            }
+        }
+        return num_wchar;
+    };
+
+    auto count_wchar_from_pos = [](const String& s, auto start, auto end)
+    {
+        std::cout << "before " << s.substr(start, end - start + 1) << std::endl;
+        int num_wchar = 0;
+        for(auto idx = start;idx < end or idx < s.size();idx++)
+        {
+            if((s.at(idx) & utils::BIN1x3) == utils::BIN1x3)
+            {
+                num_wchar++;
+            }
+        }
+        return num_wchar;
     };
 
     int start_idx = count_byte(nvim_screen.at(row), col_start);
@@ -1314,11 +1290,16 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     int input_char_num = string_chr_num(input);
     int last_part_start_idx_current = count_byte(nvim_screen.at(row), col_start + input_char_num);
 
-    // current comment is [0:start_idx-1][removed][last_part_start_idx_current:]
+    // current component is [0:start_idx-1][removed][last_part_start_idx_current:]
     // next component is [0:start_idx-1][input][start_idx+input_size:prev_line_size]
     // get from original position
     auto first_part = nvim_screen.at(row).substr(0, start_idx);
     auto last_part = nvim_screen.at(row).substr(last_part_start_idx_current);
+
+    auto wchar_num_after = count_wchar(input);
+    auto wchar_num_before = count_wchar(nvim_screen.at(row).substr(start_idx, last_part_start_idx_current - start_idx));
+    auto wchar_num = wchar_num_after - wchar_num_before;
+    std::cout << wchar_num << std::endl;
 
     nvim_screen.at(row) = first_part + input;
     nvim_screen.at(row).resize(nvim_grid_colors_map.at(row).size(), ' ');
@@ -1326,7 +1307,7 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     // combine last_part
     {
         int i = 0, j = 0;
-        for(i = first_part.size() + input.size();
+        for(i = first_part.size() + input.size() - wchar_num;
                 i < nvim_screen.at(row).size() and j < last_part.size();i++, j++)
         {
             nvim_screen.at(row).at(i) =  last_part.at(j);
@@ -1353,6 +1334,7 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     for(auto ic:input_color)
     { nvim_grid_colors_map.at(row).at(idx_color_map++) = ic; }
 
+    idx_color_map -= wchar_num;
     for(auto lc:last_part_color)
     {
         if(idx_color_map < nvim_grid_colors_map.at(row).size())
@@ -1398,42 +1380,43 @@ void neovim::grid_resize(Integer grid, Integer row, Integer col)
     for(auto& line: nvim_grid_colors_map){ line.resize(row*2, 0); }
 }
 
-int neovim::grid_cursor_goto(Integer grid, Integer row, Integer col)
+void neovim::grid_cursor_goto(Integer grid, Integer row, Integer col)
 {
-    int num_wchar = 0;
-    current_grid = grid;
-    nvim_cursor_y = row;
-    Integer count = 0;
-    Integer position_x = 0;
-    if(count == col)
+    Integer width_count = 0;
+    Integer byte_position_x = 0;
+    int image_gap = 0;
+    if(width_count == col)
     {
-        nvim_cursor_x = position_x;
+        nvim_cursor_x = byte_position_x;
         if constexpr(debug)std::cout << "nvim_cursor_x:" << nvim_cursor_x << std::endl;
-        return num_wchar;
     }
     for(uint i = 0;i < nvim_screen.at(row).size();i++)
     {
-        constexpr short BIN1x1 = 0b10000000;
-        constexpr short BIN1x2 = 0b11000000;
-        constexpr short BIN1x3 = 0b11100000;
         const char& c = nvim_screen.at(row).at(i);
 
-        // c == 0b110xxxxx: 'あ'
-        if((c & BIN1x3) == BIN1x2){ position_x += 2, i++; }
-        // c == 0b10xxxxxx: '¦'
-        else if((c & BIN1x2) == BIN1x1){ position_x++;i++; }
+        // c == 0b110xxxxx: '¦'
+        if((c & utils::BIN1x3) == utils::BIN1x2){ byte_position_x += 2;width_count--; }
+        // c == 0b10xxxxxx
+        else if((c & utils::BIN1x2) == utils::BIN1x1){  }
         // c == 0b0xxxxxxx: 'a'
-        else if((c & BIN1x1) == 0){position_x++;}
+        else if((c & utils::BIN1x1) == 0){ byte_position_x++; }
+        // c == 0b1110xxxx: 'あ'
+        else if((c & utils::BIN1x4) == utils::BIN1x3){ byte_position_x += 3;width_count--;image_gap++; }
         // c == 0b111xxxxx
-        else{ num_wchar++;position_x++; }
-        count++;
-        if(count == col)
+        else{  }
+        width_count++;
+        if(width_count == col)
         {
-            nvim_cursor_x = position_x;
             break;
         }
     }
-    return num_wchar;
+
+    current_grid = grid;
+    nvim_cursor_y = row;
+    nvim_cursor_x = byte_position_x;
+
+    nvim_image_cursor_y = row;
+    nvim_image_cursor_x = col - image_gap;
 }
 
 void neovim::grid_scroll(Integer grid, Integer top, Integer bot, Integer left, Integer right, Integer rows, Integer cols)

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from jinja2 import Environment, FileSystemLoader
@@ -78,37 +78,6 @@ def main():
     api = tpl.render({'functions': functions})
     with open(os.path.join("./gen", "nvim_api.hpp"), 'w') as f:
         f.write(api)
-
-# generate neovim.cpp and neovim.hpp
-    REMAP_T['Array'] = NativeType('cArray', True)
-    events = []
-    for ev in unpacked_api['ui_events']:
-
-        d = {}
-        d['name'] = ev['name']
-        try:
-            d['parameters'] = [{'type': convert_type_to_native(arg[0], True),
-                                'name': arg[1]} for arg in ev['parameters']]
-            d['parameters_ncon'] = [{'type': convert_type_to_native(
-                                                arg[0], True, False, False),
-                                     'name': arg[1]} for arg in ev['parameters']]
-            d['parameters_nref'] = [{'type': convert_type_to_native(
-                                                arg[0], True, False),
-                                     'name': arg[1]} for arg in ev['parameters']]
-            events.append(d)
-        except InvalidType as e:
-            print("invalid events = " + str(ev))
-
-    # tpl = env.get_template('neovim.hpp')
-    # api = tpl.render({'ui_events': events})
-    # with open(os.path.join("./gen", "neovim.hpp"), 'w') as f:
-    #     f.write(api)
-    #
-    # tpl = env.get_template('neovim.cpp.1')
-    # api = tpl.render({'ui_events': events})
-    # with open(os.path.join("./gen", "neovim.cpp"), 'w') as f:
-    #     f.write(api)
-
 
 if __name__ == '__main__':
     main()
