@@ -6,11 +6,13 @@ GUI Extension for NeoVim in C++
 
 ## Required
 
-* Neovim 0.3.2-dev or later
+* Neovim 0.3.2 or later
     - [Neovim releases][Neovim]
 
-* Qt5.11 or later
+* Qt5.7 or later
     - [Qt Download][Qt]
+
+    - *Note*: tested with only Qt5.11
 
 * Boost Library
     - You can install Boost Library by using package manager
@@ -18,8 +20,12 @@ GUI Extension for NeoVim in C++
 * Msgpack-c 2.0 or later
     - [Msgpack git repository][Msgpack]
 
+    - You have to do `git clone` and build
+
 * C++ compiler
     - compiler which can build c++17 such as clang, g++ etc
+
+* CMake
 
 [Neovim]:https://github.com/neovim/neovim/releases
 [Qt]:https://www.qt.io/download
