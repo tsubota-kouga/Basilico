@@ -6,7 +6,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE string "clang compiler" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 
 # Boost
-find_package(Boost 1.55.0 REQUIRED COMPONENTS system coroutine context thread)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread)
 message("Boost:${Boost_INCLUDE_DIR}")
 
 # NeoVim client
