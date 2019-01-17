@@ -9,11 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Boost 1.55.0 REQUIRED COMPONENTS system coroutine context thread)
 message("Boost:${Boost_INCLUDE_DIR}")
 
-# std::thread
-# find_package(Threads REQUIRED)
-
 # NeoVim client
-
 find_library (
     NEOVIM_LIB
     NAMES nvim_client libnvim_client.so # what to look for

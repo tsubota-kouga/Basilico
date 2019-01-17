@@ -233,18 +233,7 @@ void NeoVim::set_neovim_html()
                                     ).arg(rf).arg(gf).arg(bf));
                     }
                 }
-                char& first_c = nvim_screen.at(i).at(j);
-                color_part += first_c;
-                for(;j + 1 < nvim_screen.at(i).size();)
-                try{
-                    char& next_c = nvim_screen.at(i).at(j + 1);
-                    if((next_c & utils::BIN1x2) == utils::BIN1x1) // 0x10xxxxxx
-                    {
-                        color_part += next_c;
-                        ++j;
-                    }
-                    else { break; }
-                }catch(std::out_of_range){}
+                color_part += nvim_screen.at(i).at(j);
                 if(cursor_positioned)
                 {
                     nvim_html::html_escape(color_part);
@@ -262,7 +251,7 @@ void NeoVim::set_neovim_html()
 
             nvim_html::html_escape(color_part);
             screen.append(QString::fromStdString(color_part));
-            if(i != nvim_screen.size() - 1)screen.append("\n");
+            if(i != nvim_screen.size() - 1){ screen.append("\n"); }
             screen.append("</span>");
         }
         screen.append("</body>");
@@ -273,6 +262,11 @@ void NeoVim::set_neovim_html()
         exit(1);
     }
 
+    // std::cout << qPrintable(screen) << std::endl;
+    for(auto&& line:nvim_screen)
+    {
+        line.test();
+    }
     setHtml(screen);
     cursor_shape();
     need_update = false;

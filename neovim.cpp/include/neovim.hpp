@@ -89,6 +89,58 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
         void print();
     };
 
+    struct screen_line
+    {
+        screen_line(String s, int recommend_size = 100)
+            :line{}
+        {
+            line.reserve(recommend_size);
+            for(uint i = 0;i < s.size();i++)
+            {
+                if((s.at(i) & utils::BIN1x2) == utils::BIN1x1) // 0b10xxxxxx
+                {
+                    line.at(line.size() - 1).push_back(s.at(i));
+                }
+                else
+                {
+                    line.push_back(String{ s.at(i) });
+                }
+            }
+        }
+
+        screen_line():line{}{}
+
+    private:
+        Vector<String> line;
+    public:
+        const String& at(int i) const;
+        String& at(int i);
+
+        bool overwrite(int start_pos, const String& s);
+
+        void overwrite_with_exception(int start_pos, const String& s);
+
+        bool overwrite_and_pushback(int start_pos, const String& s);
+
+        String substr(int start, int num) const;
+
+        const size_t size() const;
+
+        void assign(const String& c, int start, int end);
+
+        void assign(const String& c, int start=0);
+
+        bool is_a_charactor(const String& c_) const;
+
+        void resize(uint size, const String& s="");
+
+        void reserve(uint size);
+
+        void test() const;
+    };
+
+    friend std::ostream& operator<<(std::ostream& out, const screen_line& screen_line_);
+
     //ext_linegrid
     struct hl_attr
     {
@@ -115,7 +167,8 @@ public:
 
     Integer nvim_grid_width, nvim_grid_height;
 
-    Vector<String> nvim_screen;
+    // Vector<String> nvim_screen;
+    Vector<screen_line> nvim_screen;
 
     String nvim_title;
 
@@ -165,8 +218,6 @@ public:
 
 private:
     const tuple<Integer, Integer, Integer, Integer, Integer>& get_default_colors_set() const;
-
-    Integer real_x(Integer row, Integer col);
 
 // ui_events
     void resize(Integer rows, Integer columns);

@@ -58,44 +58,7 @@ class Basilico: public QMainWindow
 public:
     NeoVim neovim;
 
-    Basilico(String port, uint width, uint height):
-        basil_view{},
-        basil_layout{},
-        neovim{width, height, { {"rgb", true}, {"ext_linegrid", true} } },
-        menubar(this),
-        toolbar(this)
-    {
-        neovim.connect_tcp("localhost", port, 1000);
-        // put func here which should be put in constructor
-        // <begin>
-        neovim.nvim_subscribe("plugin");
-
-        // <end>
-        neovim.nvim_ui_attach();
-        neovim.setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-
-        basil_layout.setContentsMargins(0, 0, 0, 0);
-        basil_layout.addWidget(&neovim, 0, 0);
-
-        menubar.setStyleSheet("color: #FFFFFF;"
-                              "background-color: #444444;"
-                              "font-weight: 8");
-
-        toolbar.setStyleSheet("color: #FFFFFF;"
-                              "background-color: #444444;"
-                              "font-weight: 8");
-
-        addToolBar(&toolbar);
-        setMenuBar(&menubar);
-        createMenus();
-        createActions();
-
-        setCentralWidget(&neovim);
-        setWindowTitle("Basilico");
-        resize(neovim.size());
-
-        timer = startTimer(100);
-    }
+    Basilico(String port, uint width, uint height);
 
     void createMenus();
     void createActions();
@@ -105,7 +68,11 @@ public:
     void saveAsFile();
 
 protected:
+    virtual bool eventFilter(QObject* obj, QEvent* e) override;
+
     virtual void timerEvent(QTimerEvent* e) override;
+
+    virtual void mousePressEvent(QMouseEvent* e) override;
 
     void addPlugin(String plugin_name, BasilPlugin* plugin);
 };

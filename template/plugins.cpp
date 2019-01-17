@@ -3,9 +3,13 @@
 {% for name in message['plugin_name'] %}
 {% if not loop.first %}else {% endif %}if(plugin_name == "{{name}}")
 {
-    if(args.size() == 1)
+    if(args.size() > 1 and boost::get<String>(args.at(1)) == "factory")
     {
-        addPlugin("{{name}}", new {{name}}(this));
+        auto tmp = {{name}}::factory(this, args);
+        if(tmp != nullptr)
+        {
+            addPlugin("{{name}}", tmp);
+        }
     }
     else
     {

@@ -29,10 +29,7 @@ int main(int argc, char* argv[])
     nvim.operation();
     for(auto x:nvim.nvim_screen)
     {
-        for(auto y:x)
-        {
-            cout << y;
-        }
+        cout << x << endl;
         cout << endl;
     }
 }

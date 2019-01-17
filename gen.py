@@ -45,6 +45,11 @@ fill['source_paths'] = [
 for k in fill.keys():
     print(fill[k])
 
+try:
+    if sys.argv[2] == 'np':
+        fill = {}
+except:
+    pass
 rendered = template.render(message=fill)
 with open('CMakeLists.txt', 'w') as f:
     f.write(rendered)

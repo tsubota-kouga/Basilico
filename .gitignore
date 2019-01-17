@@ -2,3 +2,5 @@
 /**/build
 build/
 src/.qmake.stash
+neovim.cpp/src/.qmake.stash
+/**/compile_commands.json
