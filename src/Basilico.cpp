@@ -4,16 +4,16 @@
 Basilico::Basilico(String port, uint width, uint height):
     basil_view{},
     basil_layout{},
-    neovim{width, height, { {"rgb", true}, {"ext_linegrid", true} } },
-    menubar(this),
-    toolbar(this)
+    neovim{width, height, { {"rgb", true}, {"ext_linegrid", true} } }
+    // menubar(this),
+    // toolbar(this)
 {
     neovim.connect_tcp("localhost", port, 1000);
     neovim.nvim_set_client_info("Basilico",
                                 {},
                                 "ui",
                                 {},
-                                {{"logo", Object{"/home/kouga/Documents/cpp/Basilico/img/nvim.png"}}});
+                                {{"logo", Object{""}}});
     // put func here which should be put in constructor
     // <begin>
     neovim.nvim_subscribe("plugin");
@@ -26,14 +26,14 @@ Basilico::Basilico(String port, uint width, uint height):
     basil_layout.setContentsMargins(0, 0, 0, 0);
     basil_layout.addWidget(&neovim, 0, 0);
 
-    menubar.setStyleSheet("color: #FFFFFF;"
-            "background-color: #444444;"
-            "font-weight: 8");
-
-    toolbar.setStyleSheet("color: #FFFFFF;"
-            "background-color: #444444;"
-            "font-weight: 8");
-
+    // menubar.setStyleSheet("color: #FFFFFF;"
+    //         "background-color: #444444;"
+    //         "font-weight: 8");
+    //
+    // toolbar.setStyleSheet("color: #FFFFFF;"
+    //         "background-color: #444444;"
+    //         "font-weight: 8");
+    //
     // addToolBar(&toolbar);
     // setMenuBar(&menubar);
     // createMenus();

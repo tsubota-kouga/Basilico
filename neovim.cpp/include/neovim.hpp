@@ -208,13 +208,15 @@ public:
 
     void redraw(Array ui_infos);
 
-    bool operation(double timeout_millisec=1000);
+    bool operation(long timeout_millisec=1000);
 
     void nvim_ui_attach();
 
+    virtual void nvim_buf_attach(Buffer buffer, bool send_buffer, const Dictionary& opts) override;
+
     void nvim_ui_try_resize(Integer width, Integer height) override;
 
-    void connect_tcp(const String& host, const String& service, double timeout_sec=100) override;
+    void connect_tcp(const String& host, const String& service, long timeout_sec=100) override;
 
 private:
     const tuple<Integer, Integer, Integer, Integer, Integer>& get_default_colors_set() const;

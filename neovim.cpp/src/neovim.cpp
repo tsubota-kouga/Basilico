@@ -16,23 +16,20 @@ neovim::neovim(uint width, uint height, const Dictionary& options)
 
     nvim_screen.resize(height);
     for(auto& line: nvim_screen){ line.resize(width, " "); }
-    // for(auto& line: nvim_screen){ line.resize(width*2, ' '); }
 
     nvim_colors_map.resize(height);
     for(auto& line: nvim_colors_map){ line.set_default(width); }
-    // for(auto& line: nvim_colors_map){ line.set_default(width/2); }
 
     constexpr int num_colors = 400;
     nvim_hl_attr.resize(num_colors);
 
     nvim_grid_colors_map.resize(height);
     for(auto& line: nvim_grid_colors_map){ line.resize(width, 0); }
-    // for(auto& line: nvim_grid_colors_map){ line.resize(width*2, 0); }
 
     need_update = false;
 }
 
-void neovim::connect_tcp(const String& host, const String& service, double timeout_sec)
+void neovim::connect_tcp(const String& host, const String& service, long timeout_sec)
 {
     port = service;
     client_.connect_tcp(host, service, timeout_sec);
@@ -935,7 +932,7 @@ void neovim::redraw(Array ui_infos)
     }
 }
 
-bool neovim::operation(double timeout_millisec)
+bool neovim::operation(long timeout_millisec)
 {
     while(true)
     {
@@ -944,12 +941,14 @@ bool neovim::operation(double timeout_millisec)
             if(available() == 0){ return false; }
             auto [funcs, infoes] = ui_client_.ui_read_info(timeout_millisec);
             Array redraw_infoes;
+            bool redraw_flag = false;
             for(int i = 0;i < funcs.size();i++)
             {
                 std::cout << funcs.at(i) << std::endl;
                 if(funcs.at(i) == "redraw")
                 {
                     redraw_infoes.push_back(infoes.at(i));
+                    redraw_flag = true;
                 }
                 else if(funcs.at(i) == "plugin")
                 {
@@ -957,7 +956,7 @@ bool neovim::operation(double timeout_millisec)
                     call_plugin(infoes.at(i));
                 }
             }
-            redraw(redraw_infoes);
+            if(redraw_flag){ redraw(redraw_infoes); }
             return true;
         }
         catch(boost::system::system_error& e)
@@ -976,6 +975,12 @@ bool neovim::operation(double timeout_millisec)
 void neovim::nvim_ui_attach()
 {
     ui_client_.no_read_do_call("nvim_ui_attach", nvim_size_x, nvim_size_y, ui_options);
+    operation();
+}
+
+void neovim::nvim_buf_attach(Buffer buffer, bool send_buffer, const Dictionary& opts)
+{
+    ui_client_.no_read_do_call("nvim_buf_attach", buffer, send_buffer, opts);
     operation();
 }
 
@@ -1322,7 +1327,7 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     int pos = col_start;
     Integer color_id = 0; // default color_id == 0
     for(auto cell:cells)
-    {
+    try{
         Integer times = 1;
         auto args = boost::get<Array>(cell);
         auto charactor = boost::get<String>(args.at(0)); // charactor is may not 1byte
@@ -1340,6 +1345,10 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
             nvim_grid_colors_map.at(row).at(pos) = color_id;
             pos++;
         }
+    }
+    catch(std::out_of_range)
+    {
+        std::cout << "size of nvim_screen is not suitble" << std::endl;
     }
 }
 

@@ -62,7 +62,7 @@ def main():
     for f in unpacked_api['functions']:
 
         d = {}
-        if re.match(r'(n?vim_)?(ui.*|(un)?subscribe)', f['name']):
+        if re.match(r'(n?vim_)?(ui.*|(un)?subscribe|.*(de|a)ttach.*)', f['name']):
             continue
         d['name'] = f['name']
 

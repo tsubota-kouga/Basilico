@@ -18,7 +18,7 @@ using boost::lambda::_2;
 namespace nvim {
 
 void Socket::connect_tcp(const std::string& host,
-                     const std::string& service, double timeout_sec)
+                     const std::string& service, long timeout_sec)
 {
     tcp::resolver::query query(host, service);
     tcp::resolver::iterator iter = tcp::resolver(io_service_).resolve(query);
@@ -41,7 +41,7 @@ void Socket::connect_tcp(const std::string& host,
         ec ? ec : boost::asio::error::host_not_found);
 }
 
-size_t Socket::read(char *rbuf, size_t capacity, double timeout_millisec)
+size_t Socket::read(char *rbuf, size_t capacity, long timeout_millisec)
 {
     constexpr int read_at_least = 1;
     deadline_.expires_from_now(boost::posix_time::milliseconds(timeout_millisec));
@@ -71,7 +71,7 @@ size_t Socket::read(char *rbuf, size_t capacity, double timeout_millisec)
     return rlen;
 }
 
-size_t Socket::ui_read(char *rbuf, size_t capacity, double timeout_millisec)
+size_t Socket::ui_read(char *rbuf, size_t capacity, long timeout_millisec)
 {
     constexpr int read_at_least = 1;
     deadline_.expires_from_now(boost::posix_time::milliseconds(timeout_millisec));
@@ -87,7 +87,7 @@ size_t Socket::ui_read(char *rbuf, size_t capacity, double timeout_millisec)
     return rlen;
 }
 
-void Socket::write(char *sbuf, size_t size, double timeout_sec)
+void Socket::write(char *sbuf, size_t size, long timeout_sec)
 {
     deadline_.expires_from_now(boost::posix_time::seconds(timeout_sec));
     boost::system::error_code ec = boost::asio::error::would_block;

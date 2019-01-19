@@ -43,12 +43,12 @@ public:
     NvimRPC() :msgid_(0) {}
 
     void connect_tcp(const String &host,
-            const String &service, double timeout_sec)
+            const String &service, long timeout_sec)
     {
         socket_.connect_tcp(host, service, timeout_sec);
     }
 
-    Object read_info(double timeout_millisec)
+    Object read_info(long timeout_millisec)
     {
         msgpack::unpacker unpacker;
         unpacker.reserve_buffer(32*1024ul);
@@ -77,7 +77,7 @@ public:
         else{ return Object{}; }
     }
 
-    std::pair<Vector<String>, Array> ui_read_info(double timeout_millisec)
+    std::pair<Vector<String>, Array> ui_read_info(long timeout_millisec)
     {
         msgpack::unpacker unpacker;
         unpacker.reserve_buffer(32*1024ul);

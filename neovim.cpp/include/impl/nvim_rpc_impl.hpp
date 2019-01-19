@@ -91,7 +91,7 @@ void NvimRPC::call(const String& method, std::nullptr_t res, const U&...u)
 template<typename...U>
 void NvimRPC::no_read_do_call(const String& method, const U&...u)
 {
-    constexpr double timeout_sec = 1000;
+    constexpr long timeout_sec = 1000;
     constexpr int res_len = 4;
     msgpack::sbuffer sbuf;
     detail::Packer pk(&sbuf);
@@ -112,7 +112,7 @@ void NvimRPC::no_read_do_call(const String& method, const U&...u)
 template<typename...U>
 Object NvimRPC::do_call(const String& method, const U&...u)
 {
-    constexpr double read_millisec = 1000;
+    constexpr long read_millisec = 1000;
 
     no_read_do_call(method, u...);
 

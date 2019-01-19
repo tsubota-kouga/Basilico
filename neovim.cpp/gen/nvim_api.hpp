@@ -18,7 +18,7 @@ public:
     String port;
 
     virtual void connect_tcp(const String &host,
-            const String &service, double timeout_millsec = 10000)
+            const String &service, long timeout_millsec = 10000)
     {
         client_.connect_tcp(host, service, timeout_millsec);
         port = service;
@@ -37,14 +37,6 @@ public:
     {
         String res;
         client_.call("buffer_get_line", res, buffer, index);
-        return res;
-        
-    }
-
-    virtual bool nvim_buf_attach (Buffer buffer, bool send_buffer, const Dictionary& opts)
-    {
-        bool res;
-        client_.call("nvim_buf_attach", res, buffer, send_buffer, opts);
         return res;
         
     }
@@ -477,6 +469,11 @@ public:
         
     }
 
+    virtual void nvim_set_vvar (const String& name, const Object& value)
+    {
+         client_.call("nvim_set_vvar", nullptr, name, value);
+    }
+
     virtual Object nvim_get_option (const String& name)
     {
         Object res;
@@ -691,6 +688,11 @@ public:
         client_.call("nvim_get_proc", res, pid);
         return res;
         
+    }
+
+    virtual void nvim_select_popupmenu_item (Integer item, bool insert, bool finish, const Dictionary& opts)
+    {
+         client_.call("nvim_select_popupmenu_item", nullptr, item, insert, finish, opts);
     }
 
     virtual Buffer nvim_win_get_buf (Window window)
@@ -1261,7 +1263,7 @@ public:
     }
 
 
-    Object read_request(double timeout_millisec)
+    Object read_request(long timeout_millisec)
     {
         if(client_.available())
         {

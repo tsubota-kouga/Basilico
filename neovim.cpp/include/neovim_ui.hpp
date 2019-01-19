@@ -13,7 +13,7 @@ protected:
     NvimRPC ui_client_;
 
 public:
-    virtual void connect_tcp_ui(const String& host, const String& service, double timeout_sec=1000)
+    virtual void connect_tcp_ui(const String& host, const String& service, long timeout_sec=1000)
     {
         ui_client_.connect_tcp(host, service, timeout_sec);
     }
@@ -46,18 +46,23 @@ public:
 
     virtual void nvim_subscribe (const String& event)
     {
-
         ui_client_.call("nvim_subscribe", nullptr, event);
-
     }
 
     virtual void nvim_unsubscribe (const String& event)
     {
-
         ui_client_.call("nvim_unsubscribe", nullptr, event);
-
     }
 
+    virtual void nvim_buf_attach (Buffer buffer, bool send_buffer, const Dictionary& opts)
+    {
+        ui_client_.call("nvim_buf_attach", nullptr, buffer, send_buffer, opts);
+    }
+
+    virtual void nvim_buf_detach (Buffer buffer)
+    {
+        ui_client_.call("nvim_buf_detach", nullptr, buffer);
+    }
 
     std::size_t available(){ return ui_client_.available(); }
 

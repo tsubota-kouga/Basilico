@@ -6,7 +6,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE string "clang compiler" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 
 # Boost
-find_package(Boost 1.55.0 REQUIRED COMPONENTS system coroutine context thread)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread)
 message("Boost:${Boost_INCLUDE_DIR}")
 
 # NeoVim client
@@ -37,6 +37,8 @@ include_directories(
 
 link_directories(neovim.cpp/build)
 
+qt5_add_resources(RESOURCES Basilico.qrc)
+
 file(GLOB EXECUTABLE src/main.cpp
                      src/NeoVim.cpp
                      src/Basilico.cpp
@@ -44,11 +46,11 @@ file(GLOB EXECUTABLE src/main.cpp
 
                      )
 
-add_executable(basil ${EXECUTABLE})
+ add_executable(basil ${EXECUTABLE} ${RESOURCES})
 
 qt5_use_modules(basil Widgets Core Gui WebEngineWidgets QuickWidgets Quick Qml)
 target_link_libraries(basil ${NEOVIM_LIB})
 target_link_libraries(basil ${Boost_LIBRARIES})
 target_link_libraries(basil Threads::Threads)
 target_compile_options(basil PRIVATE "-DMSGPACK_USE_BOOST")
-target_compile_options(basil PRIVATE "-g")
+# target_compile_options(basil PRIVATE "-g")

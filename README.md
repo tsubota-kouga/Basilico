@@ -12,10 +12,12 @@ GUI Extension for NeoVim in C++
 * Qt5.7 or later
     - [Qt Download][Qt]
 
-    - *Note*: tested with only Qt5.11
+    - **Note**: tested with only Qt5.11
 
 * Boost Library
     - You can install Boost Library by using package manager
+
+    - Required `libboost-thread` and `libboost-system`
 
 * Msgpack-c 2.0 or later
     - [Msgpack git repository][Msgpack]
@@ -37,7 +39,7 @@ If you have dein.vim, you can write in your dein.toml
 ```toml
 [[plugins]]
 repo='tsubota-kouga/Basilico'
-build='build.sh'
+build='bash build.sh'
 ```
 or write in init.vim
 ```vimscript

@@ -18,7 +18,7 @@ public:
     String port;
 
     virtual void connect_tcp(const String &host,
-            const String &service, double timeout_millsec = 10000)
+            const String &service, long timeout_millsec = 10000)
     {
         client_.connect_tcp(host, service, timeout_millsec);
         port = service;
@@ -34,7 +34,7 @@ public:
     }
 {% endfor %}
 
-    Object read_request(double timeout_millisec)
+    Object read_request(long timeout_millisec)
     {
         if(client_.available())
         {
