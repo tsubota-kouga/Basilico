@@ -786,10 +786,11 @@ void NeoVim::inputMethodEvent(QInputMethodEvent* e)
 
 void NeoVim::resizeEvent(QResizeEvent* e)
 {
-    int row = windowWidth2Width(width());
-    int col = windowHeight2Height(height());
+    int row = windowWidth2Width(e->size().width());
+    int col = windowHeight2Height(e->size().height());
     nvim_ui_try_resize(row, col);
     QTextEdit::resizeEvent(e);
+    nvim_input("<Esc>");
 }
 
 void NeoVim::mousePressEvent(QMouseEvent* e)
@@ -866,8 +867,14 @@ void NeoVim::cursor_shape()
 
     QTextCursor cursor(textCursor());
     cursor.setPosition(0);
-    cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, nvim_image_cursor_x);
-    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, nvim_image_cursor_y);
+
+    auto num_wchar = 0;
+    for(uint i = 0;i < nvim_screen.at(nvim_cursor_y).size();i++)
+    {
+        if(nvim_screen.at(nvim_cursor_y).at(i).size() >= 3){ ++num_wchar; }
+    }
+    cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, nvim_cursor_x - num_wchar);
+    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, nvim_cursor_y);
     setTextCursor(cursor);
     return;
 }
