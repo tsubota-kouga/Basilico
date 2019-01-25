@@ -6,7 +6,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE string "clang compiler" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 
 # Boost
-find_package(Boost 1.55.0 REQUIRED COMPONENTS system coroutine context thread)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread)
 
 set(CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-DMSGPACK_USE_BOOST ${CMAKE_CXX_FLAGS}")
