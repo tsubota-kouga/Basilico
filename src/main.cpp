@@ -8,7 +8,6 @@
 
 #include <QtWidgets>
 #include <QtGui>
-#include <QtWebEngineWidgets>
 #include <QTimer>
 
 using std::cout;
