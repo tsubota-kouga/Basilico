@@ -9,8 +9,6 @@ Basilico::Basilico(String port, uint width, uint height):
     // toolbar(this)
 {
     neovim.connect_tcp("localhost", port, 1000);
-    neovim.nvim_get_api_info();
-    neovim.nvim_ui_attach();
     neovim.nvim_set_client_info("Basilico",
                                 {},
                                 "ui",
@@ -21,7 +19,7 @@ Basilico::Basilico(String port, uint width, uint height):
     neovim.nvim_subscribe("plugin");
     // <end>
 
-    // neovim.nvim_ui_attach();
+    neovim.nvim_ui_attach();
     neovim.setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     neovim.installEventFilter(this);
 
