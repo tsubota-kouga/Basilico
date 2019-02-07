@@ -302,6 +302,20 @@ private:
 
     virtual void wildmenu_hide();
 
+    virtual void win_pos(Integer grid, Integer win, Integer start_row, Integer start_col, Integer width, Integer height){}
+
+    virtual void win_hide(Integer grid){}
+
+    virtual void win_scroll_over_start(){}
+
+    virtual void win_scroll_over_reset(){}
+
+    virtual void title_changed(){}
+
+    virtual void icon_changed(){}
+
+    virtual void call_plugin(Object func_and_args){}
+
     void hl_attr_define(Integer id, Dictionary& rgb_attr, Dictionary& cterm_attr, Array& info);
 
     void grid_line(Integer grid, Integer row, Integer col_start, Array cells);
@@ -316,47 +330,6 @@ private:
 
     void grid_scroll(Integer grid, Integer top, Integer bot, Integer left, Integer right, Integer rows, Integer cols);
 
-    // void win_pos(Integer grid, Integer win, Integer start_row, Integer start_col, Integer width, Integer height);
-    //
-    // void win_hide(Integer grid);
-    //
-    // void win_scroll_over_start();
-    //
-    // void win_scroll_over_reset();
-    //
-    // void popupmenu_show(Array items, Integer row, Integer col, Integer grid);
-    //
-    // void popupmenu_select(Array selected);
-    //
-    // void popupmenu_hide();
-    //
-    // void tabline_update(Tabpage curtab, Dictionary tabs);
-    //
-    // void cmdline_show(Array content, Integer pos, String firstc, String prompt, Integer indent, Integer level);
-    //
-    // void cmdline_pos(Integer pos, Integer level);
-    //
-    // void cmdline_special_char(String c, Integer shift, Integer level);
-    //
-    // void cmdline_hide();
-    //
-    // void cmdline_block_show(Array lines);
-    //
-    // void cmdline_block_append(String line);
-    //
-    // void cmdline_block_hide();
-    //
-    // void wildmenu_show(Array items);
-    //
-    // void wildmenu_select(Integer selected);
-    //
-    // void wildmenu_hide();
-
-    virtual void title_changed(){}
-
-    virtual void icon_changed(){}
-
-    virtual void call_plugin(Object func_and_args){}
 };
 
 #endif
