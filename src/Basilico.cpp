@@ -20,6 +20,8 @@ Basilico::Basilico(String port, uint width, uint height):
     // <begin>
     neovim.nvim_subscribe("plugin");
     // <end>
+
+    // neovim.nvim_ui_attach();
     neovim.setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     neovim.installEventFilter(this);
 
