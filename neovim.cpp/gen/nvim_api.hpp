@@ -340,6 +340,11 @@ public:
         
     }
 
+    virtual void nvim_input_mouse (const String& button, const String& action, const String& modifier, Integer grid, Integer row, Integer col)
+    {
+         client_.call("nvim_input_mouse", nullptr, button, action, modifier, grid, row, col);
+    }
+
     virtual String nvim_replace_termcodes (const String& str, bool from_part, bool do_lt, bool special)
     {
         String res;
