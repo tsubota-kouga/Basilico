@@ -790,7 +790,7 @@ void NeoVim::resizeEvent(QResizeEvent* e)
     int col = windowHeight2Height(e->size().height());
     nvim_ui_try_resize(row, col);
     QTextEdit::resizeEvent(e);
-    nvim_input("<Esc>");
+    // nvim_input("<Esc>");
 }
 
 void NeoVim::mousePressEvent(QMouseEvent* e)

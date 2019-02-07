@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     QPixmap basil_img("://img/nvim.png", "PNG");
     app.setWindowIcon(QIcon(basil_img));
 
-    basil.show();
+    basil.open();
 
     return app.exec();
 }

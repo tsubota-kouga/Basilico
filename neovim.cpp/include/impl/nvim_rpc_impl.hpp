@@ -112,7 +112,7 @@ void NvimRPC::no_read_do_call(const String& method, const U&...u)
 template<typename...U>
 Object NvimRPC::do_call(const String& method, const U&...u)
 {
-    constexpr long read_millisec = 1000;
+    constexpr long read_millisec = 3000;
 
     no_read_do_call(method, u...);
 

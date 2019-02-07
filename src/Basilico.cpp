@@ -46,6 +46,12 @@ Basilico::Basilico(String port, uint width, uint height):
     timer = startTimer(100);
 }
 
+void Basilico::open()
+{
+    neovim.nvim_command("runtime! ginit.vim");
+    QMainWindow::show();
+}
+
 void Basilico::createMenus()
 {
     fileMenu = menubar.addMenu(tr("File"));
