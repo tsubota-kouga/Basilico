@@ -63,6 +63,7 @@ def main():
 
         d = {}
         if re.match(r'(n?vim_)?(ui.*|(un)?subscribe|.*(de|a)ttach.*)', f['name']):
+            print('This is ui function: ' + f['name'])
             continue
         d['name'] = f['name']
 

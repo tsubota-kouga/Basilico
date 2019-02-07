@@ -39,6 +39,11 @@ public:
         ui_client_.call("nvim_ui_try_resize", nullptr, width, height);
     }
 
+    virtual void nvim_ui_try_resize_grid(Integer grid, Integer width, Integer height)
+    {
+        ui_client_.call("nvim_ui_try_resize_grid", nullptr, grid, width, height);
+    }
+
     virtual void nvim_ui_set_option (const String& name, const Object& value)
     {
         ui_client_.call("nvim_ui_set_option", nullptr, name, value);
