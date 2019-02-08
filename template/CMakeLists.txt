@@ -6,7 +6,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE string "clang compiler" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 
 # Boost
-find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread)
+find_package(Boost {{message['boost_version']}} REQUIRED COMPONENTS {% for lib in message['boost_dependency']%}{{lib}} {% endfor %})
 message("Boost:${Boost_INCLUDE_DIR}")
 
 # NeoVim client
@@ -19,12 +19,10 @@ find_library (
 
 
 # Qt5
-find_package(Qt5 5.11.0 REQUIRED Widgets Core Gui WebEngineWidgets QuickWidgets Quick Qml)
+find_package(Qt5 {{message['qt_version']}} REQUIRED {% for lib in message['qt_dependency']%}{{lib}} {% endfor %})
 message(STATUS "Qt5: ${Qt5Widgets_VERSION_STRING}")
 
 set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-# set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories(
@@ -52,7 +50,7 @@ file(GLOB EXECUTABLE src/main.cpp
 
  add_executable(basil ${EXECUTABLE} ${RESOURCES})
 
-qt5_use_modules(basil Widgets Core Gui WebEngineWidgets QuickWidgets Quick Qml)
+qt5_use_modules(basil {% for lib in message['qt_dependency']%}{{lib}} {% endfor %})
 target_link_libraries(basil ${NEOVIM_LIB})
 target_link_libraries(basil ${Boost_LIBRARIES})
 target_link_libraries(basil Threads::Threads)

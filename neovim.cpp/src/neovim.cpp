@@ -991,12 +991,21 @@ void neovim::nvim_ui_try_resize(Integer width, Integer height)
 
     // resize members
     nvim_screen.resize(height);
-    for(auto& line: nvim_screen){ line.resize(width, " "); }
-    nvim_colors_map.resize(height);
+    for(auto& line: nvim_screen){
+        if(line.size() < width){
+            line.resize(width, " ");
+        }
+    }
+    if(nvim_colors_map.size() < height){
+        nvim_colors_map.resize(height);
+    }
     for(auto& line: nvim_colors_map){ line.set_default(width); }
     nvim_grid_colors_map.resize(height);
-    for(auto& line: nvim_grid_colors_map){ line.resize(width, 0); }
-
+    for(auto& line: nvim_grid_colors_map){
+        if(line.size() < width){
+            line.resize(width, 0);
+        }
+    }
     ui_client_.no_read_do_call("nvim_ui_try_resize", width, height);
     operation();
 }
@@ -1323,7 +1332,10 @@ void neovim::hl_attr_define(Integer id, Dictionary& rgb_attr, Dictionary& cterm_
 void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells)
 {
     Vector<Integer> input_color;
-    input_color.reserve(nvim_screen.at(row).size());
+    if(nvim_screen.size() >= row)
+    {
+        input_color.reserve(nvim_screen.at(row).size());
+    }
     int pos = col_start;
     Integer color_id = 0; // default color_id == 0
     for(auto cell:cells)

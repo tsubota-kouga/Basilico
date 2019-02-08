@@ -1,0 +1,7 @@
+
+[dependency]
+lang='cpp'
+qt_version=5.7
+boost_version=1.55
+qt_lib=['Widgets', 'Core']
+boost_lib=['system', 'thread']

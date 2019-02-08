@@ -59,6 +59,7 @@ public:
     NeoVim neovim;
 
     Basilico(String port, uint width, uint height);
+    void open();
 
     void createMenus();
     void createActions();

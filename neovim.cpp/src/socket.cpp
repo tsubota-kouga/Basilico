@@ -104,6 +104,7 @@ void Socket::check_deadline()
     {
         socket_.close();
         deadline_.expires_at(boost::posix_time::pos_infin);
+        std::cout << "deadline!" << std::endl;
     }
 
     deadline_.async_wait(bind(&Socket::check_deadline, this));

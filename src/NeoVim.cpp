@@ -4,6 +4,7 @@ void NeoVim::set_neovim_html()
 {
     if(!need_update){ return; }
     QString screen;
+    printf("AAAAAAAAAA\n");
     if(is_ext_linegrid)
     {
         // default color
@@ -772,7 +773,8 @@ void NeoVim::timerEvent(QTimerEvent* e)
     if(e->timerId() == timer)
     {
         operation();
-        if(nvim_hl_attr.size() > 0){
+        if(nvim_hl_attr.size() > 0)
+        {
             set_neovim_html();
         }
     }
@@ -789,9 +791,11 @@ void NeoVim::resizeEvent(QResizeEvent* e)
     int row = windowWidth2Width(e->size().width());
     int col = windowHeight2Height(e->size().height());
     nvim_ui_try_resize(row, col);
-    // nvim_ui_try_resize_grid(0, row, col);
+    //
+    // if this does not exist, resize redraw will be very slow.
+    nvim_input("<F36>");
+
     QTextEdit::resizeEvent(e);
-    nvim_input("<Esc>");
 }
 
 void NeoVim::mousePressEvent(QMouseEvent* e)

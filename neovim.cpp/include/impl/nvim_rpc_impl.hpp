@@ -25,7 +25,7 @@ template<typename T, typename...U>
 void NvimRPC::call(const String &method, T& res, const U&...u)
 {
     Object v = do_call(method, u...);
-    std::cout << "T NvimRPC::call" << std::endl;
+    std::cout << "T NvimRPC::call " << method << std::endl;
 
     res = boost::get<T>(v);
 }
@@ -34,7 +34,7 @@ template<typename T, typename...U>
 void NvimRPC::call(const String &method, std::vector<T>& res, const U&...u)
 {
     Object v = do_call(method, u...);
-    std::cout << "Vector<T> NvimRPC::call" << std::endl;
+    std::cout << "Vector<T> NvimRPC::call " << method << std::endl;
 
     auto tmp = boost::get<Array>(v);
     if(tmp.size() == 0)
@@ -53,7 +53,7 @@ template<typename...U>
 void NvimRPC::call(const String &method, Array& res, const U&...u)
 {
     Object v = do_call(method, u...);
-    std::cout << "Array NvimRPC::call" << std::endl;
+    std::cout << "Array NvimRPC::call " << method << std::endl;
 
     res = boost::get<Array>(v);
     if(res.size() == 0)
@@ -66,7 +66,7 @@ template<typename...U>
 void NvimRPC::call(const String& method, Integer& res, const U& ...u)
 {
     Object v = do_call(method, u...);
-    std::cout << "Integer NvimRPC::call" << std::endl;
+    std::cout << "Integer NvimRPC::call " << method << std::endl;
 
     // int64_t is only for negative integer.
     if(v.is_int64_t())       res = v.as_int64_t();
@@ -78,14 +78,14 @@ template<typename...U>
 void NvimRPC::call(const String& method, Object& res, const U& ...u)
 {
     res = do_call(method, u...);
-    std::cout << "Object NvimRPC::call" << std::endl;
+    std::cout << "Object NvimRPC::call " << method << std::endl;
 }
 
 template<typename...U>
 void NvimRPC::call(const String& method, std::nullptr_t res, const U&...u)
 {
     do_call(method, u...);
-    std::cout << "void NvimRPC::call" << std::endl;
+    std::cout << "void NvimRPC::call " << method << std::endl;
 }
 
 template<typename...U>
