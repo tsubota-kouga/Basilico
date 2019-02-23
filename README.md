@@ -68,14 +68,3 @@ call dein#add('tsubota-kouga/Basilico')
 ```
 **Note**: You can **NOT** write in your dein_lazy.toml
 
-## How to install Basilico GUI Plugins
-
-You can install Basilico GUI Plugins by using your plugin manager.
-
-If you have dein.vim, you can write in your dein.toml
-```toml
-[[plugins]]
-repo='tsubota-kouga'
-build='./build.sh'
-```
-
