@@ -40,13 +40,19 @@ void neovim::connect_tcp(const String& host, const String& service, long timeout
 
 const Integer neovim::colors_map::_colors_map::get_rgb_fg() const
 {
-    try{ return boost::get<uInteger>(hl_map.at("foreground")); }
-    catch(std::out_of_range){ return std::get<0>(colors_set); }
+    if(hl_map.count("foreground") == 0)
+    { return boost::get<uInteger>(hl_map.at("foreground")); }
+    else { return std::get<0>(colors_set); }
+    // try{ return boost::get<uInteger>(hl_map.at("foreground")); }
+    // catch(std::out_of_range){ return std::get<0>(colors_set); }
 }
 const Integer neovim::colors_map::_colors_map::get_rgb_bg() const
 {
-    try{ return boost::get<uInteger>(hl_map.at("background")); }
-    catch(std::out_of_range){ return std::get<1>(colors_set); }
+    if(hl_map.count("background") == 0)
+    { return boost::get<uInteger>(hl_map.at("background")); }
+    else { return std::get<1>(colors_set); }
+    // try{ return boost::get<uInteger>(hl_map.at("background")); }
+    // catch(std::out_of_range){ return std::get<1>(colors_set); }
 }
 const tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_fg() const
 {
@@ -127,13 +133,19 @@ void neovim::colors_map::_colors_map::set_range(pair<Integer, Integer> range_)
 }
 bool neovim::colors_map::_colors_map::is_bold() const
 {
-    try{ return boost::get<bool>(hl_map.at("bold")); }
-    catch(std::out_of_range){ return false; }
+    if(hl_map.count("bold") == 0)
+    { return boost::get<bool>(hl_map.at("bold")); }
+    else { return false; }
+    // try{ return boost::get<bool>(hl_map.at("bold")); }
+    // catch(std::out_of_range){ return false; }
 }
 bool neovim::colors_map::_colors_map::is_italic() const
 {
-    try{ return boost::get<bool>(hl_map.at("italic")); }
-    catch(std::out_of_range){ return false; }
+    if(hl_map.count("italic") == 0)
+    { return boost::get<bool>(hl_map.at("italic")); }
+    else { return false; }
+    // try{ return boost::get<bool>(hl_map.at("italic")); }
+    // catch(std::out_of_range){ return false; }
 }
 bool neovim::colors_map::_colors_map::operator==(_colors_map c)
 {
@@ -378,7 +390,7 @@ void neovim::redraw(Object ui_info)
     }
     catch(boost::bad_get& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }
 
@@ -394,7 +406,7 @@ void neovim::redraw(Object ui_info)
         }
         catch(boost::bad_get& e)
         {
-            std::cout << e.what() << std::endl;
+            std::cerr << e.what() << std::endl;
             return;
         }
 
@@ -541,7 +553,7 @@ void neovim::redraw(Object ui_info)
                 }
                 catch(boost::bad_get& e)
                 {
-                    std::cout << e.what() << std::endl;
+                    std::cerr << e.what() << std::endl;
                     break;
                 }
             }
@@ -961,12 +973,12 @@ bool neovim::operation(long timeout_millisec)
         }
         catch(boost::system::system_error& e)
         {
-            if constexpr(debug)std::cout << "can't read" << e.what() << std::endl;
+            std::cerr << "can't read:" << e.what() << std::endl;
             return false;
         }
         catch(boost::bad_get& e)
         {
-            if constexpr(debug)std::cout << "can't read" << e.what() << std::endl;
+            std::cerr << "can't read:" << e.what() << std::endl;
             return false;
         }
     }
@@ -1031,7 +1043,8 @@ void neovim::clear()
     }
     catch(std::out_of_range& e)
     {
-        std::cout << "out_of_range:" << nvim_screen.at(nvim_cursor_y).at(nvim_cursor_x) << std::endl;
+        std::cerr << "out_of_range:" << nvim_screen.at(nvim_cursor_y).at(nvim_cursor_x)
+                  << "message:" << e.what() << std::endl;
     }
     nvim_colors_map.at(nvim_cursor_y).overwrite(colors_map::_colors_map(
             nvim_default_colors_set,
@@ -1051,7 +1064,8 @@ void neovim::eol_clear()
     }
     catch(std::out_of_range& e)
     {
-        std::cout << "out_of_range:" << nvim_screen.at(nvim_cursor_y) << std::endl;
+        std::cout << "out_of_range:" << nvim_screen.at(nvim_cursor_y)
+                  << "message:" << e.what() << std::endl;
     }
     nvim_colors_map.at(nvim_cursor_y).overwrite(colors_map::_colors_map(
             nvim_default_colors_set,
@@ -1360,7 +1374,7 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     }
     catch(std::out_of_range)
     {
-        std::cout << "size of nvim_screen is not suitble" << std::endl;
+        std::cerr << "size of nvim_screen is not suitble" << std::endl;
     }
 }
 
