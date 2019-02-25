@@ -200,6 +200,8 @@ public:
     Vector<Vector<Integer>> nvim_grid_colors_map;
 
     bool need_update;
+
+    bool incomplete_resize = false;
 public:
 
     neovim(uint width, uint height, const Dictionary& options);

@@ -4,7 +4,6 @@ void NeoVim::set_neovim_html()
 {
     if(!need_update){ return; }
     QString screen;
-    printf("AAAAAAAAAA\n");
     if(is_ext_linegrid)
     {
         // default color
@@ -46,16 +45,25 @@ void NeoVim::set_neovim_html()
             bool current_is_bold, current_is_italic, current_is_underline, current_is_undercurl, current_is_reverse;
             bool next_is_bold, next_is_italic, next_is_underline, next_is_undercurl, next_is_reverse;
 
-            try{ current_fg = nvim_hl_attr.at(current_color_id).rgb_attr.at("foreground"); }
-            catch(std::out_of_range)
-            { current_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("foreground") == 1)
+            { current_fg = nvim_hl_attr.at(current_color_id).rgb_attr.at("foreground"); }
+            else { current_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+            // try{ current_fg = nvim_hl_attr.at(current_color_id).rgb_attr.at("foreground"); }
+            // catch(std::out_of_range)
+            // { current_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
 
-            try{ current_bg = nvim_hl_attr.at(current_color_id).rgb_attr.at("background"); }
-            catch(std::out_of_range)
-            { current_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("background") == 1)
+            { current_bg = nvim_hl_attr.at(current_color_id).rgb_attr.at("background"); }
+            else { current_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
+            // try{ current_bg = nvim_hl_attr.at(current_color_id).rgb_attr.at("background"); }
+            // catch(std::out_of_range)
+            // { current_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
 
-            try{ current_is_reverse = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("reverse")); }
-            catch(std::out_of_range){ current_is_reverse = false; }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("reverse") == 1)
+            { current_is_reverse = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("reverse")); }
+            else { current_is_reverse = false; }
+            // try{ current_is_reverse = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("reverse")); }
+            // catch(std::out_of_range){ current_is_reverse = false; }
             if(current_is_reverse)
                 /* swap */
             {
@@ -66,23 +74,43 @@ void NeoVim::set_neovim_html()
             auto [frf, fgf, fbf] = nvim_html::convert_rgb(boost::get<uInteger>(current_fg));
             auto [frb, fgb, fbb] = nvim_html::convert_rgb(boost::get<uInteger>(current_bg));
 
-            try{ current_is_bold = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("bold")); }
-            catch(std::out_of_range){ current_is_bold = false; }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("bold") == 1)
+            { current_is_bold = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("bold")); }
+            else { current_is_bold = false; }
+            // try{ current_is_bold = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("bold")); }
+            // catch(std::out_of_range){ current_is_bold = false; }
 
-            try{ current_is_italic = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("italic")); }
-            catch(std::out_of_range){ current_is_italic = false; }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("italic") == 1)
+            { current_is_italic = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("italic")); }
+            else { current_is_italic = false; }
+            // try{ current_is_italic = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("italic")); }
+            // catch(std::out_of_range){ current_is_italic = false; }
 
-            try{ current_is_underline = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("underline")); }
-            catch(std::out_of_range){ current_is_underline = false; }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("underline") == 1)
+            { current_is_underline = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("underline")); }
+            else { current_is_underline = false; }
+            // try{ current_is_underline = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("underline")); }
+            // catch(std::out_of_range){ current_is_underline = false; }
 
-            try{ current_is_undercurl = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("undercurl")); }
-            catch(std::out_of_range){ current_is_undercurl = false; }
+            if(nvim_hl_attr.at(current_color_id).rgb_attr.count("undercurl") == 1)
+            { current_is_undercurl = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("undercurl")); }
+            else { current_is_undercurl = false; }
+            // try{ current_is_undercurl = boost::get<bool>(nvim_hl_attr.at(current_color_id).rgb_attr.at("undercurl")); }
+            // catch(std::out_of_range){ current_is_undercurl = false; }
 
             if(current_is_underline or current_is_undercurl)
-            try{
-                special_color = boost::get<uInteger>(
-                        nvim_hl_attr.at(current_color_id).rgb_attr.at("special"));
-            }catch(std::out_of_range){}
+            {
+                if(nvim_hl_attr.at(current_color_id).rgb_attr.count("special") == 1)
+                {
+                    special_color = boost::get<uInteger>(
+                            nvim_hl_attr.at(current_color_id).rgb_attr.at("special"));
+                }
+                else { special_color = 0; }
+            }
+            // try{
+            //     special_color = boost::get<uInteger>(
+            //             nvim_hl_attr.at(current_color_id).rgb_attr.at("special"));
+            // }catch(std::out_of_range){}
 
             //<start>
             screen.append("<span style=\"");
@@ -793,7 +821,7 @@ void NeoVim::resizeEvent(QResizeEvent* e)
     nvim_ui_try_resize(row, col);
     //
     // if this does not exist, resize redraw will be very slow.
-    nvim_input("<F36>");
+    // nvim_input("<F36>");
 
     QTextEdit::resizeEvent(e);
 }

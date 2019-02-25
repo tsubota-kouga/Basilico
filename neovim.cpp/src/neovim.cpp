@@ -1,4 +1,5 @@
 #include "neovim.hpp"
+#include <time.h>
 
 static constexpr bool debug = true;
 
@@ -11,8 +12,9 @@ neovim::neovim(uint width, uint height, const Dictionary& options)
         ui_options[boost::get<String>(key)] = val;
     }
 
-    try{ is_ext_linegrid = boost::get<bool>(ui_options.at("ext_linegrid")); }
-    catch(std::out_of_range){ is_ext_linegrid = false; }
+    if(ui_options.count("ext_linegrid") == 1)
+    { is_ext_linegrid = boost::get<bool>(ui_options.at("ext_linegrid")); }
+    else { is_ext_linegrid = false; }
 
     nvim_screen.resize(height);
     for(auto& line: nvim_screen){ line.resize(width, " "); }
@@ -40,15 +42,13 @@ void neovim::connect_tcp(const String& host, const String& service, long timeout
 
 const Integer neovim::colors_map::_colors_map::get_rgb_fg() const
 {
-    if(hl_map.count("foreground") == 0)
+    if(hl_map.count("foreground") == 1)
     { return boost::get<uInteger>(hl_map.at("foreground")); }
     else { return std::get<0>(colors_set); }
-    // try{ return boost::get<uInteger>(hl_map.at("foreground")); }
-    // catch(std::out_of_range){ return std::get<0>(colors_set); }
 }
 const Integer neovim::colors_map::_colors_map::get_rgb_bg() const
 {
-    if(hl_map.count("background") == 0)
+    if(hl_map.count("background") == 1)
     { return boost::get<uInteger>(hl_map.at("background")); }
     else { return std::get<1>(colors_set); }
     // try{ return boost::get<uInteger>(hl_map.at("background")); }
@@ -133,19 +133,15 @@ void neovim::colors_map::_colors_map::set_range(pair<Integer, Integer> range_)
 }
 bool neovim::colors_map::_colors_map::is_bold() const
 {
-    if(hl_map.count("bold") == 0)
+    if(hl_map.count("bold") == 1)
     { return boost::get<bool>(hl_map.at("bold")); }
     else { return false; }
-    // try{ return boost::get<bool>(hl_map.at("bold")); }
-    // catch(std::out_of_range){ return false; }
 }
 bool neovim::colors_map::_colors_map::is_italic() const
 {
-    if(hl_map.count("italic") == 0)
+    if(hl_map.count("italic") == 1)
     { return boost::get<bool>(hl_map.at("italic")); }
     else { return false; }
-    // try{ return boost::get<bool>(hl_map.at("italic")); }
-    // catch(std::out_of_range){ return false; }
 }
 bool neovim::colors_map::_colors_map::operator==(_colors_map c)
 {
@@ -1002,22 +998,22 @@ void neovim::nvim_ui_try_resize(Integer width, Integer height)
     nvim_size_y = height;
 
     // resize members
-    nvim_screen.resize(height);
-    for(auto& line: nvim_screen){
-        if(line.size() < width){
-            line.resize(width, " ");
-        }
-    }
-    if(nvim_colors_map.size() < height){
-        nvim_colors_map.resize(height);
-    }
-    for(auto& line: nvim_colors_map){ line.set_default(width); }
-    nvim_grid_colors_map.resize(height);
-    for(auto& line: nvim_grid_colors_map){
-        if(line.size() < width){
-            line.resize(width, 0);
-        }
-    }
+    // nvim_screen.resize(height);
+    // for(auto& line: nvim_screen){
+    //     if(line.size() < width){
+    //         line.resize(width, " ");
+    //     }
+    // }
+    // if(nvim_colors_map.size() < height){
+    //     nvim_colors_map.resize(height);
+    // }
+    // for(auto& line: nvim_colors_map){ line.set_default(width); }
+    // nvim_grid_colors_map.resize(height);
+    // for(auto& line: nvim_grid_colors_map){
+    //     if(line.size() < width){
+    //         line.resize(width, 0);
+    //     }
+    // }
     ui_client_.no_read_do_call("nvim_ui_try_resize", width, height);
     operation();
 }
@@ -1374,8 +1370,9 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
     }
     catch(std::out_of_range)
     {
-        std::cerr << "size of nvim_screen is not suitble" << std::endl;
+        std::cerr << "size of nvim_screen is not suitable" << std::endl;
     }
+
 }
 
 void neovim::grid_clear(Integer grid)
@@ -1400,6 +1397,8 @@ void neovim::grid_destroy(Integer grid)
 
 void neovim::grid_resize(Integer grid, Integer row, Integer col)
 {
+    auto start = clock();
+    std::cout << "***********\nstarted\n";
     nvim_size_x = row;
     nvim_size_y = col;
 
@@ -1410,6 +1409,8 @@ void neovim::grid_resize(Integer grid, Integer row, Integer col)
     for(auto& line: nvim_colors_map){ line.set_default(row); }
     nvim_grid_colors_map.resize(col);
     for(auto& line: nvim_grid_colors_map){ line.resize(row, 0); }
+    auto end = clock();
+    std::cout << "*************\nDuration GridLine = " << (double)(end - start)/CLOCKS_PER_SEC << "sec.\n";
 }
 
 void neovim::grid_cursor_goto(Integer grid, Integer row, Integer col)
