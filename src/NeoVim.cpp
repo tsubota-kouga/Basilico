@@ -151,33 +151,56 @@ void NeoVim::set_neovim_html()
                 {
                     Object next_fg, next_bg;
 
-                    try{ next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
-                    catch(std::out_of_range)
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
+                    { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    else
                     { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+                    // try{ next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    // catch(std::out_of_range)
+                    // { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
 
-                    try{ next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
-                    catch(std::out_of_range)
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
+                    { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    else
                     { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
+                    // try{ next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    // catch(std::out_of_range)
+                    // { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
 
-                    try{ next_is_bold = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("bold")); }
-                    catch(std::out_of_range){ next_is_bold = false; }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("bold") == 1)
+                    { next_is_bold = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("bold")); }
+                    else { next_is_bold = false; }
+                    // try{ next_is_bold = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("bold")); }
+                    // catch(std::out_of_range){ next_is_bold = false; }
 
-                    try{ next_is_italic = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("italic")); }
-                    catch(std::out_of_range){ next_is_italic = false; }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("italic") == 1)
+                    { next_is_italic = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("italic")); }
+                    else { next_is_italic = false; }
+                    // try{ next_is_italic = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("italic")); }
+                    // catch(std::out_of_range){ next_is_italic = false; }
 
-                    try{ next_is_underline = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("underline")); }
-                    catch(std::out_of_range){ next_is_underline = false; }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("underline") == 1)
+                    { next_is_underline = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("underline")); }
+                    else { next_is_underline = false; }
+                    // try{ next_is_underline = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("underline")); }
+                    // catch(std::out_of_range){ next_is_underline = false; }
 
-                    try{ next_is_undercurl = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("undercurl")); }
-                    catch(std::out_of_range){ next_is_undercurl = false; }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("undercurl") == 1)
+                    { next_is_undercurl = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("undercurl")); }
+                    else { next_is_undercurl = false; }
+                    // try{ next_is_undercurl = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("undercurl")); }
+                    // catch(std::out_of_range){ next_is_undercurl = false; }
 
                     nvim_html::html_escape(color_part);
                     screen.append(QString::fromStdString(color_part));
                     color_part = "";
                     screen.append("</span>");
 
-                    try{ next_is_reverse = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("reverse")); }
-                    catch(std::out_of_range){ next_is_reverse = false; }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("reverse") == 1)
+                    { next_is_reverse = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("reverse")); }
+                    else { next_is_reverse = false; }
+                    // try{ next_is_reverse = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("reverse")); }
+                    // catch(std::out_of_range){ next_is_reverse = false; }
                     if(next_is_reverse)
                         /* swap */
                     {
@@ -189,10 +212,18 @@ void NeoVim::set_neovim_html()
                     auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));
 
                     if(next_is_underline or next_is_undercurl)
-                        try{
+                    {
+                        if(nvim_hl_attr.at(next_color_id).rgb_attr.count("special") == 1)
+                        {
                             special_color = boost::get<uInteger>(
                                     nvim_hl_attr.at(next_color_id).rgb_attr.at("special"));
-                        }catch(std::out_of_range){}
+                        }
+                        else { special_color = 0; }
+                        // try{
+                        //     special_color = boost::get<uInteger>(
+                        //             nvim_hl_attr.at(next_color_id).rgb_attr.at("special"));
+                        // }catch(std::out_of_range){}
+                    }
                     //<start>
                     screen.append("<span style=\"");
                     //</start>
@@ -232,13 +263,21 @@ void NeoVim::set_neovim_html()
                 if(cursor_positioned)
                 {
                     Object next_fg, next_bg;
-                    try{ next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
-                    catch(std::out_of_range)
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
+                    { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    else
                     { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+                    // try{ next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    // catch(std::out_of_range)
+                    // { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
 
-                    try{ next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
-                    catch(std::out_of_range)
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
+                    { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    else
                     { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
+                    // try{ next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    // catch(std::out_of_range)
+                    // { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
 
                     auto [rf, gf, bf] = nvim_html::convert_rgb(boost::get<uInteger>(next_fg));
                     auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));

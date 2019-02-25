@@ -146,6 +146,7 @@ bool Basilico::eventFilter(QObject* obj, QEvent* e)
                 {
                     return false;
                 }
+                break;
             default:
                 return false;
         }
