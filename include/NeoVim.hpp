@@ -77,9 +77,19 @@ protected:
 
     virtual void mousePressEvent(QMouseEvent* e) override;
 
+    virtual void mouseReleaseEvent(QMouseEvent* e) override;
+
+    virtual void mouseMoveEvent(QMouseEvent* e) override;
+
     virtual void wheelEvent(QWheelEvent* e) override;
 
     virtual void dropEvent(QDropEvent* e) override;
+
+    virtual void dragEnterEvent(QDragEnterEvent* e) override;
+
+    virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
+
+    virtual void dragMoveEvent(QDragMoveEvent* e) override;
 
 
     void update();
@@ -91,6 +101,12 @@ protected:
     void fkeySend(QKeyEvent* e, Integer key);
 
     void keySend(QInputEvent* e, const String& key);
+
+    void mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid);
+
+    void mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid);
+
+    void mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid);
 };
 
 namespace nvim_html

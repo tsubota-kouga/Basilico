@@ -255,6 +255,7 @@ void NeoVim::set_neovim_html()
                     //</end>
                 }
 
+                //<cursor setting>
                 bool cursor_positioned =
                     (j == nvim_cursor_x) and (i == nvim_cursor_y)
                     and (current_mode["screen"] == Mode::normal or
@@ -301,6 +302,8 @@ void NeoVim::set_neovim_html()
                                     ).arg(rf).arg(gf).arg(bf));
                     }
                 }
+                //</cursor setting>
+
                 color_part += nvim_screen.at(i).at(j);
                 if(cursor_positioned)
                 {
@@ -434,7 +437,6 @@ void NeoVim::keyPressEvent(QKeyEvent* e)
             break;
 
         case Qt::Key_Meta:
-            nvim_input("<Esc>");
             break;
 
         case Qt::Key_Alt:
@@ -858,31 +860,74 @@ void NeoVim::resizeEvent(QResizeEvent* e)
     int row = windowWidth2Width(e->size().width());
     int col = windowHeight2Height(e->size().height());
     nvim_ui_try_resize(row, col);
-    //
-    // if this does not exist, resize redraw will be very slow.
-    // nvim_input("<F36>");
 
     QTextEdit::resizeEvent(e);
 }
 
 void NeoVim::mousePressEvent(QMouseEvent* e)
 {
+    // setMouseTracking(true);
     if(e->button() == Qt::LeftButton)
     {
-        keySend(e, "LeftMouse");
+        mouseSend(e, "press", "left", 0);
     }
     else if(e->button() == Qt::RightButton)
     {
-        keySend(e, "RightMouse");
+        mouseSend(e, "press", "right", 0);
     }
     else if(e->button() == Qt::MiddleButton)
     {
-        keySend(e, "MiddleMouse");
+        mouseSend(e, "press", "middle", 0);
     }
     else if(e->button() == Qt::ForwardButton)
     {
     }
     else if(e->button() == Qt::BackButton)
+    {
+    }
+}
+
+void NeoVim::mouseReleaseEvent(QMouseEvent* e)
+{
+    // setMouseTracking(false);
+    if(e->button() == Qt::LeftButton)
+    {
+        mouseSend(e, "release", "left", 0);
+    }
+    else if(e->button() == Qt::RightButton)
+    {
+        mouseSend(e, "release", "right", 0);
+    }
+    else if(e->button() == Qt::MiddleButton)
+    {
+        mouseSend(e, "release", "middle", 0);
+    }
+    else if(e->button() == Qt::ForwardButton)
+    {
+    }
+    else if(e->button() == Qt::BackButton)
+    {
+    }
+}
+
+void NeoVim::mouseMoveEvent(QMouseEvent* e)
+{
+    if(e->buttons() & Qt::LeftButton)
+    {
+        mouseSend(e, "drag", "left", 0);
+    }
+    else if(e->buttons() & Qt::RightButton)
+    {
+        mouseSend(e, "drag", "right", 0);
+    }
+    else if(e->buttons() & Qt::MiddleButton)
+    {
+        mouseSend(e, "drag", "middle", 0);
+    }
+    else if(e->buttons() & Qt::ForwardButton)
+    {
+    }
+    else if(e->buttons() & Qt::BackButton)
     {
     }
 }
@@ -894,11 +939,13 @@ void NeoVim::wheelEvent(QWheelEvent* e)
     {
         if(numDegrees.ry() > 0)
         {
-            keySend(e, "ScrollWheelUp");
+            mouseSend(e, "up", "wheel", 0);
+            // keySend(e, "ScrollWheelUp");
         }
         else if(numDegrees.ry() < 0)
         {
-            keySend(e, "ScrollWheelDown");
+            mouseSend(e, "down", "wheel", 0);
+            // keySend(e, "ScrollWheelDown");
         }
     }
 }
@@ -910,6 +957,21 @@ void NeoVim::dropEvent(QDropEvent* e)
     {
         nvim_input(mime->text().toUtf8().data());
     }
+}
+
+void NeoVim::dragEnterEvent(QDragEnterEvent* e)
+{
+    std::cout << "DragEnter" << std::endl;
+}
+
+void NeoVim::dragLeaveEvent(QDragLeaveEvent* e)
+{
+    std::cout << "DragLeave" << std::endl;
+}
+
+void NeoVim::dragMoveEvent(QDragMoveEvent* e)
+{
+    std::cout << "DragMove" << std::endl;
 }
 
 void NeoVim::call_plugin(Object func_and_args)
@@ -969,8 +1031,34 @@ void NeoVim::keySend(QInputEvent* e, const String& key)
     String k = key;
     if(e->modifiers() == Qt::ShiftModifier){ k = "S-" + k; }
     if(e->modifiers() == Qt::ControlModifier){ k = "C-" + k; }
-    if(e->modifiers() == Qt::AltModifier){ k = "M-" + k; }
+    if(e->modifiers() == Qt::AltModifier){ k = "A-" + k; }
     nvim_input("<" + k + ">");
+}
+
+void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid)
+{
+    QTextCursor c = cursorForPosition(pos);
+    int row = c.position() / nvim_screen.at(0).size();
+    int col = c.position() % nvim_screen.at(0).size() - row;
+    nvim_input_mouse(button, action, modifiers, grid, row, col);
+}
+
+void NeoVim::mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid)
+{
+    String modifiers = "";
+    if(e->modifiers() == Qt::ShiftModifier){ modifiers = "S-" + modifiers; }
+    if(e->modifiers() == Qt::ControlModifier){ modifiers = "C-" + modifiers; }
+    if(e->modifiers() == Qt::AltModifier){ modifiers = "A-" + modifiers; }
+    mouseSend(e->pos(), modifiers, action, button, grid);
+}
+
+void NeoVim::mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid)
+{
+    String modifiers = "";
+    if(e->modifiers() == Qt::ShiftModifier){ modifiers = "S-" + modifiers; }
+    if(e->modifiers() == Qt::ControlModifier){ modifiers = "C-" + modifiers; }
+    if(e->modifiers() == Qt::AltModifier){ modifiers = "A-" + modifiers; }
+    mouseSend(e->pos(), modifiers, action, button, grid);
 }
 
 void nvim_html::html_escape(std::string& s)
