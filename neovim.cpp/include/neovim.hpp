@@ -155,7 +155,20 @@ public:
         normal = 0,
         visual,
         insert,
-        replace
+        replace,
+        cmdline_normal,
+        cmdline_insert,
+        cmdline_replace,
+        operator_,
+        visual_select,
+        cmdline_hover,
+        statusline_hover,
+        statusline_drag,
+        vsep_hover,
+        vsep_drag,
+        more,
+        more_lastline,
+        shortmatch
     };
 
     Integer nvim_size_x, nvim_size_y;
@@ -178,7 +191,7 @@ public:
 
     bool cursor_style;
 
-    unordered_map<String, Object> ui_mode_info;
+    unordered_map<String, unordered_map<String, Object>> ui_mode_info;
 
     unordered_map<String, neovim::Mode> current_mode;
 
@@ -202,6 +215,8 @@ public:
     bool need_update;
 
     bool incomplete_resize = false;
+
+    bool is_busy = false;
 public:
 
     neovim(uint width, uint height, const Dictionary& options);
@@ -232,7 +247,7 @@ private:
 
     void cursor_goto(Integer row, Integer col);
 
-    void mode_info_set(bool enabled, const cArray& cursor_styles);
+    void mode_info_set(bool enabled, const Array& cursor_styles);
 
     void update_menu();
 
@@ -282,7 +297,7 @@ private:
 
     virtual void popupmenu_select(Integer selected);
 
-    virtual void tabline_update(Tabpage current, const cArray& tabs);
+    virtual void tabline_update(Tabpage current, const Array& tabs);
 
     virtual void cmdline_show(const cArray& content, Integer pos, const String& firstc, const String& prompt, Integer indent, Integer level);
 
@@ -315,6 +330,8 @@ private:
     virtual void title_changed(){}
 
     virtual void icon_changed(){}
+
+    virtual void mode_changed(){}
 
     virtual void call_plugin(Object func_and_args){}
 

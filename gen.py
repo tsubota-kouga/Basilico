@@ -7,14 +7,16 @@ import toml
 
 port: str
 try:
-    port = sys.argv[1]
+    # port = sys.argv[1]
+    path = sys.argv[1]
 except:
     port = '6666'
 
 env = Environment(loader=FileSystemLoader('template'))
 fill = {}
 
-nvim = attach('tcp', address='localhost', port=port)
+# nvim = attach('tcp', address='localhost', port=port)
+nvim = attach('socket', path=path)
 
 # basilico_plugin_default_dir = nvim.eval('g:basilico_plugin_default_dir')
 
@@ -67,6 +69,9 @@ fill['plugin_name'].remove('Basilico')
 fill['source_paths'] = [
     os.path.join(fill['plugin_paths'][i], 'src', fill['plugin_name'][i] + '.cpp')
     for i in range(len(fill['plugin_name']))]
+
+fill['qt_dependency'] = list(set(fill['qt_dependency']))
+fill['boost_dependency'] = list(set(fill['boost_dependency']))
 
 for k in fill.keys():
     print(k, ':', fill[k])

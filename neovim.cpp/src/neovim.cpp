@@ -1,5 +1,4 @@
 #include "neovim.hpp"
-#include <time.h>
 
 static constexpr bool debug = true;
 
@@ -54,7 +53,7 @@ const Integer neovim::colors_map::_colors_map::get_rgb_bg() const
     // try{ return boost::get<uInteger>(hl_map.at("background")); }
     // catch(std::out_of_range){ return std::get<1>(colors_set); }
 }
-const tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_fg() const
+const std::tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_fg() const
 {
     auto rgb_fg = get_rgb_fg();
     int rf = rgb_fg >> 16;
@@ -62,7 +61,7 @@ const tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_fg() const
     int bf = rgb_fg - (rf << 16) - (gf << 8);
     return make_tuple(rf, gf, bf);
 }
-const tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_bg() const
+const std::tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_bg() const
 {
     auto rgb_bg = get_rgb_bg();
     int rb = rgb_bg >> 16;
@@ -70,7 +69,7 @@ const tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_bg() const
     int bb = rgb_bg - (rb << 16) - (gb << 8);
     return make_tuple(rb, gb, bb);
 }
-const tuple<int, int, int> neovim::colors_map::_colors_map::get_default_r_g_b_fg() const
+const std::tuple<int, int, int> neovim::colors_map::_colors_map::get_default_r_g_b_fg() const
 {
     auto rgb_fg = std::get<0>(colors_set);
     int rf = rgb_fg >> 16;
@@ -78,7 +77,7 @@ const tuple<int, int, int> neovim::colors_map::_colors_map::get_default_r_g_b_fg
     int bf = rgb_fg - (rf << 16) - (gf << 8);
     return make_tuple(rf, gf, bf);
 }
-const tuple<int, int, int> neovim::colors_map::_colors_map::get_default_r_g_b_bg() const
+const std::tuple<int, int, int> neovim::colors_map::_colors_map::get_default_r_g_b_bg() const
 {
     auto rgb_bg = std::get<1>(colors_set);
     int rb = rgb_bg >> 16;
@@ -98,7 +97,7 @@ const Integer& neovim::colors_map::_colors_map::get_cterm_bg() const
 {
     return std::get<4>(colors_set);
 }
-const pair<Integer, Integer>& neovim::colors_map::_colors_map::get_range() const
+const std::pair<Integer, Integer>& neovim::colors_map::_colors_map::get_range() const
 {
     return range;
 }
@@ -127,7 +126,7 @@ void neovim::colors_map::_colors_map::set_range(Integer from, Integer to)
 {
     range = std::make_pair(from, to);
 }
-void neovim::colors_map::_colors_map::set_range(pair<Integer, Integer> range_)
+void neovim::colors_map::_colors_map::set_range(std::pair<Integer, Integer> range_)
 {
     range = range_;
 }
@@ -444,11 +443,11 @@ void neovim::redraw(Object ui_info)
 
         else if(func_name == "mode_info_set")
         {
-            Array X = boost::get<Array>(obj);
+            Array infos = boost::get<Array>(func.at(1));
 
-            bool enabled;
+            bool enabled = boost::get<bool>(infos.at(0));
 
-            cArray cursor_styles;
+            Array cursor_styles = boost::get<Array>(infos.at(1));
 
             mode_info_set(enabled, cursor_styles);
             if constexpr(debug)std::cout << "call mode_info_set(" << enabled << ",cursor_styles" << ")" << std::endl;
@@ -614,7 +613,15 @@ void neovim::redraw(Object ui_info)
 
             Integer rgb_bg = boost::get<uInteger>(colors.at(1));
 
-            Integer rgb_sp = boost::get<Integer>(colors.at(2));
+            Integer rgb_sp;
+            if(colors.at(2).is_uint64_t()) // changed specification
+            {
+                rgb_sp = boost::get<uInteger>(colors.at(2));
+            }
+            else
+            {
+                rgb_sp = boost::get<Integer>(colors.at(2));
+            }
 
             Integer cterm_fg = boost::get<uInteger>(colors.at(3));
 
@@ -632,9 +639,9 @@ void neovim::redraw(Object ui_info)
 
         else if(func_name == "set_title")
         {
-            Array X = boost::get<Array>(obj);
+            Array args = boost::get<Array>(func.at(1));
 
-            String title;
+            String title = boost::get<String>(args.at(0));
 
             set_title(title);
             if constexpr(debug)std::cout << "call set_title()" << std::endl;
@@ -654,9 +661,9 @@ void neovim::redraw(Object ui_info)
         {
             Array& opts = func;
 
-            unordered_map<String, Object> opt;
+            std::unordered_map<String, Object> opt;
 
-            Array opt_pair;//[String, Object]
+            Array opt_pair; // [String, Object]
 
             for(int i = 1;i < opts.size();i++)
             {
@@ -701,11 +708,11 @@ void neovim::redraw(Object ui_info)
 
         else if(func_name == "tabline_update")
         {
-            Array X = boost::get<Array>(obj);
+            Array args = boost::get<Array>(func.at(1));
 
-            Tabpage current;
+            Tabpage current = boost::get<Tabpage>(args.at(0));
 
-            cArray tabs;
+            Array tabs = boost::get<Array>(args.at(1));
 
             tabline_update(current, tabs);
             if constexpr(debug)std::cout << "call tabline_update()" << std::endl;
@@ -1018,7 +1025,7 @@ void neovim::nvim_ui_try_resize(Integer width, Integer height)
     operation();
 }
 
-const tuple<Integer, Integer, Integer, Integer, Integer>& neovim::get_default_colors_set() const
+const std::tuple<Integer, Integer, Integer, Integer, Integer>& neovim::get_default_colors_set() const
 {
     return nvim_default_colors_set;
 }
@@ -1044,7 +1051,7 @@ void neovim::clear()
     }
     nvim_colors_map.at(nvim_cursor_y).overwrite(colors_map::_colors_map(
             nvim_default_colors_set,
-            unordered_map<String, Object>(),
+            std::unordered_map<String, Object>(),
             make_pair(nvim_cursor_x, nvim_cursor_x)));
     return;
 }
@@ -1065,7 +1072,7 @@ void neovim::eol_clear()
     }
     nvim_colors_map.at(nvim_cursor_y).overwrite(colors_map::_colors_map(
             nvim_default_colors_set,
-            unordered_map<String, Object>(),
+            std::unordered_map<String, Object>(),
             make_pair(nvim_cursor_x, nvim_screen.at(nvim_cursor_y).size() - 1)));
     return;
 }
@@ -1076,14 +1083,23 @@ void neovim::cursor_goto(Integer x, Integer y)
     return;
 }
 
-void neovim::mode_info_set(bool enabled, const cArray& cursor_styles)
+void neovim::mode_info_set(bool enabled, const Array& cursor_styles)
 {
     cursor_style = enabled;
-    msgpack::type::tuple<String, Object> dict;
-    for(cObject obj:cursor_styles)
+    for(auto&& obj:cursor_styles)
     {
-        obj.convert(dict);
-        ui_mode_info[dict.get<0>()] = dict.get<1>();
+        auto dict = boost::get<Dictionary>(obj);
+        auto iter = dict.find(Object("name"));
+        auto mode = boost::get<String>(iter->second);
+
+        ui_mode_info[mode] = std::unordered_map<String, Object>{};
+        for(auto itr = dict.begin();itr != dict.end();itr++)
+        {
+            auto& map_ref = ui_mode_info[mode];
+            String key = boost::get<String>(itr->first);
+            Object value = itr->second;
+            ui_mode_info[mode].insert_or_assign(key, value);
+        }
     }
     return;
 }
@@ -1096,13 +1112,13 @@ void neovim::update_menu()
 
 void neovim::busy_start()
 {
-    if constexpr(debug)std::cout << "not defined" << std::endl;
+    is_busy = true;
     return;
 }
 
 void neovim::busy_stop()
 {
-    if constexpr(debug)std::cout << "not defined" << std::endl;
+    is_busy = false;
     return;
 }
 
@@ -1130,6 +1146,7 @@ void neovim::mode_change(const String& mode, neovim::Mode mode_idx)
     {
         current_mode["screen"] = mode_idx;
     }
+    mode_changed();
     return;
 }
 
@@ -1202,6 +1219,7 @@ void neovim::default_colors_set(Integer rgb_fg, Integer rgb_bg, Integer rgb_sp, 
     nvim_default_colors_set = make_tuple(rgb_fg, rgb_bg, rgb_sp, cterm_fg, cterm_bg);
     nvim_hl_attr.at(0).rgb_attr["foreground"] = Object(rgb_fg);
     nvim_hl_attr.at(0).rgb_attr["background"] = Object(rgb_bg);
+    nvim_hl_attr.at(0).rgb_attr["special"] = Object(rgb_sp);
     nvim_hl_attr.at(0).cterm_attr["foreground"] = Object(cterm_fg);
     nvim_hl_attr.at(0).cterm_attr["background"] = Object(cterm_bg);
     return;
@@ -1227,7 +1245,7 @@ void neovim::set_icon(const String& icon)
     return;
 }
 
-void neovim::option_set(const unordered_map<String, Object>& opt)
+void neovim::option_set(const std::unordered_map<String, Object>& opt)
 {
     for(auto& [key, val]: opt)
     {
@@ -1236,6 +1254,7 @@ void neovim::option_set(const unordered_map<String, Object>& opt)
             guifont = boost::get<String>(val);
         }
         ui_options[key] = val;
+        std::cout << "KKKKKKKKKKKKKKKKKKKKKKKKKK " << key << std::endl;
     }
     if constexpr(debug)std::cout << "option_set" << std::endl;
     return;
@@ -1259,7 +1278,7 @@ void neovim::popupmenu_select(Integer selected)
     return;
 }
 
-void neovim::tabline_update(Tabpage current, const cArray& tabs)
+void neovim::tabline_update(Tabpage current, const Array& tabs)
 {
     if constexpr(debug)std::cout << "not defined" << std::endl;
     return;
@@ -1397,8 +1416,6 @@ void neovim::grid_destroy(Integer grid)
 
 void neovim::grid_resize(Integer grid, Integer row, Integer col)
 {
-    auto start = clock();
-    std::cout << "***********\nstarted\n";
     nvim_size_x = row;
     nvim_size_y = col;
 
@@ -1409,8 +1426,6 @@ void neovim::grid_resize(Integer grid, Integer row, Integer col)
     for(auto& line: nvim_colors_map){ line.set_default(row); }
     nvim_grid_colors_map.resize(col);
     for(auto& line: nvim_grid_colors_map){ line.resize(row, 0); }
-    auto end = clock();
-    std::cout << "*************\nDuration GridLine = " << (double)(end - start)/CLOCKS_PER_SEC << "sec.\n";
 }
 
 void neovim::grid_cursor_goto(Integer grid, Integer row, Integer col)

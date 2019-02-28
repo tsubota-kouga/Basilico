@@ -18,55 +18,39 @@ class {{name}};
 
 class Basilico: public QMainWindow
 {
-    QGraphicsView basil_view;
-    QGridLayout basil_layout;
-
-    // Tools
-    QToolBar toolbar;
-
-    QAction* Run;
-
-    // Menus
-    QMenuBar menubar;
-
-    QMenu* fileMenu;
-    QMenu* editMenu;
-    QMenu* viewMenu;
-    QMenu* searchMenu;
-    QMenu* helpMenu;
-
-    // File Menu
-    QAction* New;
-    QAction* Open;
-    QAction* Save;
-    QAction* SaveAs;
-    QAction* Exit;
-
-    // Edit Menu
-    QAction* Normal;
-    QAction* Insert;
-    QAction* Replace;
-    QAction* Undo;
-    QAction* Redo;
-
     // timer
     int timer;
 
     // Plugins
     std::unordered_map<String, Vector<BasilPlugin*>> Plugins;
 
+    // Integration widget
+    QWidget neovim_integrate;
+
+    QGridLayout basil_layout;
+
+    // Tabs
+    QTabBar tabline;
+
+    // options
+    Integer showtabline;
+    String tablineStyleSheet;
 public:
+    String Name = "Basilico";
+
     NeoVim neovim;
 
-    Basilico(String port, uint width, uint height);
+    Basilico(String port, uint width, uint height, QApplication& app);
+    Basilico() = delete;
+
     void open();
 
-    void createMenus();
-    void createActions();
+    void NeoVimSetting(String port);
 
-    void openFile();
-    void saveFile();
-    void saveAsFile();
+    void BasilicoSetting();
+
+    void tablineSetting();
+    void changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage tabpage);
 
 protected:
     virtual bool eventFilter(QObject* obj, QEvent* e) override;

@@ -4,11 +4,16 @@
 #include "neovim.hpp"
 #include "neovim_utils.hpp"
 
+#include <deque>
 #include <queue>
+#include <unordered_map>
 
 #include <QtWidgets>
 
 using std::queue;
+using std::deque;
+
+class Basilico;
 
 class NeoVim: public QTextEdit, public neovim
 {
@@ -19,32 +24,22 @@ private:
     static constexpr double cw = 10;
     static constexpr double cwi = 0.1;
     static constexpr double chi = 1.1;
-public:
 
-    NeoVim(uint width, uint height, const Dictionary& options)
-        :neovim{width, height, options},
-         isKeyPressed{false}
-    {
-        timer = startTimer(30);
+    Basilico* parent;
 
-        // <default settings>
-        font_size_px = 16;
-        font = "ubuntu mono";
-        // </default settings>
-
-        setAttribute(Qt::WA_InputMethodEnabled);
-        QWidget::resize(width*(font_size_px + cwi)/2 + cw, height*(font_size_px + chi));
-
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-        setTextInteractionFlags(Qt::TextEditable | Qt::LinksAccessibleByMouse);
-    }
+    deque<pair<Tabpage, String>> nvim_tabline;
 
     String font;
     int font_size_px;
     bool isKeyPressed;
-    queue<Array> plugin_queue;
+
+    String cursorShape;
+    Integer cursorColorId;
+public:
+
+    NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options);
+
+    deque<Array> plugin_deque;
 
     void set_neovim_html();
 
@@ -63,6 +58,8 @@ public:
         isKeyPressed = false;
         return b;
     }
+
+    void tabline_change(int idx);
 
 protected:
     virtual bool event(QEvent* e) override;
@@ -91,22 +88,30 @@ protected:
 
     virtual void dragMoveEvent(QDragMoveEvent* e) override;
 
+    virtual void tabline_update(Tabpage current, const Array& tabs) override;
+
+    virtual void title_changed() override;
+
+    virtual void mode_changed() override;
 
     void update();
 
     virtual void call_plugin(Object func_and_args) override;
 
-    virtual void cursor_shape();
+    virtual void cursor_shape_and_pos();
 
+private:
     void fkeySend(QKeyEvent* e, Integer key);
 
-    void keySend(QInputEvent* e, const String& key);
+    void keySend(QInputEvent* e, const String& key, bool no_shift=false);
 
     void mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid);
 
     void mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid);
 
     void mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid);
+
+    void cursor_shape(Mode m);
 };
 
 namespace nvim_html

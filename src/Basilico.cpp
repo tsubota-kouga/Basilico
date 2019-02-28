@@ -1,15 +1,31 @@
 
 #include "Basilico.hpp"
 
-Basilico::Basilico(String port, uint width, uint height):
-    basil_view{},
+Basilico::Basilico(String port, uint width, uint height, QApplication& app):
+    QMainWindow{},
     basil_layout{},
-    neovim{width, height, { {"rgb", true}, {"ext_linegrid", true} } }
-    // menubar(this),
-    // toolbar(this)
+    neovim_integrate{},
+    neovim{width, height, this, { {"rgb", true},
+                                {"ext_linegrid", true},
+                                {"ext_tabline", true} } },
+    tabline{}
+{
+    NeoVimSetting(port);
+
+    tablineSetting();
+
+    BasilicoSetting();
+}
+
+void Basilico::open()
+{
+    QMainWindow::show();
+}
+
+void Basilico::NeoVimSetting(String port)
 {
     neovim.connect_tcp("localhost", port, 1000);
-    neovim.nvim_set_client_info("Basilico",
+    neovim.nvim_set_client_info(Name,
                                 {},
                                 "ui",
                                 {},
@@ -23,110 +39,76 @@ Basilico::Basilico(String port, uint width, uint height):
     neovim.setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
     neovim.installEventFilter(this);
 
+    neovim.nvim_command("runtime! ginit.vim");
+}
+
+void Basilico::BasilicoSetting()
+{
     basil_layout.setContentsMargins(0, 0, 0, 0);
-    basil_layout.addWidget(&neovim, 0, 0);
+    basil_layout.addWidget(&neovim, 1, 0);
+    neovim_integrate.setLayout(&basil_layout);
 
-    // menubar.setStyleSheet("color: #FFFFFF;"
-    //         "background-color: #444444;"
-    //         "font-weight: 8");
-    //
-    // toolbar.setStyleSheet("color: #FFFFFF;"
-    //         "background-color: #444444;"
-    //         "font-weight: 8");
-    //
-    // addToolBar(&toolbar);
-    // setMenuBar(&menubar);
-    // createMenus();
-    // createActions();
-
-    setCentralWidget(&neovim);
+    setCentralWidget(&neovim_integrate);
     setWindowTitle("Basilico");
     resize(neovim.size());
 
     timer = startTimer(100);
 }
 
-void Basilico::open()
+void Basilico::tablineSetting()
 {
-    neovim.nvim_command("runtime! ginit.vim");
-    QMainWindow::show();
+    try{
+        showtabline = boost::get<uInteger>(neovim.nvim_get_option("showtabline"));
+    }
+    catch(boost::bad_get& e){
+        showtabline = 0;
+    }
+    try{
+        tablineStyleSheet = boost::get<String>(neovim.nvim_get_var("basilico#tabline_style_sheet"));
+    }
+    catch(boost::bad_get& e){
+        tablineStyleSheet = "";
+    }
+    tabline.setMovable(true);
+    tabline.setAutoHide((showtabline == 2) ? false: true);
+    tabline.setExpanding(false);
+    tabline.setStyleSheet(QString::fromStdString(tablineStyleSheet));
+    connect(&tabline, &QTabBar::tabBarClicked, this,
+            [&, this](int idx){
+                neovim.tabline_change(idx);
+            });
+    connect(&tabline, &QTabBar::tabMoved, this,
+            [&, this](int from, int to){
+                int idx = tabline.currentIndex();
+                int movenum = to - from;
+                if((from == idx) xor (movenum >= 0))
+                {
+                    neovim.nvim_command("tabm +" + std::to_string(-movenum));
+                }
+                else
+                {
+                    neovim.nvim_command("tabm " + std::to_string(-movenum));
+                }
+            });
 }
 
-void Basilico::createMenus()
+void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage tabpage)
 {
-    fileMenu = menubar.addMenu(tr("File"));
-    editMenu = menubar.addMenu(tr("Edit"));
-    viewMenu = menubar.addMenu(tr("View"));
-    searchMenu = menubar.addMenu(tr("Search"));
-    helpMenu = menubar.addMenu(tr("Help"));
-}
-
-void Basilico::createActions()
-{
-    // Tools
-    Run = new QAction(this);
-    Run->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-    toolbar.addAction(Run);
-    connect(Run, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>:QuickRun\n");});
-
-    // File Menu
-    New = new QAction(tr("New"));
-    fileMenu->addAction(New);
-
-    Open = new QAction(tr("Open"), this);
-    fileMenu->addAction(Open);
-    connect(Open, &QAction::triggered, this, &Basilico::openFile);
-
-    Save = new QAction(tr("Save"), this);
-    fileMenu->addAction(Save);
-    connect(Save, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>:write\n");});
-
-    SaveAs = new QAction(tr("SaveAs"), this);
-    fileMenu->addAction(SaveAs);
-    connect(SaveAs, &QAction::triggered, this, &Basilico::saveAsFile);
-
-    Exit = new QAction(tr("Exit"), this);
-    fileMenu->addAction(Exit);
-    connect(Exit, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>:quit\n");});
-
-    // Edit Menu
-    Normal = new QAction(tr("Normal"));
-    editMenu->addAction(Normal);
-    connect(Normal, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>");});
-
-    Insert = new QAction(tr("Insert"));
-    editMenu->addAction(Insert);
-    connect(Insert, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>i");});
-
-    Replace = new QAction(tr("Replace"));
-    editMenu->addAction(Replace);
-    connect(Replace, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc><S-r>");});
-
-    Undo = new QAction(tr("Undo"));
-    editMenu->addAction(Undo);
-    connect(Undo, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>:undo\n");});
-
-    Redo = new QAction(tr("Redo"));
-    editMenu->addAction(Redo);
-    connect(Redo, &QAction::triggered, this, [&, this](){neovim.nvim_input("<Esc>:redo\n");});
-
-}
-
-void Basilico::openFile()
-{
-    auto Path = QFileDialog::getOpenFileName(this);
-    neovim.nvim_input("<Esc>:edit " + Path.toStdString() + "\n");
-}
-
-void Basilico::saveFile()
-{
-    neovim.nvim_input("<Esc>:write\n");
-}
-
-void Basilico::saveAsFile()
-{
-    auto Path = QFileDialog::getSaveFileName(this);
-    neovim.nvim_input("<Esc>:write " + Path.toStdString() + "\n");
+    if(showtabline == 0){ return; }
+    if(basil_layout.indexOf(&tabline) == -1)
+    {
+        basil_layout.addWidget(&tabline, 0, 0);
+    }
+    int num_tabs = tabline.count();
+    for(int i = 0;i <= num_tabs;i++)
+    {
+        tabline.removeTab(0);
+    }
+    for(auto&& [tab, name]: tabs)
+    {
+        int idx = tabline.addTab(QString::fromStdString(name));
+        if(tab == tabpage){ tabline.setCurrentIndex(idx); }
+    }
 }
 
 bool Basilico::eventFilter(QObject* obj, QEvent* e)
@@ -158,14 +140,14 @@ void Basilico::timerEvent(QTimerEvent* e)
 {
     if(e->timerId() == timer)
     {
-        while(!neovim.plugin_queue.empty())
+        while(!neovim.plugin_deque.empty())
         {
-            auto& args = neovim.plugin_queue.front();
+            auto& args = neovim.plugin_deque.front();
             auto& plugin_name = boost::get<String>(args.at(0));
 
 #include "plugins.cpp"
 
-            neovim.plugin_queue.pop();
+            neovim.plugin_deque.pop_front();
         }
         for(auto& [_, plugins]: Plugins)
         {
@@ -215,3 +197,4 @@ void Basilico::addPlugin(String plugin_name, BasilPlugin* plugin)
         Plugins.at(plugin_name).push_back(plugin);
     }
 }
+

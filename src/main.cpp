@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     constexpr int width = 80;
     constexpr int height = 24;
-    Basilico basil(argv[1], width, height);
+    Basilico basil(argv[1], width, height, app);
     app.setCursorFlashTime(0);
 
     Q_INIT_RESOURCE(Basilico);
