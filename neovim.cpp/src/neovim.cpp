@@ -362,7 +362,7 @@ void neovim::screen_line::reserve(uint size)
     line.reserve(size);
 }
 
-const size_t neovim::screen_line::size() const
+size_t neovim::screen_line::size() const
 {
     return line.size();
 }

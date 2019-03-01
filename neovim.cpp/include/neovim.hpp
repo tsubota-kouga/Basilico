@@ -124,7 +124,7 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
 
         String substr(int start, int num) const;
 
-        const size_t size() const;
+        size_t size() const;
 
         void assign(const String& c, int start, int end);
 

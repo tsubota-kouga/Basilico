@@ -40,11 +40,11 @@ void NeoVim::set_neovim_html()
                     "margin: 0px;"
                     "padding: 0px;}"
                     "body {"
-                    "width: %7;"
-                    "height: %7;"
+                    "width: 0;"
+                    "height: 100%;"
                     "margin: 0px;"
                     "padding: 0px;"
-                    "line-height: 100%;"
+                    "line-height: 1;"
                     "color: rgb(%1,%2,%3);"
                     "background-color: rgb(%4,%5,%6);"
                     "font-size: %7px;"
@@ -56,9 +56,10 @@ void NeoVim::set_neovim_html()
                          QString::fromStdString((guifont == "") ? font : guifont)));
         Integer special_color;
 
-        screen.append("<body>");
+        screen.append("<body><tt>");
         for(int i = 0;i < nvim_screen.size();i++)
         {
+            // COLORS
             constexpr int default_idx = 0;
             Integer current_color_id = nvim_grid_colors_map.at(i).at(0);
             String color_part;
@@ -318,7 +319,7 @@ void NeoVim::set_neovim_html()
                     if(i != nvim_screen.size() - 1){ screen.append("\n"); }
                     screen.append("</span>");
         }
-        screen.append("</body>");
+        screen.append("</tt></body>");
     }
     else
     {
@@ -326,7 +327,7 @@ void NeoVim::set_neovim_html()
         exit(1);
     }
 
-    // std::cout << qPrintable(screen) << std::endl;
+    std::cout << qPrintable(screen) << std::endl;
     for(auto&& line:nvim_screen)
     {
         line.test();
@@ -784,6 +785,37 @@ void nvim_html::html_escape(std::string& s)
             pos += to.size();
         }
     }
+
+    // bool prev_len_is_1 = true;
+    // bool tag_open = false;
+    // for(int i = 0;i < s.size();i++)
+    // {
+    //     if((s.at(i) & utils::BIN1x2) == utils::BIN1x2)  // top of unicode char and not ascii
+    //     {
+    //         if(prev_len_is_1){
+    //             const std::string html = "<span style=\"font-size: 80%;\">";
+    //             s.insert(i, html);
+    //             i += html.size();
+    //             prev_len_is_1 = false;
+    //             tag_open = true;
+    //         }
+    //     }
+    //     else if((s.at(i) & utils::BIN1x1) == 0)  // ascii code
+    //     {
+    //         if(!prev_len_is_1){
+    //             std::string html = "</span>";
+    //             s.insert(i, html);
+    //             i += html.size();
+    //             tag_open = false;
+    //         }
+    //         prev_len_is_1 = true;
+    //     }
+    // }
+    // if(tag_open)
+    // {
+    //     std::string html = "</span>";
+    //     s.append(html);
+    // }
 }
 
 std::tuple<unsigned long, unsigned long, unsigned long> nvim_html::convert_rgb(unsigned long rgb)
