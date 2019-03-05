@@ -3,18 +3,23 @@
 
 Basilico::Basilico(String port, uint width, uint height, QApplication& app):
     QMainWindow{},
-    basil_layout{},
     neovim_integrate{},
+    basil_layout{},
+    tabline{},
+    neovimsplinteg_tabplugins_integrate{},
+    neovim_split_plugins_integrate{},
+    neovim_layout{},
     neovim{width, height, this, { {"rgb", true},
                                 {"ext_linegrid", true},
-                                {"ext_tabline", true} } },
-    tabline{}
+                                {"ext_tabline", true} } }
 {
     NeoVimSetting(port);
 
     tablineSetting();
 
     BasilicoSetting();
+
+    currentTabpage = neovim.nvim_get_current_tabpage();
 }
 
 void Basilico::open()
@@ -32,7 +37,8 @@ void Basilico::NeoVimSetting(String port)
                                 {{"logo", Object{""}}});
     // put func here which should be put in constructor
     // <begin>
-    neovim.nvim_subscribe("plugin");
+    neovim.nvim_subscribe("NeoVim#plugin");
+    neovim.nvim_subscribe("NeoVim#autocmd");
     // <end>
 
     neovim.nvim_ui_attach();
@@ -45,7 +51,13 @@ void Basilico::NeoVimSetting(String port)
 void Basilico::BasilicoSetting()
 {
     basil_layout.setContentsMargins(0, 0, 0, 0);
-    basil_layout.addWidget(&neovim, 1, 0);
+    neovim_index = neovimsplinteg_tabplugins_integrate.addWidget(
+            &neovim_split_plugins_integrate);
+    neovim_layout.setContentsMargins(0, 0, 0, 0);
+    neovim_split_plugins_integrate.setLayout(&neovim_layout);
+    neovim_layout.addWidget(&neovim, 1, 1);
+
+    basil_layout.addWidget(&neovimsplinteg_tabplugins_integrate, 1, 0);
     neovim_integrate.setLayout(&basil_layout);
 
     setCentralWidget(&neovim_integrate);
@@ -73,10 +85,14 @@ void Basilico::tablineSetting()
     tabline.setAutoHide((showtabline == 2) ? false: true);
     tabline.setExpanding(false);
     tabline.setStyleSheet(QString::fromStdString(tablineStyleSheet));
+
+    // tab change
     connect(&tabline, &QTabBar::tabBarClicked, this,
             [&, this](int idx){
                 neovim.tabline_change(idx);
             });
+
+    // tab move
     connect(&tabline, &QTabBar::tabMoved, this,
             [&, this](int from, int to){
                 int idx = tabline.currentIndex();
@@ -92,9 +108,10 @@ void Basilico::tablineSetting()
             });
 }
 
-void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage tabpage)
+void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage current)
 {
     if(showtabline == 0){ return; }
+    // if there is not tabline, make tabline
     if(basil_layout.indexOf(&tabline) == -1)
     {
         basil_layout.addWidget(&tabline, 0, 0);
@@ -107,8 +124,54 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
     for(auto&& [tab, name]: tabs)
     {
         int idx = tabline.addTab(QString::fromStdString(name));
-        if(tab == tabpage){ tabline.setCurrentIndex(idx); }
+        if(tab == current){
+            tabline.setCurrentIndex(idx);
+        }
     }
+
+    // if current is tab-plugin tab
+    if(TabPluginId.count(current) == 1)
+    {
+        auto& [name, index] = TabPluginId[current];
+        neovimsplinteg_tabplugins_integrate.setCurrentIndex(index);
+    }
+    else // else Neovim must be shown
+    {
+        neovimsplinteg_tabplugins_integrate.setCurrentIndex(neovim_index);
+    }
+
+    // SplitPlugins
+    // previous tabpage
+    if(current == currentTabpage)
+    {
+        return;
+    }
+    // next pabpage
+    {
+        auto p = SplitPlugins.equal_range(current);
+        for(auto it = p.first;it != p.second;++it)
+        {
+            auto&& [widget, r, c, w, h] = it->second;
+            widget->show();
+        }
+    }
+    {
+        auto p = SplitPlugins.equal_range(currentTabpage);
+        for(auto it = p.first;it != p.second;++it)
+        {
+            auto&& [widget, r, c, w, h] = it->second;
+            widget->hide();
+        }
+    }
+
+    currentTabpage = current;
+}
+
+
+Tabpage Basilico::makeTabForPlugin(String name)
+{
+    neovim.nvim_call_function("basilico_tabplugin#make_tab_for_plugin", {name});
+    return neovim.nvim_get_current_tabpage();
 }
 
 bool Basilico::eventFilter(QObject* obj, QEvent* e)
@@ -138,16 +201,17 @@ bool Basilico::eventFilter(QObject* obj, QEvent* e)
 
 void Basilico::timerEvent(QTimerEvent* e)
 {
+    // Plugin update
     if(e->timerId() == timer)
     {
-        while(!neovim.plugin_deque.empty())
+        while(!neovim.plugin_req_deque.empty())
         {
-            auto& args = neovim.plugin_deque.front();
+            auto& args = neovim.plugin_req_deque.front();
             auto& plugin_name = boost::get<String>(args.at(0));
 
 #include "plugins.cpp"
 
-            neovim.plugin_deque.pop_front();
+            neovim.plugin_req_deque.pop_front();
         }
         for(auto& [_, plugins]: Plugins)
         {

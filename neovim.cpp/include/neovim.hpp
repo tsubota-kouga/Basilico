@@ -126,6 +126,8 @@ class neovim: public nvim::nvim_api, public nvim::nvim_ui
 
         size_t size() const;
 
+        size_t length() const;
+
         void assign(const String& c, int start, int end);
 
         void assign(const String& c, int start=0);
@@ -193,7 +195,7 @@ public:
 
     unordered_map<String, unordered_map<String, Object>> ui_mode_info;
 
-    unordered_map<String, neovim::Mode> current_mode;
+    unordered_map<String, Mode> current_mode;
 
     unordered_map<String, Object> ui_options;
 

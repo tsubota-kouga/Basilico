@@ -42,8 +42,7 @@ class NvimRPC
 public:
     NvimRPC() :msgid_(0) {}
 
-    void connect_tcp(const String &host,
-            const String &service, long timeout_sec)
+    void connect_tcp(const String &host, const String &service, long timeout_sec)
     {
         socket_.connect_tcp(host, service, timeout_sec);
     }

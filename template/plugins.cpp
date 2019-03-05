@@ -5,9 +5,31 @@
 {
     if(args.size() > 1 and boost::get<String>(args.at(1)) == "factory")
     {
-        auto tmp = {{name}}::factory(this, args);
+        auto&& [tmp, option] = {{name}}::factory(this, args);
+
         if(tmp != nullptr)
         {
+            if(option == "dock")
+            {
+            }
+            else if(option == "tab")
+            {
+                auto&& tab = makeTabForPlugin("{{name}}");
+                addTabPluginId(tmp, "{{name}}", tab);
+            }
+            else if(option == "split")
+            {
+                auto&& tab = neovim.nvim_get_current_tabpage();
+                neovim_layout.addWidget(tmp, 1, 2);
+                auto&& [r, c, w, h] = tmp->splitPluginPosition(tab);
+                SplitPlugins.emplace(tab, std::make_tuple(tmp, r, c, w, h));
+            }
+            else
+            {
+                std::cerr << "ERROR: There is no option "
+                    << option << std::endl;
+                delete tmp;
+            }
             addPlugin("{{name}}", tmp);
         }
     }
@@ -15,12 +37,24 @@
     {
         if(Plugins.count("{{name}}") > 0)
         {
-            for(auto plugin: Plugins.at("{{name}}"))
+            for(auto&& plugin: Plugins.at("{{name}}"))
             {
                 plugin->execute(this, args);
             }
         }
     }
 }
+{% if loop.last %}
+else  // autocmd
+{
+    for(auto& [_, plugins]: Plugins)
+    {
+        for(auto plugin:plugins)
+        {
+            plugin->autocmdExecute(this, boost::get<String>(args.at(0)));
+        }
+    }
+}
+{% endif %}
 {% endfor %}
 

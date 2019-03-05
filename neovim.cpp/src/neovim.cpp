@@ -367,6 +367,16 @@ size_t neovim::screen_line::size() const
     return line.size();
 }
 
+size_t neovim::screen_line::length() const
+{
+    size_t length = 0;
+    for(const String& c: line)
+    {
+        if(c != ""){ length++; }
+    }
+    return length;
+}
+
 void neovim::screen_line::test() const
 {
     for(auto ch: line)
@@ -965,7 +975,7 @@ bool neovim::operation(long timeout_millisec)
                     redraw_infoes.push_back(infoes.at(i));
                     redraw_flag = true;
                 }
-                else if(funcs.at(i) == "plugin")
+                else if(funcs.at(i) == "NeoVim#plugin" or funcs.at(i) == "NeoVim#autocmd")
                 {
                     if constexpr(true)std::cout << "call plugin" << std::endl;
                     call_plugin(infoes.at(i));
@@ -1254,7 +1264,6 @@ void neovim::option_set(const std::unordered_map<String, Object>& opt)
             guifont = boost::get<String>(val);
         }
         ui_options[key] = val;
-        std::cout << "KKKKKKKKKKKKKKKKKKKKKKKKKK " << key << std::endl;
     }
     if constexpr(debug)std::cout << "option_set" << std::endl;
     return;

@@ -11,5 +11,7 @@ set cpo&vim
 
 command! -nargs=0 Basilico call basilico_startup#start()
 
+" au TabEnter * call rpcnotify(0, 'NeoVim#autocmd', 'TabEnter')
+
 let &cpo = s:save_cpo
-unlet s:save_cpo
+   unlet s:save_cpo

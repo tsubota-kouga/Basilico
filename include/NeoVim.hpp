@@ -5,12 +5,11 @@
 #include "neovim_utils.hpp"
 
 #include <deque>
-#include <queue>
 #include <unordered_map>
+#include <cmath>
 
 #include <QtWidgets>
 
-using std::queue;
 using std::deque;
 
 class Basilico;
@@ -18,7 +17,6 @@ class Basilico;
 class NeoVim: public QTextEdit, public neovim
 {
     using neovim::neovim;
-private:
     int timer;
 
     static constexpr double cw = 10;
@@ -31,6 +29,7 @@ private:
 
     String font;
     int font_size_px;
+    int wchar_font_size_px;
     bool isKeyPressed;
 
     String cursorShape;
@@ -38,8 +37,11 @@ private:
 public:
 
     NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options);
+    NeoVim() = delete;
+    NeoVim operator=(neovim) = delete;
+    NeoVim operator=(QTextEdit) = delete;
 
-    deque<Array> plugin_deque;
+    deque<Array> plugin_req_deque;
 
     void set_neovim_html();
 
@@ -116,8 +118,10 @@ private:
 
 namespace nvim_html
 {
-    void html_escape(std::string& s);
+    void html_escape(std::string& s, int wchar_size);
     std::tuple<unsigned long, unsigned long, unsigned long> convert_rgb(unsigned long rgb);
+    int how_many_div_by_exp2(unsigned char c);
+    std::pair<unsigned, unsigned> utf8_ord(const std::string& str, int& i);
 }
 
 #endif

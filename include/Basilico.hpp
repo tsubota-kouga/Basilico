@@ -5,63 +5,75 @@
 #include "BasilPlugin.hpp"
 
 
+#include "RuntimeView.hpp"
+
+#include "WebView.hpp"
+
+#include "PDFView.hpp"
+
 
 #include <QtWidgets>
 #include <QtGui>
+#include <type_traits>
 
 class BasilPlugin;
+
+class RuntimeView;
+
+class WebView;
+
+class PDFView;
 
 
 class Basilico: public QMainWindow
 {
-    QGraphicsView basil_view;
-    QGridLayout basil_layout;
-
-    // Tools
-    QToolBar toolbar;
-
-    QAction* Run;
-
-    // Menus
-    QMenuBar menubar;
-
-    QMenu* fileMenu;
-    QMenu* editMenu;
-    QMenu* viewMenu;
-    QMenu* searchMenu;
-    QMenu* helpMenu;
-
-    // File Menu
-    QAction* New;
-    QAction* Open;
-    QAction* Save;
-    QAction* SaveAs;
-    QAction* Exit;
-
-    // Edit Menu
-    QAction* Normal;
-    QAction* Insert;
-    QAction* Replace;
-    QAction* Undo;
-    QAction* Redo;
-
     // timer
     int timer;
 
     // Plugins
     std::unordered_map<String, Vector<BasilPlugin*>> Plugins;
 
+    // Integration widget
+    QWidget neovim_integrate;
+
+    QGridLayout basil_layout;
+
+    // Integration neovim tab and plugin tabs
+    QStackedWidget neovim_tabplugins_integrate;
+    int neovim_index; // this must be 0
+    std::map<Tabpage, std::pair<String, int>> TabPluginId;
+
+    // Tabs
+    QTabBar tabline;
+
+    // options
+    Integer showtabline;
+    String tablineStyleSheet;
 public:
+    String Name = "Basilico";
+
     NeoVim neovim;
 
-    Basilico(String port, uint width, uint height);
+    Basilico(String port, uint width, uint height, QApplication& app);
+    Basilico() = delete;
 
-    void createMenus();
-    void createActions();
+    void open();
 
-    void openFile();
-    void saveFile();
-    void saveAsFile();
+    void NeoVimSetting(String port);
+
+    void BasilicoSetting();
+
+    void tablineSetting();
+    void changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage current);
+
+    template<typename T>
+    void addTabPluginId(T* plugin, String name, Tabpage tab)
+    {
+        auto index = neovim_tabplugins_integrate.addWidget(plugin);
+        TabPluginId[tab] = std::make_pair(name, index);
+    }
+
+    Tabpage makeTabForPlugin(String name);
 
 protected:
     virtual bool eventFilter(QObject* obj, QEvent* e) override;

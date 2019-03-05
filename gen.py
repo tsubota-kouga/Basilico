@@ -18,23 +18,15 @@ fill = {}
 # nvim = attach('tcp', address='localhost', port=port)
 nvim = attach('socket', path=path)
 
-# basilico_plugin_default_dir = nvim.eval('g:basilico_plugin_default_dir')
-
 basil_file_name = 'basil.toml'
-
-# basil_plugin_paths = [
-#     os.path.dirname(path)
-#     for path in glob(os.path.join(basilico_plugin_default_dir, '*', '*', basil_file_name))]
 
 fill['qt_version'] = 5.7
 fill['boost_version'] = 1.55
 fill['qt_dependency'] = []
 fill['boost_dependency'] = []
-# fill['plugin_paths'] = [path for path in basil_plugin_paths]
-# fill['plugin_name'] = [tail for head, tail in
-#     [os.path.split(basil_plugin_path) for basil_plugin_path in basil_plugin_paths]]
 fill['plugin_paths'] = []
 fill['plugin_name'] = []
+fill['autocmd'] = []
 
 # array
 # runtimepath = nvim.eval('g:basilico_plugin_added')
@@ -57,6 +49,8 @@ for p in fill['plugin_paths']:
     if lang == 'cpp':
         fill['qt_dependency'].extend(f['dependency'].setdefault('qt_lib', ''))
         fill['boost_dependency'].extend(f['dependency'].setdefault('boost_lib', ''))
+        if 'neovim' in f.keys():
+            fill['autocmd'].extend(f['neovim'].setdefault('autocmd', ''))
         fill['qt_version'] = f['dependency']['qt_version'] \
                 if fill['qt_version'] < f['dependency'].setdefault('qt_version', 0) else fill['qt_version']
         fill['boost_version'] = f['dependency']['boost_version'] \
@@ -72,6 +66,7 @@ fill['source_paths'] = [
 
 fill['qt_dependency'] = list(set(fill['qt_dependency']))
 fill['boost_dependency'] = list(set(fill['boost_dependency']))
+fill['autocmd'] = list(set(fill['autocmd']))
 
 for k in fill.keys():
     print(k, ':', fill[k])
@@ -101,5 +96,10 @@ with open('src/plugins.cpp', 'w') as f:
 template = env.get_template('Basilico.hpp')
 rendered = template.render(message=fill)
 with open('include/Basilico.hpp', 'w') as f:
+    f.write(rendered)
+
+template = env.get_template('basilico_autocmds.vim')
+rendered = template.render(message=fill)
+with open('plugin/basilico_autocmds.vim', 'w') as f:
     f.write(rendered)
 

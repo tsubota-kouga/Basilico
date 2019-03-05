@@ -3,6 +3,7 @@
 
 NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options)
         :neovim{width, height, options},
+         QTextEdit{},
          isKeyPressed{false},
          parent{parent_}
 {
@@ -10,6 +11,7 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
 
     // <default settings>
     font_size_px = 16;
+    wchar_font_size_px = font_size_px - 1;
     font = "ubuntu mono";
     // </default settings>
 
@@ -140,184 +142,184 @@ void NeoVim::set_neovim_html()
                             "text-decoration: underline;"
                             "text-decoration-color: rgb(%1,%2,%3);"
                             ).arg(sr).arg(sg).arg(sb)); }
-                if(current_is_undercurl){
-                    auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
-                    screen.append(QString(
-                                "text-decoration: underline;"
-                                "text-decoration-color: rgb(%1,%2,%3);"
-                                ).arg(sr).arg(sg).arg(sb)); }
+            if(current_is_undercurl){
+                auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
+                screen.append(QString(
+                            "text-decoration: underline;"
+                            "text-decoration-color: rgb(%1,%2,%3);"
+                            ).arg(sr).arg(sg).arg(sb)); }
+            //</decoration>
+            //<end>
+            screen.append(QString(
+                        "color: rgb(%1, %2, %3);"
+                        "background-color:rgb(%4, %5, %6);\">"
+                        ).arg(frf).arg(fgf).arg(fbf).arg(frb).arg(fgb).arg(fbb));
+            //</end>
+
+            for(int j = 0;j < nvim_grid_colors_map.at(i).size();j++)
+            {
+                Integer next_color_id;
+                next_color_id = nvim_grid_colors_map.at(i).at(j);
+
+                if(current_color_id != next_color_id)
+                {
+                    Object next_fg, next_bg;
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
+                    { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    else
+                    { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
+                    { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    else
+                    { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("bold") == 1)
+                    { next_is_bold = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("bold")); }
+                    else { next_is_bold = false; }
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("italic") == 1)
+                    { next_is_italic = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("italic")); }
+                    else { next_is_italic = false; }
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("underline") == 1)
+                    { next_is_underline = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("underline")); }
+                    else { next_is_underline = false; }
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("undercurl") == 1)
+                    { next_is_undercurl = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("undercurl")); }
+                    else { next_is_undercurl = false; }
+
+                    nvim_html::html_escape(color_part, wchar_font_size_px);
+                    screen.append(QString::fromStdString(color_part));
+                    color_part = "";
+                    screen.append("</span>");
+
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("reverse") == 1)
+                    { next_is_reverse = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("reverse")); }
+                    else { next_is_reverse = false; }
+                    if(next_is_reverse)
+                        /* swap */
+                    {
+                        auto tmp = next_bg;
+                        next_bg = next_fg;
+                        next_fg = tmp;
+                    }
+                    auto [rf, gf, bf] = nvim_html::convert_rgb(boost::get<uInteger>(next_fg));
+                    auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));
+
+                    if(next_is_underline or next_is_undercurl)
+                    {
+                        if(nvim_hl_attr.at(next_color_id).rgb_attr.count("special") == 1)
+                        {
+                            special_color = boost::get<uInteger>(
+                                    nvim_hl_attr.at(next_color_id).rgb_attr.at("special"));
+                        }
+                        else if(auto special_orig =
+                                nvim_hl_attr.at(default_idx).rgb_attr.at("special");
+                                special_orig.is_uint64_t())
+                        {
+                            special_color = boost::get<uInteger>(special_orig);
+                        }
+                        else
+                        {
+                            special_color = boost::get<Integer>(special_orig);
+                        }
+                    }
+                    //<start>
+                    screen.append("<span style=\"");
+                    //</start>
+                    //<decoration>
+                    if(next_is_bold){ screen.append(
+                            "font-weight: bold;"
+                            ); }
+                    if(next_is_italic){ screen.append(
+                            "font-style: italic;"
+                            ); }
+                    if(next_is_underline){
+                        auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
+                        screen.append(QString(
+                                    "text-decoration: underline;"
+                                    "text-decoration-color: rgb(%1,%2,%3);"
+                                    ).arg(sr).arg(sg).arg(sb)); }
+                    if(next_is_undercurl){
+                        auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
+                        screen.append(QString(
+                                    "text-decoration: underline;"
+                                    "text-decoration-color: rgb(%1,%2,%3);"
+                                    ).arg(sr).arg(sg).arg(sb)); }
                     //</decoration>
                     //<end>
                     screen.append(QString(
                                 "color: rgb(%1, %2, %3);"
                                 "background-color:rgb(%4, %5, %6);\">"
-                                ).arg(frf).arg(fgf).arg(fbf).arg(frb).arg(fgb).arg(fbb));
+                                ).arg(rf).arg(gf).arg(bf).arg(rb).arg(gb).arg(bb));
                     //</end>
+                }
 
-                    for(int j = 0;j < nvim_grid_colors_map.at(i).size();j++)
-                    {
-                        Integer next_color_id;
-                        next_color_id = nvim_grid_colors_map.at(i).at(j);
+                //<cursor setting>
+                bool cursor_positioned =
+                    (j == nvim_cursor_x) and (i == nvim_cursor_y)
+                    and cursorShape != "vertical" and not is_busy;
 
-                        if(current_color_id != next_color_id)
-                        {
-                            Object next_fg, next_bg;
+                if(cursor_positioned)
+                {
+                    Object next_fg, next_bg;
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
+                    { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
+                    else
+                    { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
 
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
-                            { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
-                            else
-                            { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
+                    if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
+                    { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
+                    else
+                    { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
 
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
-                            { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
-                            else
-                            { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("bold") == 1)
-                            { next_is_bold = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("bold")); }
-                            else { next_is_bold = false; }
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("italic") == 1)
-                            { next_is_italic = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("italic")); }
-                            else { next_is_italic = false; }
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("underline") == 1)
-                            { next_is_underline = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("underline")); }
-                            else { next_is_underline = false; }
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("undercurl") == 1)
-                            { next_is_undercurl = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("undercurl")); }
-                            else { next_is_undercurl = false; }
-
-                            nvim_html::html_escape(color_part);
-                            screen.append(QString::fromStdString(color_part));
-                            color_part = "";
-                            screen.append("</span>");
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("reverse") == 1)
-                            { next_is_reverse = boost::get<bool>(nvim_hl_attr.at(next_color_id).rgb_attr.at("reverse")); }
-                            else { next_is_reverse = false; }
-                            if(next_is_reverse)
-                                /* swap */
-                            {
-                                auto tmp = next_bg;
-                                next_bg = next_fg;
-                                next_fg = tmp;
-                            }
-                            auto [rf, gf, bf] = nvim_html::convert_rgb(boost::get<uInteger>(next_fg));
-                            auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));
-
-                            if(next_is_underline or next_is_undercurl)
-                            {
-                                if(nvim_hl_attr.at(next_color_id).rgb_attr.count("special") == 1)
-                                {
-                                    special_color = boost::get<uInteger>(
-                                            nvim_hl_attr.at(next_color_id).rgb_attr.at("special"));
-                                }
-                                else if(auto special_orig =
-                                        nvim_hl_attr.at(default_idx).rgb_attr.at("special");
-                                        special_orig.is_uint64_t())
-                                {
-                                    special_color = boost::get<uInteger>(special_orig);
-                                }
-                                else
-                                {
-                                    special_color = boost::get<Integer>(special_orig);
-                                }
-                            }
-                            //<start>
-                            screen.append("<span style=\"");
-                            //</start>
-                            //<decoration>
-                            if(next_is_bold){ screen.append(
-                                    "font-weight: bold;"
-                                    ); }
-                            if(next_is_italic){ screen.append(
-                                    "font-style: italic;"
-                                    ); }
-                            if(next_is_underline){
-                                auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
-                                screen.append(QString(
-                                            "text-decoration: underline;"
-                                            "text-decoration-color: rgb(%1,%2,%3);"
-                                            ).arg(sr).arg(sg).arg(sb)); }
-                                if(next_is_undercurl){
-                                    auto [sr, sg, sb] = nvim_html::convert_rgb(special_color);
-                                    screen.append(QString(
-                                                "text-decoration: underline;"
-                                                "text-decoration-color: rgb(%1,%2,%3);"
-                                                ).arg(sr).arg(sg).arg(sb)); }
-                                    //</decoration>
-                                    //<end>
-                                    screen.append(QString(
-                                                "color: rgb(%1, %2, %3);"
-                                                "background-color:rgb(%4, %5, %6);\">"
-                                                ).arg(rf).arg(gf).arg(bf).arg(rb).arg(gb).arg(bb));
-                                    //</end>
-                        }
-
-                        //<cursor setting>
-                        bool cursor_positioned =
-                            (j == nvim_cursor_x) and (i == nvim_cursor_y)
-                            and cursorShape != "vertical" and not is_busy;
-
-                        if(cursor_positioned)
-                        {
-                            Object next_fg, next_bg;
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("foreground") == 1)
-                            { next_fg = nvim_hl_attr.at(next_color_id).rgb_attr.at("foreground"); }
-                            else
-                            { next_fg = nvim_hl_attr.at(default_idx).rgb_attr.at("foreground"); }
-
-                            if(nvim_hl_attr.at(next_color_id).rgb_attr.count("background") == 1)
-                            { next_bg = nvim_hl_attr.at(next_color_id).rgb_attr.at("background"); }
-                            else
-                            { next_bg = nvim_hl_attr.at(default_idx).rgb_attr.at("background"); }
-
-                            auto [rf, gf, bf] = nvim_html::convert_rgb(boost::get<uInteger>(next_fg));
-                            auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));
-                            nvim_html::html_escape(color_part);
-                            screen.append(QString::fromStdString(color_part));
-                            color_part = "";
-                            if(cursorShape == "block")
-                            {
-                                screen.append(QString(
-                                            "<span style=\""
-                                            "color: rgb(%1, %2, %3);"
-                                            "background-color:rgb(%4, %5, %6);\">"
-                                            ).arg(rb).arg(gb).arg(bb).arg(rf).arg(gf).arg(bf));
-                            }
-                            else if(cursorShape == "horizontal")
-                            {
-                                screen.append(QString(
-                                            "<span style=\""
-                                            "text-decoration: underline;"
-                                            "text-decoration-color:rgb(%1, %2, %3);\">"
-                                            ).arg(rf).arg(gf).arg(bf));
-                            }
-                        }
-                        //</cursor setting>
-
-                        color_part += nvim_screen.at(i).at(j);
-                        if(cursor_positioned)
-                        {
-                            nvim_html::html_escape(color_part);
-                            screen.append(QString::fromStdString(color_part));
-                            screen.append("</span>");
-                            color_part = "";
-                            cursor_positioned = false;
-                        }
-
-                        current_color_id = next_color_id;
-                        current_is_bold = next_is_bold;
-                        current_is_italic = next_is_italic;
-                        current_is_underline = next_is_underline;
-                    }
-
-                    nvim_html::html_escape(color_part);
+                    auto [rf, gf, bf] = nvim_html::convert_rgb(boost::get<uInteger>(next_fg));
+                    auto [rb, gb, bb] = nvim_html::convert_rgb(boost::get<uInteger>(next_bg));
+                    nvim_html::html_escape(color_part, wchar_font_size_px);
                     screen.append(QString::fromStdString(color_part));
-                    if(i != nvim_screen.size() - 1){ screen.append("\n"); }
+                    color_part = "";
+                    if(cursorShape == "block")
+                    {
+                        screen.append(QString(
+                                    "<span style=\""
+                                    "color: rgb(%1, %2, %3);"
+                                    "background-color:rgb(%4, %5, %6);\">"
+                                    ).arg(rb).arg(gb).arg(bb).arg(rf).arg(gf).arg(bf));
+                    }
+                    else if(cursorShape == "horizontal")
+                    {
+                        screen.append(QString(
+                                    "<span style=\""
+                                    "text-decoration: underline;"
+                                    "text-decoration-color:rgb(%1, %2, %3);\">"
+                                    ).arg(rf).arg(gf).arg(bf));
+                    }
+                }
+                //</cursor setting>
+
+                color_part += nvim_screen.at(i).at(j);
+                if(cursor_positioned)
+                {
+                    nvim_html::html_escape(color_part, wchar_font_size_px);
+                    screen.append(QString::fromStdString(color_part));
                     screen.append("</span>");
+                    color_part = "";
+                    cursor_positioned = false;
+                }
+
+                current_color_id = next_color_id;
+                current_is_bold = next_is_bold;
+                current_is_italic = next_is_italic;
+                current_is_underline = next_is_underline;
+            }
+
+            nvim_html::html_escape(color_part, wchar_font_size_px);
+            screen.append(QString::fromStdString(color_part));
+            if(i != nvim_screen.size() - 1){ screen.append("\n"); }
+            screen.append("</span>");
         }
         screen.append("</tt></body>");
     }
@@ -327,7 +329,7 @@ void NeoVim::set_neovim_html()
         exit(1);
     }
 
-    std::cout << qPrintable(screen) << std::endl;
+    // std::cout << qPrintable(screen) << std::endl;
     for(auto&& line:nvim_screen)
     {
         line.test();
@@ -639,7 +641,7 @@ void NeoVim::tabline_update(Tabpage current, const Array& tabs)
 
 void NeoVim::title_changed()
 {
-    parent->setWindowTitle(QString::fromStdString(nvim_title + "<" + parent->Name + ">"));
+    parent->setWindowTitle(QString::fromStdString(nvim_title + "<" + parent->getName() + ">"));
 }
 
 void NeoVim::mode_changed()
@@ -650,7 +652,7 @@ void NeoVim::mode_changed()
 void NeoVim::call_plugin(Object func_and_args)
 {
     Array info = boost::get<Array>(func_and_args);
-    plugin_deque.push_back(info);
+    plugin_req_deque.push_back(info);
 }
 
 void NeoVim::cursor_shape_and_pos()
@@ -696,8 +698,26 @@ void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid)
 {
     QTextCursor c = cursorForPosition(pos);
-    int row = c.position() / nvim_screen.at(0).size();
-    int col = c.position() % nvim_screen.at(0).size() - row;
+    int row = 0, col = 0, num_char = 0;
+    for(row = 0;row < nvim_screen.size();row++)
+    {
+        for(col = 0;col < nvim_screen.at(row).size();col++)
+        {
+            if(nvim_screen.at(row).at(col) != "")
+            {
+                num_char++;
+            }
+            if(num_char == c.position())
+            {
+                // TODO
+                std::cout << row << ", " << col << std::endl;
+                std::cout << num_char << ", " << c.position() << std::endl;
+                goto send;
+            }
+        }
+        num_char++;
+    }
+send:
     nvim_input_mouse(button, action, modifiers, grid, row, col);
 }
 
@@ -758,7 +778,8 @@ void NeoVim::tabline_change(int idx)
     nvim_set_current_tabpage(nvim_tabline.at(idx).first);
 }
 
-void nvim_html::html_escape(std::string& s)
+void nvim_html::html_escape(std::string& s, int wchar_size)
+    // TODO double wide char font size
 {
     std::unordered_map<std::string, std::string> special_char
     {
@@ -781,36 +802,64 @@ void nvim_html::html_escape(std::string& s)
         }
     }
 
-    // bool prev_len_is_1 = true;
-    // bool tag_open = false;
-    // for(int i = 0;i < s.size();i++)
-    // {
-    //     if((s.at(i) & utils::BIN1x2) == utils::BIN1x2)  // top of unicode char and not ascii
-    //     {
-    //         if(prev_len_is_1){
-    //             const std::string html = "<span style=\"font-size: 80%;\">";
-    //             s.insert(i, html);
-    //             i += html.size();
-    //             prev_len_is_1 = false;
-    //             tag_open = true;
-    //         }
-    //     }
-    //     else if((s.at(i) & utils::BIN1x1) == 0)  // ascii code
-    //     {
-    //         if(!prev_len_is_1){
-    //             std::string html = "</span>";
-    //             s.insert(i, html);
-    //             i += html.size();
-    //             tag_open = false;
-    //         }
-    //         prev_len_is_1 = true;
-    //     }
-    // }
-    // if(tag_open)
-    // {
-    //     std::string html = "</span>";
-    //     s.append(html);
-    // }
+    bool is_prev_ascii = true;
+    bool tag_open = false;
+    auto append_begin_tag = [&](auto& s, auto& i)
+    {
+        if(is_prev_ascii){
+            const std::string html = "<span style=\"font-size: " + std::to_string(wchar_size) + "px;\">";
+            s.insert(i, html);
+            i += html.size();
+            is_prev_ascii = false;
+            tag_open = true;
+        }
+    };
+    auto append_end_tag = [&](auto& s, auto& i)
+    {
+        if(!is_prev_ascii){
+            const std::string html = "</span>";
+            s.insert(i, html);
+            i += html.size();
+            tag_open = false;
+        }
+        is_prev_ascii = true;
+    };
+
+    for(int i = 0;i < s.size();)
+    {
+        auto&& [codepoint, size] = utf8_ord(s, i);
+        if((0x00A2 <= codepoint and codepoint <= 0x00F7) or
+           (0x0391 <= codepoint and codepoint <= 0x03C9) or
+           (0x0401 <= codepoint and codepoint <= 0x0451) or
+           (0x2010 <= codepoint and codepoint <= 0x2312) or
+           (0x2500 <= codepoint and codepoint <= 0x254B) or
+           (0x25A0 <= codepoint and codepoint <= 0x266F) or
+           (0x3000 <= codepoint and codepoint <= 0x301C) or
+           (0x3041 <= codepoint and codepoint <= 0x3093) or
+           (0x30A1 <= codepoint and codepoint <= 0x30F6) or
+           (0x4E00 <= codepoint and codepoint <= 0x9FA0) or
+           codepoint == 0x309B or
+           codepoint == 0x309C or
+           codepoint == 0x309D or // ゝ
+           codepoint == 0x309E or // ゞ
+           codepoint == 0x30FB or // ・
+           codepoint == 0x30FC or // ー
+           codepoint == 0x30FD or // ヽ
+           codepoint == 0x30FE)   // ヾ
+        {
+            append_begin_tag(s, i);
+        }
+        else
+        {
+            append_end_tag(s, i);
+        }
+        i += size;
+    }
+    if(tag_open)
+    {
+        std::string html = "</span>";
+        s.append(html);
+    }
 }
 
 std::tuple<unsigned long, unsigned long, unsigned long> nvim_html::convert_rgb(unsigned long rgb)
@@ -820,3 +869,44 @@ std::tuple<unsigned long, unsigned long, unsigned long> nvim_html::convert_rgb(u
     unsigned long b = rgb - (r << 16) - (g << 8);
     return std::make_tuple(r, g, b);
 }
+
+int nvim_html::how_many_div_by_exp2(unsigned char c)
+{
+    int i = sizeof(c)*8 - 1;
+    int ans = 0;
+    for(int e = static_cast<unsigned char>(std::exp2(i));
+            c >= e;c -= e, e = static_cast<unsigned char>(std::exp2(--i)))
+    {
+        ++ans;
+    }
+    return ans;
+}
+
+std::pair<unsigned, unsigned> nvim_html::utf8_ord(const std::string& str, int& i)
+{
+    const unsigned char& c = str.at(i);
+    unsigned codepoint = 0;
+    unsigned size = 0;
+    if (c < 0x80)
+    {
+        codepoint = str.at(i);
+        size = 1;
+    }
+    else if (c < 0xE0)
+    {
+        codepoint = ((str.at(i) & 0x1F) << 6) | (str.at(i + 1) & 0x3F);
+        size = 2;
+    }
+    else if (c < 0xF0)
+    {
+        codepoint = ((str.at(i) &  0xF) << 12) | ((str.at(i + 1) & 0x3F) <<  6) | (str[i + 2] & 0x3F);
+        size = 3;
+    }
+    else
+    {
+        codepoint = ((str.at(i) &  0x7) << 18) | ((str.at(i + 1) & 0x3F) << 12) | ((str.at(i + 2) & 0x3F) <<  6) | (str.at(i + 3)  & 0x3F);
+        size = 4;
+    }
+    return std::make_pair(codepoint, size);
+}
+
