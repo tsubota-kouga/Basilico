@@ -26,9 +26,9 @@
     - compiler which can build c++17 such as clang, g++ etc (You will have one)
 
 * CMake
-```shell
-sudo apt install cmake
-```
+    ```shell
+    sudo apt install cmake
+    ```
 
 * Msgpack-c 2.0 or later
     - [Msgpack git repository][Msgpack]
