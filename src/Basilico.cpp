@@ -10,12 +10,17 @@ Basilico::Basilico(String port, uint width, uint height, QApplication& app):
     neovim_split_plugins_integrate{},
     neovim_layout{},
     neovim{width, height, this, { {"rgb", true},
-                                {"ext_linegrid", true},
-                                {"ext_tabline", true} } }
+                                {"ext_linegrid", true} } },
+    nvim_comp{&neovim}
 {
     NeoVimSetting(port);
 
-    tablineSetting();
+    if(neovim.get_ui_option("ext_tabline"))
+    { tablineSetting(); }
+
+    if(neovim.get_ui_option("ext_popupmenu"))
+    { popupmenuSetting(); }
+    else { nvim_comp.hide(); }
 
     BasilicoSetting();
 
@@ -39,6 +44,42 @@ void Basilico::NeoVimSetting(String port)
     // <begin>
     neovim.nvim_subscribe("NeoVim#plugin");
     neovim.nvim_subscribe("NeoVim#autocmd");
+
+    try{
+        auto is_ext_tabline = boost::get<bool>(neovim.nvim_get_var("basilico#ext_tabline"));
+        neovim.set_ui_option("ext_tabline", is_ext_tabline);
+    }
+    catch(boost::bad_get& e){
+        neovim.set_ui_option("ext_tabline", false);
+    }
+    try{
+        auto is_ext_popupmenu = boost::get<bool>(neovim.nvim_get_var("basilico#ext_popupmenu"));
+        neovim.set_ui_option("ext_popupmenu", is_ext_popupmenu);
+    }
+    catch(boost::bad_get& e){
+        neovim.set_ui_option("ext_popupmenu", false);
+    }
+    try{
+        auto is_ext_cmdline = boost::get<bool>(neovim.nvim_get_var("basilico#ext_cmdline"));
+        neovim.set_ui_option("ext_cmdline", is_ext_cmdline);
+    }
+    catch(boost::bad_get& e){
+        neovim.set_ui_option("ext_cmdline", false);
+    }
+    try{
+        auto is_ext_wildmenu = boost::get<bool>(neovim.nvim_get_var("basilico#ext_wildmenu"));
+        neovim.set_ui_option("ext_wildmenu", is_ext_wildmenu);
+    }
+    catch(boost::bad_get& e){
+        neovim.set_ui_option("ext_wildmenu", false);
+    }
+    // try{
+    //     auto is_ext_messages = boost::get<bool>(neovim.nvim_get_var("basilico#ext_messages"));
+    //     neovim.set_ui_option("ext_messages", is_ext_messages);
+    // }
+    // catch(boost::bad_get& e){
+    //     neovim.set_ui_option("ext_messages", false);
+    // }
     // <end>
 
     neovim.nvim_ui_attach();
@@ -165,6 +206,11 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
     }
 
     currentTabpage = current;
+}
+
+void Basilico::popupmenuSetting()
+{
+    nvim_comp.hide();
 }
 
 

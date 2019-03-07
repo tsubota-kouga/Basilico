@@ -176,7 +176,6 @@ public:
     Integer nvim_size_x, nvim_size_y;
 
     Integer nvim_cursor_x, nvim_cursor_y; // [0, nvim_size_x], [0, nvim_size_y]
-    Integer nvim_image_cursor_x,nvim_image_cursor_y;
 
     Integer current_grid;
 
@@ -212,7 +211,7 @@ public:
 
     Vector<hl_attr> nvim_hl_attr;
 
-    Vector<Vector<Integer>> nvim_grid_colors_map;
+    Vector<Vector<Integer>> nvim_grid_colors_map;  // color(x, y)
 
     bool need_update;
 
@@ -236,6 +235,10 @@ public:
     void nvim_ui_try_resize(Integer width, Integer height) override;
 
     void connect_tcp(const String& host, const String& service, long timeout_sec=100) override;
+
+    void set_ui_option(const String&& ui_option, bool on_or_off);
+
+    bool get_ui_option(const String&& ui_option);
 
 private:
     const tuple<Integer, Integer, Integer, Integer, Integer>& get_default_colors_set() const;
@@ -293,7 +296,7 @@ private:
 
     void option_set(const unordered_map<String, Object>& opt);
 
-    virtual void popupmenu_show(const cArray& items, Integer selected, Integer row, Integer col);
+    virtual void popupmenu_show(const Array& items, Integer selected, Integer row, Integer col, Integer grid);
 
     virtual void popupmenu_hide();
 

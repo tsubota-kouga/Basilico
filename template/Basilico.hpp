@@ -10,6 +10,7 @@
 
 #include <QtWidgets>
 #include <QtGui>
+
 #include <set>
 
 class BasilPlugin;
@@ -73,6 +74,8 @@ class Basilico: public QMainWindow
 
     const String Name = "Basilico";
     NeoVim neovim;
+
+
 public:
 
     Basilico(String port, uint width, uint height, QApplication& app);
@@ -88,8 +91,13 @@ public:
     void tablineSetting();
     void changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage current);
 
+    void popupmenuSetting();
+
     const String& getName() const { return Name; }
     NeoVim& getNeoVim()& { return neovim; }
+
+    QListWidget nvim_comp;
+    QListWidget& get_nvim_comp() { return nvim_comp; };
 
     template<typename T>
     void addTabPluginId(T* plugin, String name, Tabpage tab)

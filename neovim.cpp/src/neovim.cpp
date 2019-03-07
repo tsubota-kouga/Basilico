@@ -37,6 +37,16 @@ void neovim::connect_tcp(const String& host, const String& service, long timeout
     ui_client_.connect_tcp(host, service, timeout_sec);
 }
 
+void neovim::set_ui_option(const String&& ui_option, bool on_or_off)
+{
+    ui_options[ui_option] = on_or_off;
+}
+
+bool neovim::get_ui_option(const String&& ui_option)
+{
+    return boost::get<bool>(ui_options[ui_option]);
+}
+
 // colors_map
 
 const Integer neovim::colors_map::_colors_map::get_rgb_fg() const
@@ -50,8 +60,6 @@ const Integer neovim::colors_map::_colors_map::get_rgb_bg() const
     if(hl_map.count("background") == 1)
     { return boost::get<uInteger>(hl_map.at("background")); }
     else { return std::get<1>(colors_set); }
-    // try{ return boost::get<uInteger>(hl_map.at("background")); }
-    // catch(std::out_of_range){ return std::get<1>(colors_set); }
 }
 const std::tuple<int, int, int> neovim::colors_map::_colors_map::get_r_g_b_fg() const
 {
@@ -686,17 +694,19 @@ void neovim::redraw(Object ui_info)
 
         else if(func_name == "popupmenu_show")
         {
-            Array X = boost::get<Array>(obj);
+            Array completion_info = boost::get<Array>(func.at(1));
 
-            cArray items;
+            Array items = boost::get<Array>(completion_info.at(0));
 
-            Integer selected;
+            Integer selected = boost::get<Integer>(completion_info.at(1));
 
-            Integer row;
+            Integer row = boost::get<uInteger>(completion_info.at(2));
 
-            Integer col;
+            Integer col = boost::get<uInteger>(completion_info.at(3));
 
-            popupmenu_show(items, selected, row, col);
+            Integer grid = boost::get<uInteger>(completion_info.at(4));
+
+            popupmenu_show(items, selected, row, col, grid);
             if constexpr(debug)std::cout << "call popupmenu_show()" << std::endl;
         }
 
@@ -708,9 +718,9 @@ void neovim::redraw(Object ui_info)
 
         else if(func_name == "popupmenu_select")
         {
-            Array X = boost::get<Array>(obj);
+            Array info = boost::get<Array>(func.at(1));
 
-            Integer selected;
+            Integer selected = boost::get<Integer>(info.at(0));
 
             popupmenu_select(selected);
             if constexpr(debug)std::cout << "call popupmenu_select()" << std::endl;
@@ -1269,7 +1279,7 @@ void neovim::option_set(const std::unordered_map<String, Object>& opt)
     return;
 }
 
-void neovim::popupmenu_show(const cArray& items, Integer selected, Integer row, Integer col)
+void neovim::popupmenu_show(const Array& items, Integer selected, Integer row, Integer col, Integer grid)
 {
     if constexpr(debug)std::cout << "not defined" << std::endl;
     return;
@@ -1441,8 +1451,6 @@ void neovim::grid_cursor_goto(Integer grid, Integer row, Integer col)
 {
     nvim_cursor_x = col;
     nvim_cursor_y = row;
-    nvim_image_cursor_x = col;
-    nvim_image_cursor_y = row;
     current_grid = grid;
 }
 

@@ -11,11 +11,13 @@
         {
             if(option == "dock")
             {
+                addPlugin("{{name}}", tmp);
             }
-            else if(option == "tab")
+            else if(option == "tab" and neovim.get_ui_option("ext_tabline"))
             {
                 auto&& tab = makeTabForPlugin("{{name}}");
                 addTabPluginId(tmp, "{{name}}", tab);
+                addPlugin("{{name}}", tmp);
             }
             else if(option == "split")
             {
@@ -23,14 +25,15 @@
                 neovim_layout.addWidget(tmp, 1, 2);
                 auto&& [r, c, w, h] = tmp->splitPluginPosition(tab);
                 SplitPlugins.emplace(tab, std::make_tuple(tmp, r, c, w, h));
+                addPlugin("{{name}}", tmp);
             }
+            else if(option == "others"){}
             else
             {
                 std::cerr << "ERROR: There is no option "
                     << option << std::endl;
                 delete tmp;
             }
-            addPlugin("{{name}}", tmp);
         }
     }
     else

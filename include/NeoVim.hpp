@@ -22,6 +22,10 @@ class NeoVim: public QTextEdit, public neovim
     static constexpr double cw = 10;
     static constexpr double cwi = 0.1;
     static constexpr double chi = 1.1;
+    static constexpr double eps_h = 2;
+    static constexpr double eps_w = 6;
+
+    static constexpr int default_idx = 0;
 
     Basilico* parent;
 
@@ -34,6 +38,11 @@ class NeoVim: public QTextEdit, public neovim
 
     String cursorShape;
     Integer cursorColorId;
+
+    std::vector<std::tuple<String, String, String, String>> completion_info;
+    Integer popupmenu_selected;
+    std::pair<Integer, Integer> popupmenu_pos;
+
 public:
 
     NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options);
@@ -62,6 +71,17 @@ public:
     }
 
     void tabline_change(int idx);
+
+    template<typename T>
+    T hl_attr_get(Integer id, const String&& key)
+    {
+        if(nvim_hl_attr.at(id).rgb_attr.count(key) == 1)
+        { return boost::get<T>(nvim_hl_attr.at(id).rgb_attr.at(key)); }
+        else if(nvim_hl_attr.at(default_idx).rgb_attr.count(key) == 1)  // has default key
+        { return boost::get<T>(nvim_hl_attr.at(default_idx).rgb_attr.at(key)); }
+        else  // has no default key
+        { return T{}; }
+    }
 
 protected:
     virtual bool event(QEvent* e) override;
@@ -101,6 +121,12 @@ protected:
     virtual void call_plugin(Object func_and_args) override;
 
     virtual void cursor_shape_and_pos();
+
+    virtual void popupmenu_show(const Array& items, Integer selected, Integer row, Integer col, Integer grid) override;
+
+    virtual void popupmenu_hide() override;
+
+    virtual void popupmenu_select(Integer selected) override;
 
 private:
     void fkeySend(QKeyEvent* e, Integer key);

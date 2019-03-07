@@ -1,5 +1,4 @@
 #!/bin/bash
-# https://qiita.com/piroor/items/2dd08a0b61e3ace0b7c6
 available=($(cat /proc/sys/net/ipv4/ip_local_port_range))
 
 while true
