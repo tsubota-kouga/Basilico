@@ -1,6 +1,6 @@
 # Basilico
 
-GUI Extension for NeoVim in C++
+> GUI Extension for NeoVim in C++
 
 **Note**:Only support Linux, it may not work on others.
 
@@ -54,6 +54,7 @@ You can install with this
 [Qt]:https://www.qt.io/download
 [Msgpack]:https://github.com/msgpack/msgpack-c
 
+
 ## Install
 
 If you have dein.vim, you can write in your dein.toml
@@ -67,4 +68,44 @@ or write in init.vim
 call dein#add('tsubota-kouga/Basilico')
 ```
 **Note**: You can **NOT** write in your dein_lazy.toml
+
+## Customize
+
+| global val                       | type     | default   | example                        |
+|:--------------------------------:|:--------:|:---------:|:------------------------------:|
+| `g:basilico#tabline_style_sheet` | `string` | `''`      | `'background-color: #444444;'` |
+| `g:Basilico#ext_tabline`         | `bool`   | `v:false` | `v:true`                       |
+
+
+
+## Feature
+
+* Tabpage Plugin support
+
+* Dock Widget Plugin support
+
+* Multi Wide Charactor support
+
+* ext_tabline ui_option support
+
+* mouse support
+
+
+## Future
+
+- [ ] ext_multigrid ui_option support
+
+- [ ] Window Plugin support
+
+- [ ] cursor blinking support
+
+- [ ] vimscript Basilico GUI library
+
+
+## Licence
+MIT Licence except `neovim.cpp` directory.
+
+`neovim.cpp` directory has changed from original.
+
+Original repository is [here](https://github.com/DaikiMaekawa/neovim.cpp). Thanks!
 
