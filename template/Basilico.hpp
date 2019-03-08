@@ -59,7 +59,7 @@ class Basilico: public QMainWindow
     // Integration of neovim-splitplugin-integ and tab-plugin
     QStackedWidget neovimsplinteg_tabplugins_integrate;
     int neovim_index; // this must be 0
-    std::map<Tabpage, std::pair<String, int>> TabPluginId;
+    std::map<Tabpage, std::pair<String, int>> TabPluginId; // tab, [name, stack index]
     std::multimap<Tabpage, std::tuple<QWidget*, int , int, int, int>> SplitPlugins;
 
     // options
@@ -104,18 +104,13 @@ public:
     {
         auto* integrate = new QWidget{};
         auto* layout = new QGridLayout{integrate};
-        auto quitIcon = QApplication::style()->standardIcon(QStyle::SP_TitleBarCloseButton);
-        auto* quitButton = new QPushButton{integrate};
-        quitButton->setIcon(quitIcon);
 
-        connect(quitButton, &QPushButton::clicked, this, [&]{
-                    neovim.nvim_command("quit");
-                });
-
-        layout->addWidget(quitButton, 0, 0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(plugin, 1, 0);
         integrate->setLayout(layout);
-        auto index = neovimsplinteg_tabplugins_integrate.addWidget(integrate);
+
+        // stackwidget index
+        Integer index = neovimsplinteg_tabplugins_integrate.addWidget(integrate);
         TabPluginId[tab] = std::make_pair(name, index);
     }
 

@@ -29,7 +29,7 @@ class NeoVim: public QTextEdit, public neovim
 
     Basilico* parent;
 
-    deque<pair<Tabpage, String>> nvim_tabline;
+    deque<pair<Tabpage, String>> nvim_tabline;  // tab, name
 
     String _guifont;
     int _font_size_px;
@@ -71,6 +71,8 @@ public:
     }
 
     void tabline_change(int idx);
+
+    deque<pair<Tabpage, String>>& get_nvim_tabline(){ return nvim_tabline; }
 
     template<typename T>
     T hl_attr_get(Integer id, const String&& key)

@@ -125,11 +125,36 @@ void Basilico::tablineSetting()
     tabline.setMovable(true);
     tabline.setAutoHide((showtabline == 2) ? false: true);
     tabline.setExpanding(false);
+    tabline.setTabsClosable(true);
     tabline.setStyleSheet(QString::fromStdString(tablineStyleSheet));
+    connect(&tabline, &QTabBar::tabCloseRequested, this,
+            [&](int tabline_index){
+            Integer tabpageIndex = -1;
+
+            for(auto&& [t, plugin]: TabPluginId)
+            {
+                if(neovim.get_nvim_tabline().at(tabline_index).first == t)
+                {
+                    tabpageIndex = neovim.nvim_tabpage_get_number(t);
+                    neovim.nvim_command("tabclose " + std::to_string(tabpageIndex));
+                    for(auto&& [tab, info] : TabPluginId)
+                    {
+                        // on stackwidget [0][1][2][x][4][5]
+                        //                [0][1][2]   [3][4]
+                        if(tabline_index < info.second)
+                        {
+                            --info.second;
+                        }
+                    }
+                    TabPluginId.erase(t);
+                    break;
+                }
+            }
+            });
 
     // tab change
     connect(&tabline, &QTabBar::tabBarClicked, this,
-            [&, this](int idx){
+            [&, this](int idx){ // neovim tabline index
                 neovim.tabline_change(idx);
             });
 
@@ -140,11 +165,11 @@ void Basilico::tablineSetting()
                 int movenum = to - from;
                 if((from == idx) xor (movenum >= 0))
                 {
-                    neovim.nvim_command("tabm +" + std::to_string(-movenum));
+                    neovim.nvim_command("tabmove +" + std::to_string(-movenum));
                 }
                 else
                 {
-                    neovim.nvim_command("tabm " + std::to_string(-movenum));
+                    neovim.nvim_command("tabmove " + std::to_string(-movenum));
                 }
             });
 }
@@ -157,11 +182,15 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
     {
         basil_layout.addWidget(&tabline, 0, 0);
     }
+
+    // remove all tabs
     int num_tabs = tabline.count();
     for(int i = 0;i <= num_tabs;i++)
     {
         tabline.removeTab(0);
     }
+
+    // make all tabs
     for(auto&& [tab, name]: tabs)
     {
         int idx = tabline.addTab(QString::fromStdString(name));
@@ -169,11 +198,10 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
             tabline.setCurrentIndex(idx);
         }
     }
-
     // if current is tab-plugin tab
     if(TabPluginId.count(current) == 1)
     {
-        auto& [name, index] = TabPluginId[current];
+        auto&& [name, index] = TabPluginId[current];
         neovimsplinteg_tabplugins_integrate.setCurrentIndex(index);
     }
     else // else Neovim must be shown

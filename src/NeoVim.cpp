@@ -297,9 +297,9 @@ void NeoVim::set_neovim_html()
 void NeoVim::set_font_size_px(int px)
 {
     _font_size_px = px;
-    QWidget::resize(nvim_size_x*(_font_size_px + cwi)/2 + cw,
-            nvim_size_y*(_font_size_px + chi));
-    parent->resize(this->size());
+    int row = windowWidth2Width(size().width());
+    int col = windowHeight2Height(size().height());
+    nvim_ui_try_resize(row, col);
 }
 
 bool NeoVim::event(QEvent* e)

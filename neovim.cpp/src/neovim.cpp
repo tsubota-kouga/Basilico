@@ -1023,24 +1023,6 @@ void neovim::nvim_ui_try_resize(Integer width, Integer height)
 {
     nvim_size_x = width;
     nvim_size_y = height;
-
-    // resize members
-    // nvim_screen.resize(height);
-    // for(auto& line: nvim_screen){
-    //     if(line.size() < width){
-    //         line.resize(width, " ");
-    //     }
-    // }
-    // if(nvim_colors_map.size() < height){
-    //     nvim_colors_map.resize(height);
-    // }
-    // for(auto& line: nvim_colors_map){ line.set_default(width); }
-    // nvim_grid_colors_map.resize(height);
-    // for(auto& line: nvim_grid_colors_map){
-    //     if(line.size() < width){
-    //         line.resize(width, 0);
-    //     }
-    // }
     ui_client_.no_read_do_call("nvim_ui_try_resize", width, height);
     operation();
 }
@@ -1397,8 +1379,12 @@ void neovim::grid_line(Integer grid, Integer row, Integer col_start, Array cells
 {
     Vector<Integer> input_color;
     if(nvim_screen.size() >= row)
-    {
+    try{
         input_color.reserve(nvim_screen.at(row).size());
+    }
+    catch(std::out_of_range)
+    {
+        std::cerr << "size of nvim_screen is not suitable" << std::endl;
     }
     int pos = col_start;
     Integer color_id = 0; // default color_id == 0

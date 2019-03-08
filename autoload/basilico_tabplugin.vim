@@ -5,3 +5,4 @@ function! basilico_tabplugin#make_tab_for_plugin(name) abort
     setlocal noswapfile
     setlocal nobuflisted
 endfunction
+
