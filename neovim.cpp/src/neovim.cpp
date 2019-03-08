@@ -1271,7 +1271,23 @@ void neovim::option_set(const std::unordered_map<String, Object>& opt)
     {
         if(key == "guifont")
         {
-            guifont = boost::get<String>(val);
+            auto fontinfo = boost::get<String>(val);
+            std::istringstream ss(fontinfo);
+            if(!ss.eof())
+            {
+                std::getline(ss, guifont, ':');
+                set_font(guifont);
+            }
+            if(!ss.eof())
+            {
+                String _font_size_px;
+                std::getline(ss, _font_size_px, ':');
+                if(std::all_of(_font_size_px.cbegin(), _font_size_px.cend(), isdigit))
+                {
+                    font_size_px = std::stoi(_font_size_px);
+                    set_font_size_px(font_size_px);
+                }
+            }
         }
         ui_options[key] = val;
     }

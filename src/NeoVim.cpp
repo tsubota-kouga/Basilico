@@ -10,13 +10,13 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
     timer = startTimer(30);
 
     // <default settings>
-    font_size_px = 16;
-    wchar_font_size_px = font_size_px;
-    font = "ubuntu mono";
+    _font_size_px = 16;
+    wchar_font_size_px = _font_size_px - 1;
+    _guifont = "ubuntu mono";
     // </default settings>
 
     setAttribute(Qt::WA_InputMethodEnabled);
-    QWidget::resize(width*(font_size_px + cwi)/2 + cw, height*(font_size_px + chi));
+    QWidget::resize(width*(_font_size_px + cwi)/2 + cw, height*(_font_size_px + chi));
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -54,8 +54,8 @@ void NeoVim::set_neovim_html()
                     "white-space: pre;}"
                     "</style>"
                     ).arg(drf).arg(dgf).arg(dbf).arg(drb).arg(dgb).arg(dbb)
-                     .arg(font_size_px).arg(
-                         QString::fromStdString((guifont == "") ? font : guifont)));
+                     .arg(_font_size_px).arg(
+                         QString::fromStdString((guifont == "") ? _guifont : guifont)));
         screen.append("<body>\n");
 
         Integer special_color;
@@ -292,6 +292,14 @@ void NeoVim::set_neovim_html()
     setHtml(screen);
     cursor_shape_and_pos();
     need_update = false;
+}
+
+void NeoVim::set_font_size_px(int px)
+{
+    _font_size_px = px;
+    QWidget::resize(nvim_size_x*(_font_size_px + cwi)/2 + cw,
+            nvim_size_y*(_font_size_px + chi));
+    parent->resize(this->size());
 }
 
 bool NeoVim::event(QEvent* e)
@@ -659,8 +667,8 @@ void NeoVim::popupmenu_show(const Array& items, Integer selected, Integer row, I
         parent->get_nvim_comp().addItem(QString::fromStdString(word));
     }
 
-    parent->get_nvim_comp().move((col + 1)*(font_size_px) / 2 + eps_w,
-                                 (row + 1)*(font_size_px + 1 + eps_h));
+    parent->get_nvim_comp().move((col + 1)*(_font_size_px) / 2 + eps_w,
+                                 (row + 1)*(_font_size_px + 1 + eps_h));
     parent->get_nvim_comp().setCurrentRow(selected);
     parent->get_nvim_comp().show();
 }

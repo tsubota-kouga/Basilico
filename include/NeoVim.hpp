@@ -31,8 +31,8 @@ class NeoVim: public QTextEdit, public neovim
 
     deque<pair<Tabpage, String>> nvim_tabline;
 
-    String font;
-    int font_size_px;
+    String _guifont;
+    int _font_size_px;
     int wchar_font_size_px;
     bool isKeyPressed;
 
@@ -54,14 +54,14 @@ public:
 
     void set_neovim_html();
 
-    void set_font(String f){ font = f; }
-    void set_font_size_px(int px){ font_size_px = px; }
+    virtual void set_font(String f) override { _guifont = f; }
+    virtual void set_font_size_px(int px) override;
 
-    int width2WindowWidth(int editor_width){ return editor_width*(font_size_px + cwi)/2 + cw; }
-    int height2WindowHeight(int editor_height){ return editor_height*(font_size_px + chi); }
+    int width2WindowWidth(int editor_width){ return editor_width*(_font_size_px + cwi)/2 + cw; }
+    int height2WindowHeight(int editor_height){ return editor_height*(_font_size_px + chi); }
 
-    int windowWidth2Width(int window_width){ return (window_width - cw)*2/(font_size_px + cwi); }
-    int windowHeight2Height(int window_height){ return window_height/(font_size_px + chi); }
+    int windowWidth2Width(int window_width){ return (window_width - cw)*2/(_font_size_px + cwi); }
+    int windowHeight2Height(int window_height){ return window_height/(_font_size_px + chi); }
 
     bool readIsKeyPressed()
     {

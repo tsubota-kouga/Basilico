@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <sstream>
 
 #include "nvim_api.hpp"
 #include "neovim_ui.hpp"
@@ -189,6 +190,7 @@ public:
     String nvim_icon;
 
     String guifont;
+    int font_size_px;
 
     bool cursor_style;
 
@@ -239,6 +241,10 @@ public:
     void set_ui_option(const String&& ui_option, bool on_or_off);
 
     bool get_ui_option(const String&& ui_option);
+
+    virtual void set_font(String f){}
+
+    virtual void set_font_size_px(int px){}
 
 private:
     const tuple<Integer, Integer, Integer, Integer, Integer>& get_default_colors_set() const;
