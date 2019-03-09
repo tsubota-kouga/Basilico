@@ -130,7 +130,6 @@ void Basilico::tablineSetting()
     connect(&tabline, &QTabBar::tabCloseRequested, this,
             [&](int tabline_index){
             Integer tabpageIndex = -1;
-
             for(auto&& [t, plugin]: TabPluginId)
             {
                 if(neovim.get_nvim_tabline().at(tabline_index).first == t)
