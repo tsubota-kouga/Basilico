@@ -1,6 +1,6 @@
 
 from jinja2 import Template, Environment, FileSystemLoader
-from neovim import attach
+from pynvim import attach
 from glob import glob
 import os, sys, re
 import toml
