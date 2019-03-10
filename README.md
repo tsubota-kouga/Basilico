@@ -60,7 +60,7 @@ You can install with this
 If you have dein.vim, you can write on your dein.toml
 ```toml
 [[plugins]]
-repo='tsubota-kouga/Basilico'
+name='tsubota-kouga/Basilico'
 build='bash build.sh'
 ```
 or write in init.vim
