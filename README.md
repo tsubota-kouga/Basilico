@@ -76,12 +76,31 @@ alias basil='bash path/to/sh/basil'
 
 ## Customize
 
+You can customize, whether use gui tabline or not.
+And if you use gui tabline, you can set Qt Style Sheet to tabline.
+
+**Note**: To use Tabpage Plugin, `g:basilico#ext_tabline` must be `v:true`.
+
 | global val                       | type     | default   | example                        |
 |:--------------------------------:|:--------:|:---------:|:------------------------------:|
+| `g:basilico#ext_tabline`         | `bool`   | `v:false` | `v:true`                       |
 | `g:basilico#tabline_style_sheet` | `string` | `''`      | `'background-color: #444444;'` |
-| `g:Basilico#ext_tabline`         | `bool`   | `v:false` | `v:true`                       |
 
 
+| command name       | explanation                              |
+|:------------------:|:----------------------------------------:|
+| `BasilGenerate`    | Genarate C++ header, source, and so on   |
+| `BasilBuild`       | Build Basilico                           |
+
+To Install Basilico Plugins, please do following
+
+1. add to `dein.toml` or `init.vim`
+
+2. start neovim
+
+3. execute `BasilGenerate` command
+
+4. execute `BasilBuild` command
 
 ## Feature
 
