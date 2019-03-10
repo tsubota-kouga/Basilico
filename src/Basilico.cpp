@@ -10,7 +10,8 @@ Basilico::Basilico(String port, uint width, uint height, QApplication& app):
     neovim_split_plugins_integrate{},
     neovim_layout{},
     neovim{width, height, this, { {"rgb", true},
-                                {"ext_linegrid", true} } },
+                                {"ext_linegrid", true} },
+           "localhost", port, 1000 },
     nvim_comp{&neovim}
 {
     NeoVimSetting(port);
@@ -34,7 +35,6 @@ void Basilico::open()
 
 void Basilico::NeoVimSetting(String port)
 {
-    neovim.connect_tcp("localhost", port, 1000);
     neovim.nvim_set_client_info(Name,
                                 {},
                                 "ui",

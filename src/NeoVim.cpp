@@ -1,12 +1,26 @@
 #include "NeoVim.hpp"
 #include "Basilico.hpp"
 
-NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options)
+NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options, String ip, String port, int timeout_millisec)
         :neovim{width, height, options},
          QTextEdit{},
          isKeyPressed{false},
          parent{parent_}
 {
+    connect_tcp(ip, port, timeout_millisec);
+    auto&& api_info = nvim_get_api_info();
+    auto&& info_dict = boost::get<Dictionary>(api_info.at(1));
+    auto&& [start, end] = info_dict.equal_range(Object{"version"});
+    for(auto&& it = start;it != end;++it)
+    {
+        auto&& version_info = boost::get<Dictionary>(it->second);
+        auto&& [s, e] = version_info.equal_range(Object{"api_level"});
+        for(auto&& i = s;i != e;++i)
+        {
+            api_level = boost::get<uInteger>(i->second);
+            std::cout << "api_level >>> " << api_level << std::endl;
+        }
+    }
     timer = startTimer(30);
 
     // <default settings>
@@ -20,8 +34,6 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    // setTextInteractionFlags(Qt::TextEditable | Qt::LinksAccessibleByMouse);
 }
 
 void NeoVim::set_neovim_html()
@@ -734,24 +746,34 @@ void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action
         num_char++;
     }
 send:
-    nvim_input_mouse(button, action, modifiers, grid, row, col);
+    if(api_level >= 7)
+    {
+        nvim_input_mouse(button, action, modifiers, grid, row, col);
+    }
+    else
+    {
+        auto b = button;
+        b.at(0) = static_cast<char>(static_cast<int>(button.at(0)) + 0x20); // capitalize
+        nvim_input("<" + modifiers + button + "Mouse><"
+                + std::to_string(col) + "," + std::to_string(row) + ">");
+    }
 }
 
 void NeoVim::mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid)
 {
     String modifiers = "";
-    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S"; }
-    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C"; }
-    if(e->modifiers() == Qt::AltModifier){ modifiers += "A"; }
+    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S-"; }
+    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C-"; }
+    if(e->modifiers() == Qt::AltModifier){ modifiers += "A-"; }
     mouseSend(e->pos(), modifiers, action, button, grid);
 }
 
 void NeoVim::mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid)
 {
     String modifiers = "";
-    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S"; }
-    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C"; }
-    if(e->modifiers() == Qt::AltModifier){ modifiers += "A"; }
+    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S-"; }
+    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C-"; }
+    if(e->modifiers() == Qt::AltModifier){ modifiers += "A-"; }
     mouseSend(e->pos(), modifiers, action, button, grid);
 }
 

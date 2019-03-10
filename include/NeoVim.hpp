@@ -36,6 +36,8 @@ class NeoVim: public QTextEdit, public neovim
     int wchar_font_size_px;
     bool isKeyPressed;
 
+    Integer api_level;
+
     String cursorShape;
     Integer cursorColorId;
 
@@ -45,7 +47,7 @@ class NeoVim: public QTextEdit, public neovim
 
 public:
 
-    NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options);
+    NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options, String ip, String port, int timeout_millisec);
     NeoVim() = delete;
     NeoVim operator=(neovim) = delete;
     NeoVim operator=(QTextEdit) = delete;
