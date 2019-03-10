@@ -3,5 +3,5 @@
 build/
 src/.qmake.stash
 neovim.cpp/src/.qmake.stash
-neovim.cpp/gen
+neovim.cpp/gen/*
 /**/compile_commands.json
