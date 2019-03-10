@@ -12,7 +12,8 @@ try:
 except:
     port = '6666'
 
-env = Environment(loader=FileSystemLoader('template'))
+this_dir = os.path.dirname(__file__)
+env = Environment(loader=FileSystemLoader(this_dir  + '/template'))
 fill = {}
 
 # nvim = attach('tcp', address='localhost', port=port)
@@ -57,7 +58,8 @@ for p in fill['plugin_paths']:
                 if fill['boost_version'] < f['dependency'].setdefault('boost_version', 0)\
                 else fill['boost_version']
 
-fill['plugin_paths'].remove(os.path.abspath('.'))
+if os.path.abspath('.') in fill['plugin_paths']:
+    fill['plugin_paths'].remove(os.path.abspath('.'))
 fill['plugin_name'].remove('Basilico')
 
 fill['source_paths'] = [
@@ -85,21 +87,21 @@ except:
 
 template = env.get_template('CMakeLists.txt')
 rendered = template.render(message=fill)
-with open('CMakeLists.txt', 'w') as f:
+with open(this_dir + '/CMakeLists.txt', 'w') as f:
     f.write(rendered)
 
 template = env.get_template('plugins.cpp')
 rendered = template.render(message=fill)
-with open('src/plugins.cpp', 'w') as f:
+with open(this_dir + '/src/plugins.cpp', 'w') as f:
     f.write(rendered)
 
 template = env.get_template('Basilico.hpp')
 rendered = template.render(message=fill)
-with open('include/Basilico.hpp', 'w') as f:
+with open(this_dir + '/include/Basilico.hpp', 'w') as f:
     f.write(rendered)
 
 template = env.get_template('basilico_autocmds.vim')
 rendered = template.render(message=fill)
-with open('plugin/basilico_autocmds.vim', 'w') as f:
+with open(this_dir + '/plugin/basilico_autocmds.vim', 'w') as f:
     f.write(rendered)
 
