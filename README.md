@@ -69,6 +69,11 @@ call dein#add('tsubota-kouga/Basilico')
 ```
 **Note**: You can **NOT** write in your dein_lazy.toml
 
+And make alius
+```shell
+alius basil='bash path/to/sh/basil'
+```
+
 ## Customize
 
 | global val                       | type     | default   | example                        |
