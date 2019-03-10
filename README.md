@@ -57,7 +57,7 @@ You can install with this
 
 ## Install
 
-If you have dein.vim, you can write in your dein.toml
+If you have dein.vim, you can write on your dein.toml
 ```toml
 [[plugins]]
 repo='tsubota-kouga/Basilico'
@@ -67,11 +67,11 @@ or write in init.vim
 ```vimscript
 call dein#add('tsubota-kouga/Basilico')
 ```
-**Note**: You can **NOT** write in your dein_lazy.toml
+**Note**: You can **NOT** write on your dein_lazy.toml
 
-And make alius
+And make alias
 ```shell
-alius basil='bash path/to/sh/basil'
+alias basil='bash path/to/sh/basil'
 ```
 
 ## Customize
