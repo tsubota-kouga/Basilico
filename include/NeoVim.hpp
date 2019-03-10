@@ -36,7 +36,9 @@ class NeoVim: public QTextEdit, public neovim
     int wchar_font_size_px;
     bool isKeyPressed;
 
-    Integer api_level;
+    static constexpr int api_level =
+#include "../neovim.cpp/gen/api_level"
+        ;
 
     String cursorShape;
     Integer cursorColorId;

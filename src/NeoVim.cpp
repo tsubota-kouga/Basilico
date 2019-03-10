@@ -8,19 +8,6 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
          parent{parent_}
 {
     connect_tcp(ip, port, timeout_millisec);
-    auto&& api_info = nvim_get_api_info();
-    auto&& info_dict = boost::get<Dictionary>(api_info.at(1));
-    auto&& [start, end] = info_dict.equal_range(Object{"version"});
-    for(auto&& it = start;it != end;++it)
-    {
-        auto&& version_info = boost::get<Dictionary>(it->second);
-        auto&& [s, e] = version_info.equal_range(Object{"api_level"});
-        for(auto&& i = s;i != e;++i)
-        {
-            api_level = boost::get<uInteger>(i->second);
-            std::cout << "api_level >>> " << api_level << std::endl;
-        }
-    }
     timer = startTimer(30);
 
     // <default settings>
@@ -746,7 +733,7 @@ void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action
         num_char++;
     }
 send:
-    if(api_level >= 7)
+    if constexpr (api_level >= 6)
     {
         nvim_input_mouse(button, action, modifiers, grid, row, col);
     }
