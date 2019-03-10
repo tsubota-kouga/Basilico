@@ -4,5 +4,7 @@ function! basilico_tabplugin#make_tab_for_plugin(name) abort
     execute 'setlocal filetype=' . a:name
     setlocal noswapfile
     setlocal nobuflisted
+    setlocal nomodifiable
+    setlocal nowrite
 endfunction
 
