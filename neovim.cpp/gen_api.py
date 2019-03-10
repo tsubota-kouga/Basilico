@@ -80,8 +80,8 @@ def main():
     with open(os.path.join("./gen", "nvim_api.hpp"), 'w') as f:
         f.write(api)
 
-    with open(os.path.join('./gen', 'api_level'), 'w') as f:
-        f.write(str(unpacked_api['version']['api_level']))
+    with open(os.path.join('./gen', 'api_level.hpp'), 'w') as f:
+        f.write('#define NVIM_API_LEVEL ' + str(unpacked_api['version']['api_level']))
 
 if __name__ == '__main__':
     main()

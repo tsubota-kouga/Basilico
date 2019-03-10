@@ -3,6 +3,7 @@
 
 #include "neovim.hpp"
 #include "neovim_utils.hpp"
+#include "api_level.hpp"
 
 #include <deque>
 #include <unordered_map>
@@ -35,10 +36,6 @@ class NeoVim: public QTextEdit, public neovim
     int _font_size_px;
     int wchar_font_size_px;
     bool isKeyPressed;
-
-    static constexpr int api_level =
-#include "../neovim.cpp/gen/api_level"
-        ;
 
     String cursorShape;
     Integer cursorColorId;

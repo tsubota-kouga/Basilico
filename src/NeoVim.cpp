@@ -733,17 +733,14 @@ void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action
         num_char++;
     }
 send:
-    if constexpr (api_level >= 6)
-    {
-        nvim_input_mouse(button, action, modifiers, grid, row, col);
-    }
-    else
-    {
-        auto b = button;
-        b.at(0) = static_cast<char>(static_cast<int>(button.at(0)) + 0x20); // capitalize
-        nvim_input("<" + modifiers + button + "Mouse><"
-                + std::to_string(col) + "," + std::to_string(row) + ">");
-    }
+#if NVIM_API_LEVEL >= 6
+    nvim_input_mouse(button, action, modifiers, grid, row, col);
+#else
+    auto b = button;
+    b.at(0) = static_cast<char>(static_cast<int>(button.at(0)) + 0x20); // capitalize
+    nvim_input("<" + modifiers + button + "Mouse><"
+            + std::to_string(col) + "," + std::to_string(row) + ">");
+#endif
 }
 
 void NeoVim::mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid)
