@@ -45,7 +45,6 @@ void NeoVim::set_neovim_html()
                     "height: 100%;"
                     "margin: 0px;"
                     "padding: 0px;"
-                    "line-height: 1;"
                     "color: rgb(%1,%2,%3);"
                     "background-color: rgb(%4,%5,%6);"
                     "font-size: %7px;"
