@@ -18,6 +18,13 @@ endif
 if !exists('g:basilico#ext_popupmenu')
     let g:basilico#ext_popupmenu=v:false
 endif
+if exists('g:basilico#color_theme')
+    if g:basilico#color_theme == 'dark'
+        let g:basilico#tabline_style_sheet='
+                    \ color: #ffffff
+                    \ background-color: #444444'
+    endif
+endif
 
 command! -nargs=0 Basilico call basilico_startup#start()
 

@@ -131,6 +131,8 @@ protected:
 
     virtual void popupmenu_select(Integer selected) override;
 
+    virtual void mouseDoubleClickEvent(QMouseEvent* e) override{}
+
 private:
     void fkeySend(QKeyEvent* e, Integer key);
 

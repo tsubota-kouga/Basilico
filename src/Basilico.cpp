@@ -101,6 +101,7 @@ void Basilico::BasilicoSetting()
     basil_layout.addWidget(&neovimsplinteg_tabplugins_integrate, 1, 0);
     neovim_integrate.setLayout(&basil_layout);
 
+    setContextMenuPolicy(Qt::NoContextMenu);
     setCentralWidget(&neovim_integrate);
     setWindowTitle("Basilico");
     resize(neovim.size());

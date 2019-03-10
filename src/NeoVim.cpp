@@ -16,6 +16,7 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
     _guifont = "ubuntu mono";
     // </default settings>
 
+    setContextMenuPolicy(Qt::NoContextMenu);
     setAttribute(Qt::WA_InputMethodEnabled);
     QWidget::resize(width*(_font_size_px + cwi)/2 + cw, height*(_font_size_px + chi));
 
@@ -217,7 +218,6 @@ void NeoVim::set_neovim_html()
                     //</end>
                 }
 
-                // TODO
                 //<cursor setting>
                 bool cursor_positioned =
                     (j == nvim_cursor_x) and (i == nvim_cursor_y)
@@ -283,10 +283,10 @@ void NeoVim::set_neovim_html()
     }
 
     // std::cout << qPrintable(screen) << std::endl;
-    for(auto&& line:nvim_screen)
-    {
-        line.test();
-    }
+    // for(auto&& line:nvim_screen)
+    // {
+    //     line.test();
+    // }
     setHtml(screen);
     cursor_shape_and_pos();
     need_update = false;
@@ -617,11 +617,7 @@ void NeoVim::call_plugin(Object func_and_args)
 }
 
 void NeoVim::cursor_shape_and_pos()
-    // TODO
 {
-    // auto d = document();
-    // d->setDefaultCursorMoveStyle(Qt::LogicalMoveStyle);
-    // setDocument(d);
     QTextCursor cursor(document());
     cursor.setPosition(0);
 
@@ -736,9 +732,23 @@ send:
     nvim_input_mouse(button, action, modifiers, grid, row, col);
 #else
     auto b = button;
-    b.at(0) = static_cast<char>(static_cast<int>(button.at(0)) + 0x20); // capitalize
-    nvim_input("<" + modifiers + button + "Mouse><"
-            + std::to_string(col) + "," + std::to_string(row) + ">");
+    b.at(0) += 0x20;
+    auto a = action;
+    a = (a == "press") ? "Mouse" :
+        (a == "release") ? "Release" :
+        (a == "drag") ? "Drag" :
+        (a == "up") ? "Up":
+        (a == "down") ? "Down" : "";
+    if(button != "wheel")
+    {
+        nvim_input("<" + modifiers + button + a + "><"
+                + std::to_string(col) + "," + std::to_string(row) + ">");
+    }
+    else
+    {
+        nvim_input("<" + modifiers + "ScrollWheel" + a + "><"
+                + std::to_string(col) + "," + std::to_string(row) + ">");
+    }
 #endif
 }
 
