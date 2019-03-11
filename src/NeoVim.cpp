@@ -475,44 +475,44 @@ void NeoVim::resizeEvent(QResizeEvent* e)
 
 void NeoVim::mousePressEvent(QMouseEvent* e)
 {
-    if(e->button() == Qt::LeftButton)
+    if(e->button() & Qt::LeftButton)
     {
         mouseSend(e, "press", "left", 0);
     }
-    else if(e->button() == Qt::RightButton)
+    else if(e->button() & Qt::RightButton)
     {
         mouseSend(e, "press", "right", 0);
     }
-    else if(e->button() == Qt::MiddleButton)
+    else if(e->button() & Qt::MiddleButton)
     {
         mouseSend(e, "press", "middle", 0);
     }
-    else if(e->button() == Qt::ForwardButton)
+    else if(e->button() & Qt::ForwardButton)
     {
     }
-    else if(e->button() == Qt::BackButton)
+    else if(e->button() & Qt::BackButton)
     {
     }
 }
 
 void NeoVim::mouseReleaseEvent(QMouseEvent* e)
 {
-    if(e->button() == Qt::LeftButton)
+    if(e->button() & Qt::LeftButton)
     {
         mouseSend(e, "release", "left", 0);
     }
-    else if(e->button() == Qt::RightButton)
+    else if(e->button() & Qt::RightButton)
     {
         mouseSend(e, "release", "right", 0);
     }
-    else if(e->button() == Qt::MiddleButton)
+    else if(e->button() & Qt::MiddleButton)
     {
         mouseSend(e, "release", "middle", 0);
     }
-    else if(e->button() == Qt::ForwardButton)
+    else if(e->button() & Qt::ForwardButton)
     {
     }
-    else if(e->button() == Qt::BackButton)
+    else if(e->button() & Qt::BackButton)
     {
     }
 }
@@ -755,18 +755,18 @@ send:
 void NeoVim::mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid)
 {
     String modifiers = "";
-    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S-"; }
-    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C-"; }
-    if(e->modifiers() == Qt::AltModifier){ modifiers += "A-"; }
+    if(e->modifiers() & Qt::ShiftModifier){ modifiers += "S-"; }
+    if(e->modifiers() & Qt::ControlModifier){ modifiers += "C-"; }
+    if(e->modifiers() & Qt::AltModifier){ modifiers += "A-"; }
     mouseSend(e->pos(), modifiers, action, button, grid);
 }
 
 void NeoVim::mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid)
 {
     String modifiers = "";
-    if(e->modifiers() == Qt::ShiftModifier){ modifiers += "S-"; }
-    if(e->modifiers() == Qt::ControlModifier){ modifiers += "C-"; }
-    if(e->modifiers() == Qt::AltModifier){ modifiers += "A-"; }
+    if(e->modifiers() & Qt::ShiftModifier){ modifiers += "S-"; }
+    if(e->modifiers() & Qt::ControlModifier){ modifiers += "C-"; }
+    if(e->modifiers() & Qt::AltModifier){ modifiers += "A-"; }
     mouseSend(e->pos(), modifiers, action, button, grid);
 }
 
