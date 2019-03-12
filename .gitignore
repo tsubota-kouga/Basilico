@@ -4,3 +4,7 @@ build/
 src/.qmake.stash
 neovim.cpp/src/.qmake.stash
 /**/compile_commands.json
+CMakeLists.txt
+include/Basilico.hpp
+plugin/basilico_autocmds.vim
+src/plugins.cpp
