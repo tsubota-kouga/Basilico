@@ -23,21 +23,21 @@ basil_file_name = 'basil.toml'
 
 fill['qt_version'] = 5.7
 fill['boost_version'] = 1.55
-fill['qt_dependency'] = []
-fill['boost_dependency'] = []
+fill['qt_dependency'] = ['Widgets', 'Core']
+fill['boost_dependency'] = ['system', 'thread']
 fill['plugin_paths'] = []
 fill['plugin_name'] = []
 fill['autocmd'] = []
 
 # array
-# runtimepath = nvim.eval('g:basilico_plugin_added')
 runtimepath = nvim.eval('&runtimepath').split(',')
 for path in runtimepath:
     basil_path = glob(os.path.join(path, basil_file_name))
     if basil_path != [] and path != '.':
         head, tail = os.path.split(path)
-        fill['plugin_paths'].append(path)
-        fill['plugin_name'].append(tail)
+        if tail != 'Basilico':
+            fill['plugin_paths'].append(path)
+            fill['plugin_name'].append(tail)
 
 for p in fill['plugin_paths']:
     try:
@@ -57,10 +57,6 @@ for p in fill['plugin_paths']:
         fill['boost_version'] = f['dependency']['boost_version'] \
                 if fill['boost_version'] < f['dependency'].setdefault('boost_version', 0)\
                 else fill['boost_version']
-
-if os.path.abspath('.') in fill['plugin_paths']:
-    fill['plugin_paths'].remove(os.path.abspath('.'))
-fill['plugin_name'].remove('Basilico')
 
 fill['source_paths'] = [
     os.path.join(fill['plugin_paths'][i], 'src', fill['plugin_name'][i] + '.cpp')
