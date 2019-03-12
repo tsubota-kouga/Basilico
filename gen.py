@@ -5,9 +5,8 @@ from glob import glob
 import os, sys, re
 import toml
 
-
 fill = {}
-this_dir = os.path.dirname(__file__)
+this_dir = os.path.abspath(os.path.dirname(__file__))
 env = Environment(loader=FileSystemLoader(this_dir  + '/template'))
 
 # no gui plugins
@@ -22,7 +21,7 @@ else:
     if len(sys.argv) >= 2:
         path = sys.argv[1]
     else:
-        print('argment 2: path to socket is required')
+        print('argment 3: path to socket is required')
         sys.exit(1)
 
     nvim = attach('socket', path=path)

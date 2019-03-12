@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ ! -e CMakeLists.txt ]; then
+    echo Not Found CMakeLists.txt.
+    echo So, generate CMakeLists.txt and other auto generated files.
+    python3 gen.py _ np
+fi
+
 if [ -e neovim.cpp/build ]; then
     cd neovim.cpp/build
 else
