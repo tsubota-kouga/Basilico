@@ -35,6 +35,7 @@ else:
     fill['plugin_paths'] = []
     fill['plugin_name'] = []
     fill['autocmd'] = []
+    fill['resource'] = []
 
 # array
     runtimepath = nvim.eval('&runtimepath').split(',')
@@ -46,7 +47,7 @@ else:
                 fill['plugin_paths'].append(path)
                 fill['plugin_name'].append(tail)
 
-    for p in fill['plugin_paths']:
+    for p, name in zip(fill['plugin_paths'], fill['plugin_name']):
         try:
             f = toml.load(open(os.path.join(p, basil_file_name)))
         except(FileNotFoundError):
@@ -64,6 +65,11 @@ else:
             fill['boost_version'] = f['dependency']['boost_version'] \
                     if fill['boost_version'] < f['dependency'].setdefault('boost_version', 0)\
                     else fill['boost_version']
+
+        if 'asset' in f.keys():
+            path_list = f['asset'].setdefault('resource', [])
+            for path in path_list:
+                fill['resource'].extend(glob(os.path.join(p, path)))
 
     fill['source_paths'] = [
         os.path.join(fill['plugin_paths'][i], 'src', fill['plugin_name'][i] + '.cpp')
@@ -96,3 +102,7 @@ rendered = template.render(message=fill)
 with open(this_dir + '/plugin/basilico_autocmds.vim', 'w') as f:
     f.write(rendered)
 
+template = env.get_template('Basilico.qrc')
+rendered = template.render(message=fill)
+with open(this_dir + '/Basilico.qrc', 'w') as f:
+    f.write(rendered)

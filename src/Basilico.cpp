@@ -324,6 +324,11 @@ void Basilico::mousePressEvent(QMouseEvent* e)
     }
 }
 
+void Basilico::closeEvent(QCloseEvent* e)
+{
+    e->accept();
+}
+
 void Basilico::addPlugin(String plugin_name, BasilPlugin* plugin)
 {
     if(Plugins.count(plugin_name) == 0)

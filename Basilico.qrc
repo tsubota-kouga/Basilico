@@ -2,6 +2,6 @@
 <RCC>
 <qresource prefix="/">
     <file>img/nvim.png</file>
+
 </qresource>
 </RCC>
-

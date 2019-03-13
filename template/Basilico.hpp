@@ -128,6 +128,8 @@ protected:
 
     virtual void mousePressEvent(QMouseEvent* e) override;
 
+    virtual void closeEvent(QCloseEvent* e) override;
+
     void addPlugin(String plugin_name, BasilPlugin* plugin);
 };
 #endif
