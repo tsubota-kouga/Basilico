@@ -8,4 +8,3 @@ CMakeLists.txt
 include/Basilico.hpp
 plugin/basilico_autocmds.vim
 src/plugins.cpp
-Basilico.qrc

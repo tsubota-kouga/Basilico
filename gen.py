@@ -102,7 +102,3 @@ rendered = template.render(message=fill)
 with open(this_dir + '/plugin/basilico_autocmds.vim', 'w') as f:
     f.write(rendered)
 
-template = env.get_template('Basilico.qrc')
-rendered = template.render(message=fill)
-with open(this_dir + '/Basilico.qrc', 'w') as f:
-    f.write(rendered)
