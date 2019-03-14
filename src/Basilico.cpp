@@ -73,13 +73,15 @@ void Basilico::NeoVimSetting(String port)
     catch(boost::bad_get& e){
         neovim.set_ui_option("ext_wildmenu", false);
     }
-    // try{
-    //     auto is_ext_messages = boost::get<bool>(neovim.nvim_get_var("basilico#ext_messages"));
-    //     neovim.set_ui_option("ext_messages", is_ext_messages);
-    // }
-    // catch(boost::bad_get& e){
-    //     neovim.set_ui_option("ext_messages", false);
-    // }
+#if NVIM_API_LEVEL >= 7
+    try{
+        auto is_ext_messages = boost::get<bool>(neovim.nvim_get_var("basilico#ext_messages"));
+        neovim.set_ui_option("ext_messages", is_ext_messages);
+    }
+    catch(boost::bad_get& e){
+        neovim.set_ui_option("ext_messages", false);
+    }
+#endif
     // <end>
 
     neovim.nvim_ui_attach();
