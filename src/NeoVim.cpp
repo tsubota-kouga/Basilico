@@ -788,7 +788,7 @@ void NeoVim::cursor_shape(Mode m)
                  (m == Mode::vsep_drag) ? "vsep_drag" :
                  (m == Mode::more) ? "more" :
                  (m == Mode::more_lastline) ? "more_lastline" :
-                 (m == Mode::shortmatch) ? "shortmatch" : "???";
+                 (m == Mode::showmatch) ? "showmatch" : "???";
 
     cursorShape = boost::get<String>(ui_mode_info[key]["cursor_shape"]);
     if(cursorShape == "vertical")
