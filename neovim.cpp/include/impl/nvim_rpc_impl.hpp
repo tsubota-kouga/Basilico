@@ -2,6 +2,7 @@
 #define ___NVIMRPC_IMPL_H_
 
 #include <vector>
+#include <mutex>
 
 namespace nvim {
 
@@ -36,14 +37,14 @@ void NvimRPC::call(const String &method, std::vector<T>& res, const U&...u)
     Object v = do_call(method, u...);
     std::cout << "Vector<T> NvimRPC::call " << method << std::endl;
 
-    auto tmp = boost::get<Array>(v);
+    auto&& tmp = boost::get<Array>(v);
     if(tmp.size() == 0)
     {
         res.push_back(T{});
         return;
     }
     res.reserve(sizeof tmp);
-    for(auto c: tmp)
+    for(auto&& c: tmp)
     {
         res.push_back(boost::get<T>(c));
     }

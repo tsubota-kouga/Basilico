@@ -4,6 +4,7 @@
 
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/io_service_strand.hpp>
 #include <boost/asio/generic/stream_protocol.hpp>
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/streambuf.hpp>
@@ -18,8 +19,9 @@ class Socket
 {
 public:
     Socket() :
-        socket_(io_service_),
-        deadline_(io_service_)
+        socket_{io_service_},
+        strand_{io_service_},
+        deadline_{io_service_}
     {
         deadline_.expires_at(boost::posix_time::pos_infin);
         check_deadline();
@@ -41,6 +43,7 @@ private:
 
     boost::asio::io_service io_service_;
     boost::asio::generic::stream_protocol::socket socket_;
+    boost::asio::io_service::strand strand_;
     boost::asio::deadline_timer deadline_;
     boost::asio::streambuf input_buffer_;
 };

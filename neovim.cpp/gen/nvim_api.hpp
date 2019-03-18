@@ -10,7 +10,6 @@ namespace nvim
 
 class nvim_api
 {
-
 protected:
     NvimRPC client_;
 

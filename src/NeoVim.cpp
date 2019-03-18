@@ -22,6 +22,7 @@ NeoVim::NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& opt
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    keyModNumberMap = [](const String&){};
 }
 
 void NeoVim::set_neovim_html()
@@ -429,6 +430,46 @@ void NeoVim::keyPressEvent(QKeyEvent* e)
         case Qt::Key_Super_R:
             break;
 
+        case Qt::Key_0:
+            keySend(e, 0);
+            break;
+
+        case Qt::Key_1:
+            keySend(e, 1);
+            break;
+
+        case Qt::Key_2:
+            keySend(e, 2);
+            break;
+
+        case Qt::Key_3:
+            keySend(e, 3);
+            break;
+
+        case Qt::Key_4:
+            keySend(e, 4);
+            break;
+
+        case Qt::Key_5:
+            keySend(e, 5);
+            break;
+
+        case Qt::Key_6:
+            keySend(e, 6);
+            break;
+
+        case Qt::Key_7:
+            keySend(e, 7);
+            break;
+
+        case Qt::Key_8:
+            keySend(e, 8);
+            break;
+
+        case Qt::Key_9:
+            keySend(e, 9);
+            break;
+
         default:
             if(e->text().size() == 1 and e->text().at(0).isPrint())
             {
@@ -698,11 +739,34 @@ void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 
     if(key == "<") { k += "LT"; }
     else if(key == "\\") { k += "Bslash"; }
+    else if(key == "," or key == "." or key == ";" or key == ":"){ k = key; }
     else { k += key; }
 
     if(k == "C-/"){ k = "C-_"; }
 
     (k == key and key.size() == 1) ? nvim_input(k) : nvim_input("<" + k + ">");
+}
+
+void NeoVim::keySend(QInputEvent* e, const Integer& key)
+{
+    if(e->modifiers() == Qt::NoModifier)
+    {
+        nvim_input(std::to_string(key));
+        return;
+    }
+    String k = "";
+    if(e->modifiers() == Qt::ShiftModifier){ k += "S-"; }
+    if(e->modifiers() == Qt::ControlModifier){ k += "C-"; }
+    if(e->modifiers() == Qt::AltModifier){ k += "A-"; }
+    if(e->modifiers() & Qt::KeypadModifier)
+    {
+        nvim_input(k + "k" + std::to_string(key));
+        return;
+    }
+    else
+    {
+        keyModNumberMap(k + std::to_string(key));
+    }
 }
 
 void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid)

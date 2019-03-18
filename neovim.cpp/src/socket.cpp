@@ -1,7 +1,6 @@
 #include "socket.hpp"
 
 #include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -11,9 +10,6 @@
 using boost::asio::deadline_timer;
 using boost::asio::ip::tcp;
 using boost::lambda::bind;
-using boost::lambda::var;
-using boost::lambda::_1;
-using boost::lambda::_2;
 
 namespace nvim {
 
@@ -31,7 +27,10 @@ void Socket::connect_tcp(const std::string& host,
     {
         socket_.close();
         ec = boost::asio::error::would_block;
-        socket_.async_connect(iter->endpoint(), var(ec) = _1);
+        socket_.async_connect(iter->endpoint(),
+                [&ec](boost::system::error_code e){
+                        ec = e;
+                    });
 
         do io_service_.run_one(); while (ec == boost::asio::error::would_block);
         if (!ec && socket_.is_open()) return;
@@ -50,7 +49,7 @@ size_t Socket::read(char *rbuf, size_t capacity, long timeout_millisec)
 
     async_read(socket_, boost::asio::buffer(rbuf, capacity),
         boost::asio::transfer_at_least(read_at_least),
-        [&ec, &rlen](boost::system::error_code e, size_t s) { ec = e;rlen = s; });
+        strand_.wrap([&ec, &rlen](boost::system::error_code e, size_t s) { ec = e;rlen = s; }));
     do { io_service_.run_one(); }
     while (ec == boost::asio::error::would_block);
 
@@ -80,7 +79,7 @@ size_t Socket::ui_read(char *rbuf, size_t capacity, long timeout_millisec)
 
     async_read(socket_, boost::asio::buffer(rbuf, capacity),
         boost::asio::transfer_at_least(read_at_least),
-        [&ec, &rlen](boost::system::error_code e, size_t s) { ec = e;rlen = s; });
+        strand_.wrap([&ec, &rlen](boost::system::error_code e, size_t s) { ec = e;rlen = s; }));
     do { io_service_.run_one(); } while (ec == boost::asio::error::would_block);
 
     if(ec){ throw boost::system::system_error(ec); }
@@ -91,7 +90,10 @@ void Socket::write(char *sbuf, size_t size, long timeout_sec)
 {
     deadline_.expires_from_now(boost::posix_time::seconds(timeout_sec));
     boost::system::error_code ec = boost::asio::error::would_block;
-    boost::asio::async_write(socket_, boost::asio::buffer(sbuf, size), var(ec) = _1);
+    boost::asio::async_write(socket_, boost::asio::buffer(sbuf, size),
+            strand_.wrap([&ec](boost::system::error_code e, size_t s){
+                    ec = e;
+                }));
 
     do io_service_.run_one(); while (ec == boost::asio::error::would_block);
 

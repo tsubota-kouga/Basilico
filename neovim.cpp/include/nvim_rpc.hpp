@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include <tuple>
+#include <mutex>
 
 #include "socket.hpp"
 
@@ -32,6 +33,7 @@ class NvimRPC
 
     uint64_t msgid_;
     Socket socket_;
+    std::mutex mtx_;
 
     enum {
         REQUEST  = 0,

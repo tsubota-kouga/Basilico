@@ -44,6 +44,7 @@ class NeoVim: public QTextEdit, public neovim
     Integer popupmenu_selected;
     std::pair<Integer, Integer> popupmenu_pos;
 
+    void(*keyModNumberMap)(const String&);
 public:
 
     NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options, String ip, String port, int timeout_millisec);
@@ -84,6 +85,11 @@ public:
         { return boost::get<T>(nvim_hl_attr.at(default_idx).rgb_attr.at(key)); }
         else  // has no default key
         { return T{}; }
+    }
+
+    void setkeyModNumberMap(void (*map)(const String&))
+    {
+        keyModNumberMap = map;
     }
 
 protected:
@@ -138,6 +144,8 @@ private:
 
     void keySend(QInputEvent* e, const String& key, bool no_shift=false);
 
+    void keySend(QInputEvent* e, const Integer& key);
+
     void mouseSend(QPoint pos, const String& modifiers, const String& action, const String& button, Integer grid);
 
     void mouseSend(QMouseEvent* e, const String& action, const String& button, Integer grid);
@@ -145,6 +153,7 @@ private:
     void mouseSend(QWheelEvent* e, const String& action, const String& button, Integer grid);
 
     void cursor_shape(Mode m);
+
 };
 
 namespace nvim_html

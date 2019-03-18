@@ -21,9 +21,11 @@ function! basilico_gen#generator(...) abort
 endfunction
 
 function! basilico_gen#build() abort
+    let s:current_dir = getcwd()
     tabnew
-    execute 'cd' . s:this_dir . '/../'
+    execute 'cd ' . s:this_dir . '/../'
     execute 'terminal bash ' . s:this_dir . '/../build.sh'
+    execute 'cd ' . s:current_dir
 endfunction
 
 let &cpo = s:save_cpo

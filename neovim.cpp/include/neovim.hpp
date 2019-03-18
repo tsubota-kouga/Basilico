@@ -171,7 +171,7 @@ public:
         vsep_drag,
         more,
         more_lastline,
-        shortmatch
+        showmatch
     };
 
     Integer nvim_size_x, nvim_size_y;
