@@ -10,8 +10,8 @@
 
 #include <QtWidgets>
 #include <QtGui>
-
-#include <set>
+#include <unordered_map>
+#include <mutex>
 
 class BasilPlugin;
 {% for name in message['plugin_name'] %}
@@ -74,7 +74,7 @@ class Basilico: public QMainWindow
 
     const String Name = "Basilico";
     NeoVim neovim;
-
+    std::mutex neovim_mtx;
 
 public:
 
@@ -94,7 +94,13 @@ public:
     void popupmenuSetting();
 
     const String& getName() const { return Name; }
-    NeoVim& getNeoVim()& { return neovim; }
+    NeoVim& getNeoVim()&
+    {
+        std::lock_guard<std::mutex> lock{neovim_mtx};
+        return neovim;
+    }
+
+    const String& getPort() const { return neovim.port; }
 
     QListWidget nvim_comp;
     QListWidget& get_nvim_comp() { return nvim_comp; };

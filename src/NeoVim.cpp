@@ -727,24 +727,32 @@ void NeoVim::fkeySend(QKeyEvent* e, Integer key)
 
 void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 {
+    auto slp = (key == "CR" and current_mode["screen"] == Mode::cmdline_normal);
+    std::cout << (int)current_mode["screen"] << std::endl;
     if(e->modifiers() == Qt::NoModifier)
     {
         (key.size() == 1) ? nvim_input(key) : nvim_input("<" + key + ">");
-        return;
     }
-    String k = "";
-    if(e->modifiers() == Qt::ShiftModifier and !no_shift){ k += "S-"; }
-    if(e->modifiers() == Qt::ControlModifier){ k += "C-"; }
-    if(e->modifiers() == Qt::AltModifier){ k += "A-"; }
+    else
+    {
+        String k = "";
+        if(e->modifiers() == Qt::ShiftModifier and !no_shift){ k += "S-"; }
+        if(e->modifiers() == Qt::ControlModifier){ k += "C-"; }
+        if(e->modifiers() == Qt::AltModifier){ k += "A-"; }
 
-    if(key == "<") { k += "LT"; }
-    else if(key == "\\") { k += "Bslash"; }
-    else if(key == "," or key == "." or key == ";" or key == ":"){ k = key; }
-    else { k += key; }
+        if(key == "<") { k += "LT"; }
+        else if(key == "\\") { k += "Bslash"; }
+        else if(key == "," or key == "." or key == ";" or key == ":"){ k = key; }
+        else { k += key; }
 
-    if(k == "C-/"){ k = "C-_"; }
+        if(k == "C-/"){ k = "C-_"; }
 
-    (k == key and key.size() == 1) ? nvim_input(k) : nvim_input("<" + k + ">");
+        (k == key and key.size() == 1) ? nvim_input(k) : nvim_input("<" + k + ">");
+    }
+    if(slp)
+    {
+        usleep(duration_cast<microseconds>(50ms).count());
+    }
 }
 
 void NeoVim::keySend(QInputEvent* e, const Integer& key)

@@ -1139,15 +1139,7 @@ void neovim::mouse_off()
 void neovim::mode_change(const String& mode, neovim::Mode mode_idx)
 {
     String cmd_pre = "cmdline_";
-    if(mode.size() >= cmd_pre.size() and
-            std::equal(std::begin(cmd_pre), std::end(cmd_pre), std::begin(mode)))
-    {
-        current_mode["cmdline"] = mode_idx;
-    }
-    else
-    {
-        current_mode["screen"] = mode_idx;
-    }
+    current_mode["screen"] = mode_idx;
     mode_changed();
     return;
 }

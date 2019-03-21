@@ -8,10 +8,14 @@
 #include <deque>
 #include <unordered_map>
 #include <cmath>
+#include <chrono>
 
 #include <QtWidgets>
 
 using std::deque;
+using namespace std::literals;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
 
 class Basilico;
 
