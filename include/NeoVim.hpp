@@ -48,7 +48,10 @@ class NeoVim: public QTextEdit, public neovim
     Integer popupmenu_selected;
     std::pair<Integer, Integer> popupmenu_pos;
 
-    void(*keyModNumberMap)(const String&);
+    bool input_control_flag=false;
+
+    void (*keyModNumberMap)(const String&);
+
 public:
 
     NeoVim(uint width, uint height, Basilico* parent_, const Dictionary& options, String ip, String port, int timeout_millisec);
@@ -96,6 +99,10 @@ public:
         keyModNumberMap = map;
     }
 
+    void set_input_control_flag(bool b){ input_control_flag = b; }
+    bool get_input_control_flag() const { return input_control_flag; }
+
+    std::deque<String> input_deque;
 protected:
     virtual bool event(QEvent* e) override;
 

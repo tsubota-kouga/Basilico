@@ -284,9 +284,21 @@ void Basilico::timerEvent(QTimerEvent* e)
         {
             auto& args = neovim.plugin_req_deque.front();
             auto& plugin_name = boost::get<String>(args.at(0));
-
+            if(plugin_name == "Basilico")
+            {
+                if(args.size() >= 1 and boost::get<String>(args.at(1)) == "set_input_flag")
+                {
+                    neovim.set_input_control_flag(true);
+                }
+                else if(args.size() >= 1 and boost::get<String>(args.at(1)) == "reset_input_flag")
+                {
+                    neovim.set_input_control_flag(false);
+                }
+            }
+            else
+            {
 #include "plugins.cpp"
-
+            }
             neovim.plugin_req_deque.pop_front();
         }
         for(auto& [_, plugins]: Plugins)

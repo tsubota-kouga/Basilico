@@ -33,7 +33,7 @@ public:
     }
 {% endfor %}
 
-    Object read_request(long timeout_millisec)
+    Object read_request(long timeout_millisec=1000)
     {
         if(client_.available())
         {

@@ -312,6 +312,7 @@ bool NeoVim::event(QEvent* e)
 
 void NeoVim::keyPressEvent(QKeyEvent* e)
 {
+    if(input_control_flag){ return; }
     std::cout << e->key() << std::endl;
     isKeyPressed = true;
     switch(e->key())
@@ -491,6 +492,15 @@ void NeoVim::timerEvent(QTimerEvent* e)
 {
     if(e->timerId() == timer)
     {
+        while(!input_deque.empty())
+        {
+            auto&& input = input_deque.front();
+            nvim_input(input);
+            input_deque.pop_front();
+            if(input == "<CR>" and current_mode["screen"] == Mode::cmdline_normal){
+                input_deque.clear();
+            }
+        }
         operation();
         if(nvim_hl_attr.size() > 0)
         {
@@ -722,16 +732,17 @@ void NeoVim::fkeySend(QKeyEvent* e, Integer key)
 {
     if(e->modifiers() == Qt::ShiftModifier){ key += 12; }
     if(e->modifiers() == Qt::ControlModifier){ key += 24; }
-    nvim_input("<F" + std::to_string(key) + ">");
+    // nvim_input("<F" + std::to_string(key) + ">");
+    input_deque.push_back("<F" + std::to_string(key) + ">");
 }
 
 void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 {
-    auto slp = (key == "CR" and current_mode["screen"] == Mode::cmdline_normal);
-    std::cout << (int)current_mode["screen"] << std::endl;
+    if(input_control_flag){ return; }
     if(e->modifiers() == Qt::NoModifier)
     {
-        (key.size() == 1) ? nvim_input(key) : nvim_input("<" + key + ">");
+        // (key.size() == 1) ? nvim_input(key) : nvim_input("<" + key + ">");
+        (key.size() == 1) ? input_deque.push_back(key) : input_deque.push_back("<" + key + ">");
     }
     else
     {
@@ -747,28 +758,27 @@ void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 
         if(k == "C-/"){ k = "C-_"; }
 
-        (k == key and key.size() == 1) ? nvim_input(k) : nvim_input("<" + k + ">");
-    }
-    if(slp)
-    {
-        usleep(duration_cast<microseconds>(50ms).count());
+        // (k == key and key.size() == 1) ? nvim_input(k) : nvim_input("<" + k + ">");
+        (k == key and key.size() == 1) ? input_deque.push_back(k) : input_deque.push_back("<" + k + ">");
     }
 }
 
 void NeoVim::keySend(QInputEvent* e, const Integer& key)
 {
-    if(e->modifiers() == Qt::NoModifier)
+    if(e->modifiers() & Qt::NoModifier)
     {
-        nvim_input(std::to_string(key));
+        // nvim_input(std::to_string(key));
+        input_deque.push_back(std::to_string(key));
         return;
     }
     String k = "";
-    if(e->modifiers() == Qt::ShiftModifier){ k += "S-"; }
-    if(e->modifiers() == Qt::ControlModifier){ k += "C-"; }
-    if(e->modifiers() == Qt::AltModifier){ k += "A-"; }
+    if(e->modifiers() & Qt::ShiftModifier){ k += "S-"; }
+    if(e->modifiers() & Qt::ControlModifier){ k += "C-"; }
+    if(e->modifiers() & Qt::AltModifier){ k += "A-"; }
     if(e->modifiers() & Qt::KeypadModifier)
     {
-        nvim_input(k + "k" + std::to_string(key));
+        // nvim_input(k + "k" + std::to_string(key));
+        input_deque.push_back(k + "k" + std::to_string(key));
         return;
     }
     else
@@ -813,12 +823,16 @@ send:
         (a == "down") ? "Down" : "";
     if(button != "wheel")
     {
-        nvim_input("<" + modifiers + button + a + "><"
+        // nvim_input("<" + modifiers + button + a + "><"
+        //         + std::to_string(col) + "," + std::to_string(row) + ">");
+        input_deque.push_back("<" + modifiers + button + a + "><"
                 + std::to_string(col) + "," + std::to_string(row) + ">");
     }
     else
     {
-        nvim_input("<" + modifiers + "ScrollWheel" + a + "><"
+        // nvim_input("<" + modifiers + "ScrollWheel" + a + "><"
+        //         + std::to_string(col) + "," + std::to_string(row) + ">");
+        input_deque.push_back("<" + modifiers + "ScrollWheel" + a + "><"
                 + std::to_string(col) + "," + std::to_string(row) + ">");
     }
 #endif
