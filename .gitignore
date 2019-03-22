@@ -7,4 +7,4 @@ neovim.cpp/src/.qmake.stash
 include/Basilico.hpp
 plugin/basilico_autocmds.vim
 src/plugins.cpp
-./CMakeLists.txt
+/CMakeLists.txt
