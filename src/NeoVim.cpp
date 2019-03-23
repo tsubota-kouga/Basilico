@@ -765,7 +765,7 @@ void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 
 void NeoVim::keySend(QInputEvent* e, const Integer& key)
 {
-    if(e->modifiers() & Qt::NoModifier)
+    if(e->modifiers() == Qt::NoModifier)
     {
         // nvim_input(std::to_string(key));
         input_deque.push_back(std::to_string(key));
