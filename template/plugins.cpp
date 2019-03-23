@@ -8,7 +8,6 @@
         // neovim.read_request(100);
         neovim.set_input_control_flag(true);
         neovim.nvim_input("<Esc>");
-        std::cout << "########################################" << std::endl;
         auto&& [tmp, option] = {{name}}::factory(this, args);
 
         if(tmp != nullptr)
@@ -40,7 +39,6 @@
             }
         }
         neovim.set_input_control_flag(false);
-        std::cout << "********************************************" << std::endl;
     }
     else
     {

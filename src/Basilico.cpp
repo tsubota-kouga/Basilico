@@ -138,7 +138,7 @@ void Basilico::tablineSetting()
                 if(neovim.get_nvim_tabline().at(tabline_index).first == t)
                 {
                     tabpageIndex = neovim.nvim_tabpage_get_number(t);
-                    neovim.nvim_command("tabclose " + std::to_string(tabpageIndex));
+                    neovim.nvim_command("tabclose! " + std::to_string(tabpageIndex));
                     for(auto&& [tab, info] : TabPluginId)
                     {
                         // on stackwidget [0][1][2][x][4][5]
