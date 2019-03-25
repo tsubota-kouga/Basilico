@@ -127,9 +127,11 @@ To Install Basilico Plugins, please do following
 
 
 ## Licence
-MIT Licence except `neovim.cpp` directory.
+MIT Licence except `neovim.cpp` and `img` directory.
 
 `neovim.cpp` directory has changed from original.
 
 Original repository is [here](https://github.com/DaikiMaekawa/neovim.cpp). Thanks!
+
+nvim.png under `img` directory by [Jason Long](http://twitter.com/jasonlong) is licensed under the Creative Commons Attribution 3.0 Unported License.
 
