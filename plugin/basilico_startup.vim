@@ -19,10 +19,18 @@ if !exists('g:basilico#ext_popupmenu')
     let g:basilico#ext_popupmenu=v:false
 endif
 if exists('g:basilico#color_theme')
-    if g:basilico#color_theme == 'dark'
+    if g:basilico#color_theme ==# 'dark'
         let g:basilico#tabline_style_sheet='
-                    \ color: #ffffff
-                    \ background-color: #444444'
+                    \ color: #ffffff;
+                    \ background-color: #444444;'
+    elseif g:basilico#color_theme ==# 'black'
+        let g:basilico#tabline_style_sheet='
+                    \ color: #ffffff;
+                    \ background-color: #000000;'
+    elseif g:basilico#color_theme ==# 'light'
+        let g:basilico#tabline_style_sheet='
+                    \ color: #000000;
+                    \ background-color: #ffffff;'
     endif
 endif
 
