@@ -227,8 +227,8 @@ void NeoVim::set_neovim_html()
                 if(cursor_positioned)
                 {
                     uInteger next_fg, next_bg;
-                    next_fg = hl_attr_get<uInteger>(next_color_id, "foreground");
-                    next_bg = hl_attr_get<uInteger>(next_color_id, "background");
+                    next_fg = hl_attr_get<uInteger>(next_color_id, (next_is_reverse) ? "background" : "foreground");
+                    next_bg = hl_attr_get<uInteger>(next_color_id, (next_is_reverse) ? "foreground" : "background");
 
                     auto [rf, gf, bf] = nvim_html::convert_rgb(next_fg);
                     auto [rb, gb, bb] = nvim_html::convert_rgb(next_bg);
