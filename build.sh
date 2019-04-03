@@ -6,6 +6,10 @@ if [ ! -e CMakeLists.txt ]; then
     python3 gen.py _ np
 fi
 
+if [ ! -e neovim.cpp/gen ]; then
+    mkdir neovim.cpp/gen -p
+fi
+
 if [ -e neovim.cpp/build ]; then
     cd neovim.cpp/build
 else
