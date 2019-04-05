@@ -93,13 +93,14 @@ void Basilico::NeoVimSetting(String port)
 
 void Basilico::BasilicoSetting()
 {
-    basil_layout.setContentsMargins(0, 0, 0, 0);
     neovim_index = neovimsplinteg_tabplugins_integrate.addWidget(
             &neovim_split_plugins_integrate);
     neovim_layout.setContentsMargins(0, 0, 0, 0);
     neovim_split_plugins_integrate.setLayout(&neovim_layout);
     neovim_layout.addWidget(&neovim, 1, 1);
 
+    basil_layout.setContentsMargins(0, 0, 0, 0);
+    basil_layout.setSpacing(0);
     basil_layout.addWidget(&neovimsplinteg_tabplugins_integrate, 1, 0);
     neovim_integrate.setLayout(&basil_layout);
 
