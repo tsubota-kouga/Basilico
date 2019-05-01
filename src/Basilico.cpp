@@ -12,7 +12,8 @@ Basilico::Basilico(String port, uint width, uint height, QApplication& app):
     neovim{width, height, this, { {"rgb", true},
                                 {"ext_linegrid", true} },
            "localhost", port, 1000 },
-    nvim_comp{&neovim}
+    nvim_comp{&neovim},
+    Plugins{}
 {
     NeoVimSetting(port);
 
@@ -134,18 +135,14 @@ void Basilico::tablineSetting()
     connect(&tabline, &QTabBar::tabCloseRequested, this,
             [&](int tabline_index){
             Integer tabpageIndex = -1;
-            for(auto&& [t, plugin]: TabPluginId)
-            {
-                if(neovim.get_nvim_tabline().at(tabline_index).first == t)
-                {
+            for(auto&& [t, plugin]: TabPluginId) {
+                if(neovim.get_nvim_tabline().at(tabline_index).first == t) {
                     tabpageIndex = neovim.nvim_tabpage_get_number(t);
                     neovim.nvim_command("tabclose! " + std::to_string(tabpageIndex));
-                    for(auto&& [tab, info] : TabPluginId)
-                    {
+                    for(auto&& [tab, info] : TabPluginId) {
                         // on stackwidget [0][1][2][x][4][5]
                         //                [0][1][2]   [3][4]
-                        if(tabline_index < info.second)
-                        {
+                        if(tabline_index < info.second) {
                             --info.second;
                         }
                     }
@@ -166,12 +163,10 @@ void Basilico::tablineSetting()
             [&, this](int from, int to){
                 int idx = tabline.currentIndex();
                 int movenum = to - from;
-                if((from == idx) xor (movenum >= 0))
-                {
+                if((from == idx) xor (movenum >= 0)) {
                     neovim.nvim_command("tabmove +" + std::to_string(-movenum));
                 }
-                else
-                {
+                else {
                     neovim.nvim_command("tabmove " + std::to_string(-movenum));
                 }
             });
@@ -181,56 +176,48 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
 {
     if(showtabline == 0){ return; }
     // if there is not tabline, make tabline
-    if(basil_layout.indexOf(&tabline) == -1)
-    {
+    if(basil_layout.indexOf(&tabline) == -1) {
         basil_layout.addWidget(&tabline, 0, 0);
     }
 
     // remove all tabs
     int num_tabs = tabline.count();
-    for(int i = 0;i <= num_tabs;i++)
-    {
+    for(int i = 0;i <= num_tabs;i++) {
         tabline.removeTab(0);
     }
 
     // make all tabs
-    for(auto&& [tab, name]: tabs)
-    {
+    for(auto&& [tab, name]: tabs) {
         int idx = tabline.addTab(QString::fromStdString(name));
         if(tab == current){
             tabline.setCurrentIndex(idx);
         }
     }
     // if current is tab-plugin tab
-    if(TabPluginId.count(current) == 1)
-    {
+    if(TabPluginId.count(current) == 1) {
         auto&& [name, index] = TabPluginId[current];
         neovimsplinteg_tabplugins_integrate.setCurrentIndex(index);
     }
-    else // else Neovim must be shown
-    {
+    else { // else Neovim must be shown
         neovimsplinteg_tabplugins_integrate.setCurrentIndex(neovim_index);
     }
 
     // SplitPlugins
     // previous tabpage
-    if(current == currentTabpage)
-    {
+    if(current == currentTabpage) {
         return;
     }
     // next pabpage
     {
-        auto p = SplitPlugins.equal_range(current);
-        for(auto it = p.first;it != p.second;++it)
-        {
+        auto&& p = SplitPlugins.equal_range(current);
+        for(auto&& it = p.first;it != p.second;++it) {
             auto&& [widget, r, c, w, h] = it->second;
             widget->show();
         }
     }
     {
-        auto p = SplitPlugins.equal_range(currentTabpage);
-        for(auto it = p.first;it != p.second;++it)
-        {
+        auto&& p = SplitPlugins.equal_range(currentTabpage);
+        for(auto&& it = p.first;it != p.second;++it) {
             auto&& [widget, r, c, w, h] = it->second;
             widget->hide();
         }
@@ -287,35 +274,28 @@ void Basilico::timerEvent(QTimerEvent* e)
             auto& plugin_name = boost::get<String>(args.at(0));
             if(plugin_name == "Basilico")
             {
-                if(args.size() >= 1 and boost::get<String>(args.at(1)) == "set_input_flag")
-                {
+                if(args.size() >= 1 and boost::get<String>(args.at(1)) == "set_input_flag") {
                     neovim.set_input_control_flag(true);
                 }
-                else if(args.size() >= 1 and boost::get<String>(args.at(1)) == "reset_input_flag")
-                {
+                else if(args.size() >= 1 and
+                        boost::get<String>(args.at(1)) == "reset_input_flag") {
                     neovim.set_input_control_flag(false);
                 }
             }
-            else
-            {
+            else {
 #include "plugins.cpp"
             }
             neovim.plugin_req_deque.pop_front();
         }
-        for(auto& [_, plugins]: Plugins)
-        {
-            for(auto plugin:plugins)
-            {
+        for(auto& [_, plugins]: Plugins) {
+            for(auto&& plugin:plugins) {
                 plugin->timerExecute(this);
             }
         }
 
-        if(neovim.readIsKeyPressed())
-        {
-            for(auto& [_, plugins]: Plugins)
-            {
-                for(auto plugin:plugins)
-                {
+        if(neovim.readIsKeyPressed()) {
+            for(auto& [_, plugins]: Plugins) {
+                for(auto&& plugin:plugins) {
                     plugin->keyPressedExecute(this);
                 }
             }
@@ -346,12 +326,10 @@ void Basilico::closeEvent(QCloseEvent* e)
 
 void Basilico::addPlugin(String plugin_name, BasilPlugin* plugin)
 {
-    if(Plugins.count(plugin_name) == 0)
-    {
-        Plugins.insert({plugin_name, Vector<BasilPlugin*>{plugin}});
+    if(Plugins.count(plugin_name) == 0) {
+        Plugins.emplace(plugin_name, Vector<BasilPlugin*>{plugin});
     }
-    else
-    {
+    else {
         Plugins.at(plugin_name).push_back(plugin);
     }
 }

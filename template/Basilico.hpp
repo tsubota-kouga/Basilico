@@ -1,5 +1,5 @@
-#ifndef __Basilico_H_
-#define __Basilico_H_
+#ifndef ___Basilico_H_
+#define ___Basilico_H_
 
 #include "NeoVim.hpp"
 #include "BasilPlugin.hpp"
@@ -47,6 +47,7 @@ class Basilico: public QMainWindow
 
     // Plugins
     std::unordered_map<String, Vector<BasilPlugin*>> Plugins;
+    // std::multimap<String, BasilPlugin*> Plugins;
 
     // CentralWidget : Integration of widgets
     QWidget neovim_integrate;
@@ -75,6 +76,45 @@ class Basilico: public QMainWindow
     const String Name = "Basilico";
     NeoVim neovim;
     std::mutex neovim_mtx;
+
+    template<typename T>
+    using Enable_if_BasilPlugin =
+            std::enable_if_t<
+                std::conjunction<
+                    std::is_base_of<QWidget, T>, std::is_base_of<BasilPlugin, T>>::value,
+            std::nullptr_t>;
+public:
+    template<typename T, Enable_if_BasilPlugin<T> = nullptr>
+    void deletePlugin(T* w)
+    { // TODO
+        for(auto&& [name, plugins]: Plugins) {
+            for(int i = 0;i < plugins.size();i++) {
+                if(plugins.at(i) == static_cast<BasilPlugin*>(w)) {
+                    plugins.erase(plugins.begin() + i);
+                    if(plugins.size() == 0) {
+                        Plugins.erase(name);
+                    }
+                    // w->hide();
+                    return; // exit here so, iterator is never destroyed
+                }
+            }
+        }
+    }
+
+    template<typename T, Enable_if_BasilPlugin<T> = nullptr>
+    void deleteSplitPlugin(T* w)
+    {
+        for(auto&& p = SplitPlugins.begin();p != SplitPlugins.end();p++) {
+            auto&& widget = std::get<0>(p->second);
+            if(widget == static_cast<QWidget*>(w)) {
+                auto&& [begin, end] = SplitPlugins.equal_range(p->first);
+                SplitPlugins.erase(begin, end);
+                neovim_layout.removeWidget(static_cast<QWidget*>(w));
+                return; // exit here so, iterator is never destroyed
+            }
+        }
+
+    }
 
 public:
 
@@ -123,6 +163,28 @@ public:
     const std::multimap<Tabpage, std::tuple<QWidget*, int , int, int, int>>& getSplitPlugins() const
     {
         return SplitPlugins;
+    }
+
+
+    template<typename T, Enable_if_BasilPlugin<T> = nullptr>
+    void killPlugin(T* plugin)
+    {
+        switch (plugin->getPluginType()) {
+            [[fallthrough]];
+            case PluginType::tab:
+                getNeoVim().nvim_command("quit!");
+            case PluginType::dock:
+                deletePlugin(plugin);
+                delete plugin;
+                break;
+            case PluginType::split:
+                deletePlugin(plugin);
+                deleteSplitPlugin(plugin);
+                delete plugin;
+                break;
+            default:
+                return;
+        }
     }
 
     Tabpage makeTabForPlugin(String name);

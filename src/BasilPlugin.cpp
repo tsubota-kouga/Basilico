@@ -1,7 +1,8 @@
 
+#include "Basilico.hpp"
 #include "BasilPlugin.hpp"
 
-void BasilPlugin::on_init(){};
+void BasilPlugin::on_init(){}
 
 void BasilPlugin::execute(Basilico* basil, Array args){}
 
@@ -11,5 +12,5 @@ void BasilPlugin::keyPressedExecute(Basilico* basil){}
 
 void BasilPlugin::autocmdExecute(Basilico* basil, String autocmd){}
 
-std::tuple<int, int, int, int> BasilPlugin::splitPluginPosition(Tabpage tab)
+std::tuple<int, int, int, int> BasilPlugin::splitPluginPosition(Basilico* basil, Tabpage tab)
 { return std::make_tuple(0, 0, 1, 1); }
