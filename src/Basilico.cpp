@@ -300,6 +300,7 @@ void Basilico::timerEvent(QTimerEvent* e)
                 }
             }
         }
+        getNeoVim().setFocus(Qt::ActiveWindowFocusReason);
     }
 }
 
