@@ -8,7 +8,6 @@ Basilico::Basilico(String port, uint width, uint height, QApplication& app):
     tabline{},
     neovimsplinteg_tabplugins_integrate{},
     neovim_split_plugins_integrate{},
-    neovim_layout{},
     neovim{width, height, this, { {"rgb", true},
                                 {"ext_linegrid", true} },
            "localhost", port, 1000 },
@@ -96,9 +95,7 @@ void Basilico::BasilicoSetting()
 {
     neovim_index = neovimsplinteg_tabplugins_integrate.addWidget(
             &neovim_split_plugins_integrate);
-    neovim_layout.setContentsMargins(0, 0, 0, 0);
-    neovim_split_plugins_integrate.setLayout(&neovim_layout);
-    neovim_layout.addWidget(&neovim, 1, 1);
+    neovim_split_plugins_integrate.addWidget(&neovim);
 
     basil_layout.setContentsMargins(0, 0, 0, 0);
     basil_layout.setSpacing(0);
@@ -211,15 +208,13 @@ void Basilico::changeTabNeoVim(const deque<pair<Tabpage, String>>& tabs, Tabpage
     {
         auto&& p = SplitPlugins.equal_range(current);
         for(auto&& it = p.first;it != p.second;++it) {
-            auto&& [widget, r, c, w, h] = it->second;
-            widget->show();
+            it->second->show();
         }
     }
     {
         auto&& p = SplitPlugins.equal_range(currentTabpage);
         for(auto&& it = p.first;it != p.second;++it) {
-            auto&& [widget, r, c, w, h] = it->second;
-            widget->hide();
+            it->second->hide();
         }
     }
 

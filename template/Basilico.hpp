@@ -25,7 +25,7 @@ class {{name}};
 // || -neovimsplinteg_tabplugins_integrate(QStackedWidget)-------- ||
 // || |                                                          | ||
 // || |  -neovim_split_plugins_integrate------  -tabplugins---   | ||
-// || |  |   (layout:neovim_layout)          |  |            |-  | ||
+// || |  |   (QSplitter)                     |  |            |-  | ||
 // || |  | -neovim(NeoVim)-- -splitplugins   |  |            ||  | ||
 // || |  | |               | |           |-  |  |            ||  | ||
 // || |  | |               | |           ||  |  |            ||  | ||
@@ -61,14 +61,15 @@ class Basilico: public QMainWindow
     QStackedWidget neovimsplinteg_tabplugins_integrate;
     int neovim_index; // this must be 0
     std::map<Tabpage, std::pair<String, int>> TabPluginId; // tab, [name, stack index]
-    std::multimap<Tabpage, std::tuple<QWidget*, int , int, int, int>> SplitPlugins;
+    std::multimap<Tabpage, QWidget*> SplitPlugins;
 
     // options
     Integer showtabline;
     String tablineStyleSheet;
 
-    QWidget neovim_split_plugins_integrate;
-    QGridLayout neovim_layout;
+    // QWidget neovim_split_plugins_integrate;
+    QSplitter neovim_split_plugins_integrate;
+    // QGridLayout neovim_layout;
 
     // currentTabpage Handler
     Tabpage currentTabpage;
@@ -105,11 +106,11 @@ public:
     void deleteSplitPlugin(T* w)
     {
         for(auto&& p = SplitPlugins.begin();p != SplitPlugins.end();p++) {
-            auto&& widget = std::get<0>(p->second);
+            auto&& widget = p->second;
             if(widget == static_cast<QWidget*>(w)) {
                 auto&& [begin, end] = SplitPlugins.equal_range(p->first);
                 SplitPlugins.erase(begin, end);
-                neovim_layout.removeWidget(static_cast<QWidget*>(w));
+                static_cast<QWidget*>(w)->hide();
                 return; // exit here so, iterator is never destroyed
             }
         }
@@ -160,7 +161,7 @@ public:
         TabPluginId[tab] = std::make_pair(name, index);
     }
 
-    const std::multimap<Tabpage, std::tuple<QWidget*, int , int, int, int>>& getSplitPlugins() const
+    const std::multimap<Tabpage, QWidget*>& getSplitPlugins() const
     {
         return SplitPlugins;
     }

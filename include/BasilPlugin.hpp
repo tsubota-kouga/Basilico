@@ -40,8 +40,6 @@ public:
     virtual void keyPressedExecute(Basilico* basil);
 
     virtual void autocmdExecute(Basilico* basil, String autocmd);
-
-    virtual std::tuple<int, int, int, int> splitPluginPosition(Basilico* basil, Tabpage tab);
 };
 
 #endif

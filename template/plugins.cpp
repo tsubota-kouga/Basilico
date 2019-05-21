@@ -21,9 +21,9 @@
             }
             else if(option == "split") {
                 auto&& tab = neovim.nvim_get_current_tabpage();
-                neovim_layout.addWidget(tmp, 1, 2);
-                auto&& [r, c, w, h] = tmp->splitPluginPosition(this, tab);
-                SplitPlugins.emplace(tab, std::make_tuple(tmp, r, c, w, h));
+                tmp->resize(neovim.size());
+                neovim_split_plugins_integrate.addWidget(tmp);
+                SplitPlugins.emplace(tab, tmp);
                 tmp->setPluginType(PluginType::split);
                 addPlugin("{{name}}", tmp);
             }
