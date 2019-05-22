@@ -29,8 +29,7 @@ void NeoVim::set_neovim_html()
 {
     if(!need_update){ return; }
     QString screen;
-    if(is_ext_linegrid)
-    {
+    if(is_ext_linegrid) {
         // default color
         auto [drf, dgf, dbf] = nvim_html::convert_rgb(
                 boost::get<uInteger>(nvim_hl_attr.at(0).rgb_attr.at("foreground")));
@@ -59,8 +58,7 @@ void NeoVim::set_neovim_html()
         screen.append("<body>\n");
 
         Integer special_color;
-        for(int i = 0;i < nvim_screen.size();i++)
-        {
+        for(int i = 0;i < nvim_screen.size();i++) {
             // COLORS
             Integer current_color_id = nvim_grid_colors_map.at(i).at(0);
             String color_part;
@@ -73,9 +71,8 @@ void NeoVim::set_neovim_html()
             current_bg = hl_attr_get<uInteger>(current_color_id, "background");
 
             current_is_reverse = hl_attr_get<bool>(current_color_id, "reverse");
-            if(current_is_reverse)
+            if(current_is_reverse) {
                 /* swap */
-            {
                 auto tmp = current_bg;
                 current_bg = current_fg;
                 current_fg = tmp;
@@ -88,21 +85,17 @@ void NeoVim::set_neovim_html()
             current_is_underline = hl_attr_get<bool>(current_color_id, "underline");
             current_is_undercurl = hl_attr_get<bool>(current_color_id, "undercurl");
 
-            if(current_is_underline or current_is_undercurl)
-            {
-                if(nvim_hl_attr.at(current_color_id).rgb_attr.count("special") == 1)
-                {
+            if(current_is_underline or current_is_undercurl) {
+                if(nvim_hl_attr.at(current_color_id).rgb_attr.count("special") == 1) {
                     special_color = boost::get<uInteger>(
                             nvim_hl_attr.at(current_color_id).rgb_attr.at("special"));
                 }
                 else if(auto special_orig =
                         nvim_hl_attr.at(default_idx).rgb_attr.at("special");
-                        special_orig.is_uint64_t())
-                {
+                        special_orig.is_uint64_t()) {
                     special_color = boost::get<uInteger>(special_orig);
                 }
-                else
-                {
+                else {
                     special_color = boost::get<Integer>(special_orig);
                 }
             }
@@ -137,13 +130,11 @@ void NeoVim::set_neovim_html()
                         ).arg(frf).arg(fgf).arg(fbf).arg(frb).arg(fgb).arg(fbb));
             //</end>
 
-            for(int j = 0;j < nvim_grid_colors_map.at(i).size();j++)
-            {
+            for(int j = 0;j < nvim_grid_colors_map.at(i).size();j++) {
                 Integer next_color_id;
                 next_color_id = nvim_grid_colors_map.at(i).at(j);
 
-                if(current_color_id != next_color_id)
-                {
+                if(current_color_id != next_color_id) {
                     uInteger next_fg, next_bg;
 
                     next_fg = hl_attr_get<uInteger>(next_color_id, "foreground");
@@ -160,9 +151,8 @@ void NeoVim::set_neovim_html()
 
                     color_part = "";
                     next_is_reverse = hl_attr_get<bool>(next_color_id, "reverse");
-                    if(next_is_reverse)
+                    if(next_is_reverse) {
                         /* swap */
-                    {
                         auto tmp = next_bg;
                         next_bg = next_fg;
                         next_fg = tmp;
@@ -170,21 +160,17 @@ void NeoVim::set_neovim_html()
                     auto [rf, gf, bf] = nvim_html::convert_rgb(next_fg);
                     auto [rb, gb, bb] = nvim_html::convert_rgb(next_bg);
 
-                    if(next_is_underline or next_is_undercurl)
-                    {
-                        if(nvim_hl_attr.at(next_color_id).rgb_attr.count("special") == 1)
-                        {
+                    if(next_is_underline or next_is_undercurl) {
+                        if(nvim_hl_attr.at(next_color_id).rgb_attr.count("special") == 1) {
                             special_color = boost::get<uInteger>(
                                     nvim_hl_attr.at(next_color_id).rgb_attr.at("special"));
                         }
                         else if(auto special_orig =
                                 nvim_hl_attr.at(default_idx).rgb_attr.at("special");
-                                special_orig.is_uint64_t())
-                        {
+                                special_orig.is_uint64_t()) {
                             special_color = boost::get<uInteger>(special_orig);
                         }
-                        else
-                        {
+                        else {
                             special_color = boost::get<Integer>(special_orig);
                         }
                     }
@@ -224,8 +210,7 @@ void NeoVim::set_neovim_html()
                     (j == nvim_cursor_x) and (i == nvim_cursor_y)
                     and cursorShape != "vertical" and not is_busy;
 
-                if(cursor_positioned)
-                {
+                if(cursor_positioned) {
                     uInteger next_fg, next_bg;
                     next_fg = hl_attr_get<uInteger>(next_color_id, (next_is_reverse) ? "background" : "foreground");
                     next_bg = hl_attr_get<uInteger>(next_color_id, (next_is_reverse) ? "foreground" : "background");
@@ -235,16 +220,14 @@ void NeoVim::set_neovim_html()
                     nvim_html::html_escape(color_part, wchar_font_size_px);
                     screen.append(QString::fromStdString(color_part));
                     color_part = "";
-                    if(cursorShape == "block")
-                    {
+                    if(cursorShape == "block") {
                         screen.append(QString(
                                     "<span style=\""
                                     "color: rgb(%1, %2, %3);"
                                     "background-color:rgb(%4, %5, %6);\">"
                                     ).arg(rb).arg(gb).arg(bb).arg(rf).arg(gf).arg(bf));
                     }
-                    else if(cursorShape == "horizontal")
-                    {
+                    else if(cursorShape == "horizontal") {
                         screen.append(QString(
                                     "<span style=\""
                                     "text-decoration: underline;"
@@ -255,8 +238,7 @@ void NeoVim::set_neovim_html()
                 //</cursor setting>
 
                 color_part += nvim_screen.at(i).at(j);
-                if(cursor_positioned)
-                {
+                if(cursor_positioned) {
                     nvim_html::html_escape(color_part, wchar_font_size_px);
                     screen.append(QString::fromStdString(color_part));
                     screen.append("</span>");
@@ -303,8 +285,7 @@ void NeoVim::set_font_size_px(int px)
 
 bool NeoVim::event(QEvent* e)
 {
-    switch (e->type())
-    {
+    switch (e->type()) {
         default:
             return QTextEdit::event(e);
     }
@@ -315,8 +296,7 @@ void NeoVim::keyPressEvent(QKeyEvent* e)
     if(input_control_flag){ return; }
     std::cout << e->key() << std::endl;
     isKeyPressed = true;
-    switch(e->key())
-    {
+    switch(e->key()) {
         case Qt::Key_Escape:
             nvim_input("<Esc>");
             break;
@@ -472,14 +452,12 @@ void NeoVim::keyPressEvent(QKeyEvent* e)
             break;
 
         default:
-            if(e->text().size() == 1 and e->text().at(0).isPrint())
-            {
+            if(e->text().size() == 1 and e->text().at(0).isPrint()) {
                 keySend(e,
                         e->text().toUtf8().data(),
                         e->text().size() == 1 and !e->text().at(0).isLetterOrNumber());
             }
-            else if(e->text().size() == 1 and 0x20 < e->key() and e->key() < 0x80)
-            {
+            else if(e->text().size() == 1 and 0x20 < e->key() and e->key() < 0x80) {
                 keySend(e,
                         String{ static_cast<char>(e->key()) },
                         e->text().size() == 1 and !e->text().at(0).isLetterOrNumber());
@@ -490,10 +468,8 @@ void NeoVim::keyPressEvent(QKeyEvent* e)
 
 void NeoVim::timerEvent(QTimerEvent* e)
 {
-    if(e->timerId() == timer)
-    {
-        while(!input_deque.empty())
-        {
+    if(e->timerId() == timer) {
+        while(!input_deque.empty()) {
             auto&& input = input_deque.front();
             nvim_input(input);
             input_deque.pop_front();
@@ -502,8 +478,7 @@ void NeoVim::timerEvent(QTimerEvent* e)
             }
         }
         operation();
-        if(nvim_hl_attr.size() > 0)
-        {
+        if(nvim_hl_attr.size() > 0) {
             set_neovim_html();
         }
     }
@@ -526,81 +501,63 @@ void NeoVim::resizeEvent(QResizeEvent* e)
 
 void NeoVim::mousePressEvent(QMouseEvent* e)
 {
-    if(e->button() & Qt::LeftButton)
-    {
+    if(e->button() & Qt::LeftButton) {
         mouseSend(e, "press", "left", 0);
     }
-    else if(e->button() & Qt::RightButton)
-    {
+    else if(e->button() & Qt::RightButton) {
         mouseSend(e, "press", "right", 0);
     }
-    else if(e->button() & Qt::MiddleButton)
-    {
+    else if(e->button() & Qt::MiddleButton) {
         mouseSend(e, "press", "middle", 0);
     }
-    else if(e->button() & Qt::ForwardButton)
-    {
+    else if(e->button() & Qt::ForwardButton) {
     }
-    else if(e->button() & Qt::BackButton)
-    {
+    else if(e->button() & Qt::BackButton) {
     }
 }
 
 void NeoVim::mouseReleaseEvent(QMouseEvent* e)
 {
-    if(e->button() & Qt::LeftButton)
-    {
+    if(e->button() & Qt::LeftButton) {
         mouseSend(e, "release", "left", 0);
     }
-    else if(e->button() & Qt::RightButton)
-    {
+    else if(e->button() & Qt::RightButton) {
         mouseSend(e, "release", "right", 0);
     }
-    else if(e->button() & Qt::MiddleButton)
-    {
+    else if(e->button() & Qt::MiddleButton) {
         mouseSend(e, "release", "middle", 0);
     }
-    else if(e->button() & Qt::ForwardButton)
-    {
+    else if(e->button() & Qt::ForwardButton) {
     }
-    else if(e->button() & Qt::BackButton)
-    {
+    else if(e->button() & Qt::BackButton) {
     }
 }
 
 void NeoVim::mouseMoveEvent(QMouseEvent* e)
 {
-    if(e->buttons() & Qt::LeftButton)
-    {
+    if(e->buttons() & Qt::LeftButton) {
         mouseSend(e, "drag", "left", 0);
     }
-    else if(e->buttons() & Qt::RightButton)
-    {
+    else if(e->buttons() & Qt::RightButton) {
         mouseSend(e, "drag", "right", 0);
     }
-    else if(e->buttons() & Qt::MiddleButton)
-    {
+    else if(e->buttons() & Qt::MiddleButton) {
         mouseSend(e, "drag", "middle", 0);
     }
-    else if(e->buttons() & Qt::ForwardButton)
-    {
+    else if(e->buttons() & Qt::ForwardButton) {
     }
-    else if(e->buttons() & Qt::BackButton)
-    {
+    else if(e->buttons() & Qt::BackButton) {
     }
 }
 
 void NeoVim::wheelEvent(QWheelEvent* e)
 {
     auto numDegrees = e->angleDelta() / 8;
-    if(!numDegrees.isNull())
-    {
-        if(numDegrees.ry() > 0)
-        {
+    if(!numDegrees.isNull()) {
+        if(numDegrees.ry() > 0) {
             mouseSend(e, "up", "wheel", 0);
         }
-        else if(numDegrees.ry() < 0)
-        {
+        else if(numDegrees.ry() < 0) {
             mouseSend(e, "down", "wheel", 0);
         }
     }
@@ -633,8 +590,7 @@ void NeoVim::dragMoveEvent(QDragMoveEvent* e)
 void NeoVim::tabline_update(Tabpage current, const Array& tabs)
 {
     int tabline_size = nvim_tabline.size();
-    for(auto&& c: tabs)
-    {
+    for(auto&& c: tabs) {
         auto tab_dict = boost::get<Dictionary>(c);
         auto&& itr_tab = tab_dict.find("tab");
         auto&& tab = boost::get<Tabpage>(itr_tab->second);
@@ -644,8 +600,7 @@ void NeoVim::tabline_update(Tabpage current, const Array& tabs)
 
         nvim_tabline.push_back(make_pair(tab, name));
     }
-    for(int i = 0;i < tabline_size;i++)
-    {
+    for(int i = 0;i < tabline_size;i++) {
         nvim_tabline.pop_front();
     }
     parent->changeTabNeoVim(nvim_tabline, current);
@@ -676,10 +631,8 @@ void NeoVim::cursor_shape_and_pos()
     std::cout << nvim_cursor_y << std::endl;
     auto num_wchar = 0;
     auto pos_x = 0;
-    for(uint i = 0;i < nvim_cursor_x;i++)  // nvim_cursor_x include empty char:[]
-    {
-        if(nvim_screen.at(nvim_cursor_y).at(i) != "")
-        {
+    for(uint i = 0;i < nvim_cursor_x;i++) {  // nvim_cursor_x include empty char:[]
+        if(nvim_screen.at(nvim_cursor_y).at(i) != "") {
             pos_x++;
         }
     }
@@ -695,8 +648,7 @@ void NeoVim::popupmenu_show(const Array& items, Integer selected, Integer row, I
     completion_info.resize(items.size());
     popupmenu_pos = std::make_pair(row, col);
     popupmenu_selected = selected;
-    for(int i = 0;i < items.size();i++)
-    {
+    for(int i = 0;i < items.size();i++) {
         auto&& item = boost::get<Array>(items.at(i));
         completion_info.at(i) = std::make_tuple(
                 boost::get<String>(item.at(0)),
@@ -707,8 +659,7 @@ void NeoVim::popupmenu_show(const Array& items, Integer selected, Integer row, I
     }
 
     parent->get_nvim_comp().clear();
-    for(auto&& [word, kind, menu, info]: completion_info)
-    {
+    for(auto&& [word, kind, menu, info]: completion_info) {
         parent->get_nvim_comp().addItem(QString::fromStdString(word));
     }
 
@@ -739,13 +690,11 @@ void NeoVim::fkeySend(QKeyEvent* e, Integer key)
 void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 {
     if(input_control_flag){ return; }
-    if(e->modifiers() == Qt::NoModifier)
-    {
+    if(e->modifiers() == Qt::NoModifier) {
         // (key.size() == 1) ? nvim_input(key) : nvim_input("<" + key + ">");
         (key.size() == 1) ? input_deque.push_back(key) : input_deque.push_back("<" + key + ">");
     }
-    else
-    {
+    else {
         String k = "";
         if(e->modifiers() == Qt::ShiftModifier and !no_shift){ k += "S-"; }
         if(e->modifiers() == Qt::ControlModifier){ k += "C-"; }
@@ -765,8 +714,7 @@ void NeoVim::keySend(QInputEvent* e, const String& key, bool no_shift)
 
 void NeoVim::keySend(QInputEvent* e, const Integer& key)
 {
-    if(e->modifiers() == Qt::NoModifier)
-    {
+    if(e->modifiers() == Qt::NoModifier) {
         // nvim_input(std::to_string(key));
         input_deque.push_back(std::to_string(key));
         return;
@@ -775,14 +723,13 @@ void NeoVim::keySend(QInputEvent* e, const Integer& key)
     if(e->modifiers() & Qt::ShiftModifier){ k += "S-"; }
     if(e->modifiers() & Qt::ControlModifier){ k += "C-"; }
     if(e->modifiers() & Qt::AltModifier){ k += "A-"; }
-    if(e->modifiers() & Qt::KeypadModifier)
-    {
+    if(e->modifiers() & Qt::KeypadModifier) {
         // nvim_input(k + "k" + std::to_string(key));
-        input_deque.push_back(k + "k" + std::to_string(key));
+        // input_deque.push_back(k + "k" + std::to_string(key));
+        input_deque.push_back(std::to_string(key));
         return;
     }
-    else
-    {
+    else {
         keyModNumberMap(k + std::to_string(key));
     }
 }
@@ -791,16 +738,12 @@ void NeoVim::mouseSend(QPoint pos, const String& modifiers, const String& action
 {
     QTextCursor c = cursorForPosition(pos);
     int row = 0, col = 0, num_char = 0;
-    for(row = 0;row < nvim_screen.size();row++)
-    {
-        for(col = 0;col < nvim_screen.at(row).size();col++)
-        {
-            if(nvim_screen.at(row).at(col) != "")
-            {
+    for(row = 0;row < nvim_screen.size();row++) {
+        for(col = 0;col < nvim_screen.at(row).size();col++) {
+            if(nvim_screen.at(row).at(col) != "") {
                 num_char++;
             }
-            if(num_char == c.position())
-            {
+            if(num_char == c.position()) {
                 // TODO
                 std::cout << row << ", " << col << std::endl;
                 std::cout << num_char << ", " << c.position() << std::endl;
@@ -877,13 +820,11 @@ void NeoVim::cursor_shape(Mode m)
                  (m == Mode::showmatch) ? "showmatch" : "???";
 
     cursorShape = boost::get<String>(ui_mode_info[key]["cursor_shape"]);
-    if(cursorShape == "vertical")
-    {
+    if(cursorShape == "vertical") {
         auto percent = boost::get<uInteger>(ui_mode_info[key]["cell_percentage"]);
         setReadOnly(percent == 0);setCursorWidth(1);
     }
-    else
-    {
+    else {
         setReadOnly(true);setCursorWidth(0);
     }
     cursorColorId = boost::get<uInteger>(ui_mode_info[key]["attr_id"]);
@@ -897,8 +838,7 @@ void NeoVim::tabline_change(int idx)
 
 void nvim_html::html_escape(std::string& s, int wchar_size)
 {
-    std::unordered_map<std::string, std::string> special_char
-    {
+    std::unordered_map<std::string, std::string> special_char {
         {"<", "&lt;"},
         {">", "&gt;"},
         {"¦", "&brvbar;"},
@@ -908,11 +848,9 @@ void nvim_html::html_escape(std::string& s, int wchar_size)
         {"&", "&amp;"},
     };
 
-    for(const auto& [from, to]: special_char)
-    {
+    for(const auto& [from, to]: special_char) {
         std::string::size_type pos = 0;
-        while((pos = s.find(from, pos)) != std::string::npos)
-        {
+        while((pos = s.find(from, pos)) != std::string::npos) {
             s.replace(pos, from.size(), to);
             pos += to.size();
         }
@@ -920,8 +858,7 @@ void nvim_html::html_escape(std::string& s, int wchar_size)
 
     bool is_prev_ascii = true;
     bool tag_open = false;
-    auto append_begin_tag = [&](auto& s, auto& i)
-    {
+    auto append_begin_tag = [&](auto& s, auto& i) {
         if(is_prev_ascii){
             const std::string html = "<span style=\"font-size: " + std::to_string(wchar_size) + "px;\">";
             s.insert(i, html);
@@ -930,8 +867,7 @@ void nvim_html::html_escape(std::string& s, int wchar_size)
             tag_open = true;
         }
     };
-    auto append_end_tag = [&](auto& s, auto& i)
-    {
+    auto append_end_tag = [&](auto& s, auto& i) {
         if(!is_prev_ascii){
             const std::string html = "</span>";
             s.insert(i, html);
@@ -965,14 +901,12 @@ void nvim_html::html_escape(std::string& s, int wchar_size)
         {
             append_begin_tag(s, i);
         }
-        else
-        {
+        else {
             append_end_tag(s, i);
         }
         i += size;
     }
-    if(tag_open)
-    {
+    if(tag_open) {
         std::string html = "</span>";
         s.append(html);
     }
@@ -991,8 +925,7 @@ int nvim_html::how_many_div_by_exp2(unsigned char c)
     int i = sizeof(c)*8 - 1;
     int ans = 0;
     for(int e = static_cast<unsigned char>(std::exp2(i));
-            c >= e;c -= e, e = static_cast<unsigned char>(std::exp2(--i)))
-    {
+            c >= e;c -= e, e = static_cast<unsigned char>(std::exp2(--i))) {
         ++ans;
     }
     return ans;
@@ -1003,23 +936,19 @@ std::pair<unsigned, unsigned> nvim_html::utf8_ord(const std::string& str, int& i
     const unsigned char& c = str.at(i);
     unsigned codepoint = 0;
     unsigned size = 0;
-    if (c < 0x80)
-    {
+    if (c < 0x80) {
         codepoint = str.at(i);
         size = 1;
     }
-    else if (c < 0xE0)
-    {
+    else if (c < 0xE0) {
         codepoint = ((str.at(i) & 0x1F) << 6) | (str.at(i + 1) & 0x3F);
         size = 2;
     }
-    else if (c < 0xF0)
-    {
+    else if (c < 0xF0) {
         codepoint = ((str.at(i) &  0xF) << 12) | ((str.at(i + 1) & 0x3F) <<  6) | (str[i + 2] & 0x3F);
         size = 3;
     }
-    else
-    {
+    else {
         codepoint = ((str.at(i) &  0x7) << 18) | ((str.at(i + 1) & 0x3F) << 12) | ((str.at(i + 2) & 0x3F) <<  6) | (str.at(i + 3)  & 0x3F);
         size = 4;
     }

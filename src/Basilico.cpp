@@ -235,19 +235,15 @@ Tabpage Basilico::makeTabForPlugin(String name)
 
 bool Basilico::eventFilter(QObject* obj, QEvent* e)
 {
-    if(&neovim == obj)
-    {
-        switch (e->type())
-        {
+    if(&neovim == obj) {
+        switch (e->type()) {
             case QEvent::FocusOut:
-                if(static_cast<QFocusEvent*>(e)->reason() == Qt::TabFocusReason)
-                {
+                if(static_cast<QFocusEvent*>(e)->reason() == Qt::TabFocusReason) {
                     neovim.setFocus();
                     neovim.nvim_input("<Tab>");
                     return true;
                 }
-                else
-                {
+                else {
                     return false;
                 }
                 break;
@@ -301,16 +297,13 @@ void Basilico::timerEvent(QTimerEvent* e)
 
 void Basilico::mousePressEvent(QMouseEvent* e)
 {
-    if(e->button() == Qt::LeftButton)
-    {
+    if(e->button() == Qt::LeftButton) {
 
     }
-    else if(e->button() == Qt::RightButton)
-    {
+    else if(e->button() == Qt::RightButton) {
 
     }
-    else if(e->button() == Qt::MiddleButton)
-    {
+    else if(e->button() == Qt::MiddleButton) {
 
     }
 }
