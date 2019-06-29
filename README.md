@@ -48,6 +48,16 @@
     pip install jinja2
     ```
 
+* Packaging
+    ```shell
+    pip install packaging
+    ```
+
+* Pynvim
+    ```shell
+    pip install pynvim
+    ```
+
 You can install with this
 
 [Neovim]:https://github.com/neovim/neovim/releases

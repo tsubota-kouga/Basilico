@@ -2,22 +2,28 @@
 from jinja2 import Template, Environment, FileSystemLoader
 from pynvim import attach
 from glob import glob
+from packaging import version
 import os, sys, re
 import toml
 
-fill = {}
+# Basilico dependency
+fill = {
+    'qt_version': '5.7',
+    'boost_version': '1.55',
+    'qt_dependency': ['Widgets', 'Core'],
+    'boost_dependency': ['system', 'thread'],
+    'plugin_paths': [],
+    'plugin_name': [],
+    'autocmd': [],
+    'resource': [],
+    }
+
+
 this_dir = os.path.abspath(os.path.dirname(__file__))
 env = Environment(loader=FileSystemLoader(this_dir  + '/template'))
 
 # no gui plugins
-if len(sys.argv) >= 3 and sys.argv[2] == 'np':
-    # dependency for Basilico
-    fill['qt_version'] = 5.7
-    fill['boost_version'] = 1.55
-    fill['qt_dependency'] = ['Widgets', 'Core']
-    fill['boost_dependency'] = ['system', 'thread']
-
-else:
+if not (len(sys.argv) >= 3 and sys.argv[2] == 'np'):
     if len(sys.argv) >= 2:
         path = sys.argv[1]
     else:
@@ -27,15 +33,6 @@ else:
     nvim = attach('socket', path=path)
 
     basil_file_name = 'basil.toml'
-
-    fill['qt_version'] = 5.7
-    fill['boost_version'] = 1.55
-    fill['qt_dependency'] = ['Widgets', 'Core']
-    fill['boost_dependency'] = ['system', 'thread']
-    fill['plugin_paths'] = []
-    fill['plugin_name'] = []
-    fill['autocmd'] = []
-    fill['resource'] = []
 
 # array
     runtimepath = nvim.eval('&runtimepath').split(',')
@@ -61,10 +58,13 @@ else:
             if 'neovim' in f.keys():
                 fill['autocmd'].extend(f['neovim'].setdefault('autocmd', ''))
             fill['qt_version'] = f['dependency']['qt_version'] \
-                    if fill['qt_version'] < f['dependency'].setdefault('qt_version', 0) else fill['qt_version']
+                if version.parse(fill['qt_version']) \
+                    < version.parse(f['dependency'].setdefault('qt_version', '0')) \
+                else fill['qt_version']
             fill['boost_version'] = f['dependency']['boost_version'] \
-                    if fill['boost_version'] < f['dependency'].setdefault('boost_version', 0)\
-                    else fill['boost_version']
+                if version.parse(fill['boost_version']) \
+                    < version.parse(f['dependency'].setdefault('boost_version', '0')) \
+                else fill['boost_version']
 
         if 'asset' in f.keys():
             path_list = f['asset'].setdefault('resource', [])
